@@ -20,13 +20,13 @@ tsls(object, ...)
 tsls.formula(model, instruments, data, subset, na.action, contrasts=NULL)
 tsls.default(y, X, Z, names=NULL)
 
-print.tsls(x)
-summary.tsls(object, digits=4)
-anova.tsls(model.1, model.2, s2, dfe)
+print.tsls(x, ...)
+summary.tsls(object, digits=4, ...)
+anova.tsls(object, model.2, s2, dfe, ...)
 
-fitted.tsls(object)
-residuals.tsls(object)
-coefficients.tsls(object)
+fitted.tsls(object, ...)
+residuals.tsls(object, ...)
+coefficients.tsls(object, ...)
 }
 
 \arguments{
@@ -47,7 +47,7 @@ coefficients.tsls(object)
   \item{X}{Matrix of predictors, including a constant (if one is in the model).}
   \item{Z}{Matrix of instrumental variables, including a constant (if one is in the model).}
   \item{names}{optional character vector of names for the columns of the \code{X} matrix.}
-  \item{model.1, model.2}{objects of class \code{tsls} returned by \code{tsls.formula}, 
+  \item{x, object, model.2}{objects of class \code{tsls} returned by \code{tsls.formula}, 
     containing nested models
     to be compared by an incremental \eqn{F}-test. One model should be nested in the other; the
     order of models is immaterial.}
@@ -55,8 +55,8 @@ coefficients.tsls(object)
     If missing, the error-variance estimate is taken from the larger model.}
   \item{dfe}{optional error degrees of freedom, to be specified when an estimate of error
     variance is given.}
-  \item{x, object}{an object of class of \code{tsls} returned by \code{tsls.formula}.
   \item{digits}{number of digits for summary output.}
+  \item{...}{not for the user.}
 }
 
 }

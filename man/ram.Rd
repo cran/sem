@@ -8,14 +8,14 @@
 }
 
 \usage{
-ram(object, digits=5, start.values=F)
+ram(object, digits=5, startvalues=F)
 }
 
 
 \arguments{
   \item{object}{an object of class \code{sem} returned by the \code{sem} function.}
   \item{digits}{number of digits for printed output.}
-  \item{start.values}{if \code{TRUE}, start values for parameters are printed;
+  \item{startvalues}{if \code{TRUE}, start values for parameters are printed;
     otherwise, the parameter estimates are printed; the default is \code{FALSE}.}
 }
 

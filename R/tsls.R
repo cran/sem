@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 1 Aug 2001 by J. Fox
+# last modified 21 Nov 2001 by J. Fox
 
 tsls <- function(object, ...){
     UseMethod("tsls")
@@ -10,9 +10,10 @@ tsls <- function(object, ...){
 tsls.default <- function (y, X, Z, names=NULL) {
     n <- length(y)
     p <- ncol(X)
-    invZtZ <- solve(t(Z) %*% Z)
-    V <- solve(t(X) %*% Z %*% invZtZ %*% t(Z) %*% X)
-    b <- V %*% t(X) %*% Z %*% invZtZ %*% t(Z) %*% y
+    invZtZ <- solve(crossprod(Z))
+    XtZ <- crossprod(X, Z)
+    V <- solve(XtZ %*% invZtZ %*% t(XtZ))
+    b <- V %*% XtZ %*% invZtZ %*% crossprod(Z, y)
     residuals <- y - X %*% b
     s2 <- sum(residuals^2)/(n - p)
     V <- s2*V
@@ -40,9 +41,9 @@ tsls.formula <- function(model, instruments, data, subset,
     m <- match.call(expand.dots = FALSE)
     if (is.matrix(eval(m$data, sys.frame(sys.parent())))) 
         m$data <- as.data.frame(data)
-    c1 <- as.character(model)
-    c2 <- as.character(instruments)
-    formula <- as.formula(paste(c1[2],c1[1],c1[3], '+', c2[2]))
+    response.name <- deparse(model[[2]])
+    formula <- as.formula(paste(response.name, '~', 
+        deparse(model[[3]]), '+', deparse(instruments[[2]])))
     m$formula <- formula
     m$instruments <- m$model <- m$contrasts <- NULL
     m[[1]] <- as.name("model.frame")
@@ -53,7 +54,7 @@ tsls.formula <- function(model, instruments, data, subset,
     y <- mf[,response]
     X <- model.matrix(model, data=mf, contrasts)
     result <- tsls(y, X, Z, colnames(X))
-    result$response.name <- c1[2]
+    result$response.name <- response.name
     result$formula <- model
     result$instruments <- instruments
     if (!is.null(na.act)) 
@@ -62,7 +63,7 @@ tsls.formula <- function(model, instruments, data, subset,
     result
     }
 
-print.tsls <- function(x){
+print.tsls <- function(x, ...){
     cat("\nModel Formula: ")
     print(x$formula)
     cat("\nInstruments: ")
@@ -74,7 +75,7 @@ print.tsls <- function(x){
     }
     
     
-summary.tsls <- function(object, digits=4){
+summary.tsls <- function(object, digits=4, ...){
     save.digits <- unlist(options(digits=digits))
     on.exit(options(digits=save.digits))
     cat("\n 2SLS Estimates\n")
@@ -98,29 +99,29 @@ summary.tsls <- function(object, digits=4){
         "on", df, "degrees of freedom\n\n"))
     }
     
-residuals.tsls <- function(object){
+residuals.tsls <- function(object, ...){
     res <- object$residuals
     if (is.null(object$na.action)) 
         res
     else naresid(object$na.action, res)
     }
 
-coefficients.tsls <- function(object){
+coefficients.tsls <- function(object, ...){
     object$coefficients
     }
     
-fitted.tsls <- function(object){
+fitted.tsls <- function(object, ...){
     yhat <- as.vector(object$model.matrix %*% object$coefficients)
     if (is.null(object$na.action)) 
         yhat
     else napredict(object$na.action, yhat)
     }
     
-anova.tsls <- function(model.1, model.2, s2, dfe){
+anova.tsls <- function(object, model.2, s2, dfe, ...){
     if(class(model.2) != "tsls") stop('requires two models of class tsls')
-    s2.1 <- model.1$s^2
-    n.1 <- model.1$n 
-    p.1 <- model.1$p
+    s2.1 <- object$s^2
+    n.1 <- object$n 
+    p.1 <- object$p
     dfe.1 <- n.1 - p.1
     s2.2 <- model.2$s^2
     n.2 <- model.2$n
@@ -152,8 +153,8 @@ anova.tsls <- function(model.1, model.2, s2, dfe){
         rows <- c("Model 1", "Model 2", "Error")
         }
     table <- data.frame(Res.Df, RSS, Df, SS, F, P)
-    head.1 <- paste("Model 1: ",format(model.1$formula), "  Instruments:", 
-        format(model.1$instruments))
+    head.1 <- paste("Model 1: ",format(object$formula), "  Instruments:", 
+        format(object$instruments))
     head.2 <- paste("Model 2: ",format(model.2$formula), "  Instruments:", 
         format(model.2$instruments))
     names(table) <- c("Res.Df", "RSS", "Df", "Sum of Sq", "F", "Pr(>F)")

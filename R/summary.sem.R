@@ -1,6 +1,6 @@
 # last modified 25 July 2001 by J. Fox
 
-summary.sem <- function(object, digits=5) {
+summary.sem <- function(object, digits=5, ...) {
     norm.res <- normalized.residuals(object)
     se <- sqrt(diag(object$cov))
     z <- object$coeff/se
@@ -34,7 +34,7 @@ summary.sem <- function(object, digits=5) {
     ans
     }
     
-print.summary.sem <- function(x){
+print.summary.sem <- function(x, ...){
     old.digits <- options(digits=x$digits)
     on.exit(options(old.digits))
     cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 

@@ -1,7 +1,8 @@
-# last modified 27 July 2001 by J. Fox
+# last modified 23 Dec 2001 by J. Fox
 
-start.values <- function(S, ram, observed){
-    n <- nrow(S)        
+startvalues <- function(S, ram){
+    n <- nrow(S) 
+    observed <- 1:n       
     m <- max(ram[,2])            
     t <- max(ram[,4])   
     s <- sqrt(diag(S))
