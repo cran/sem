@@ -1,9 +1,9 @@
-# last modified 28 Feb 2004 by J. Fox
+# last modified 9 Dec 2004 by J. Fox
 
 startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     n <- nrow(S) 
     observed <- 1:n       
-    m <- max(ram[,2])            
+    m <- max(ram[,c(2,3)])            
     t <- max(ram[,4])   
     s <- sqrt(diag(S))
     R <- S/outer(s,s)

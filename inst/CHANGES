@@ -62,3 +62,7 @@ Changes to Version 0.8-1
 
    o Fixed a bug in tsls.formula that caused the function to fail when the printed representation of the instruments formula extended over more than one line.
    
+Changes to Version 0.8-2
+
+   o Fixed a bug in startvalues() and sem.default() that caused the variables (observed + unobserved) in the model to be counted incorrectly in some (unusual) circumstances.
+   
