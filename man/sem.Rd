@@ -180,6 +180,24 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   \item{iterations}{number of iterations performed}.
 }
 
+\section{Warning}{
+    A common error is to fail to specify variance or covariance terms in the model, which are denoted by double-headed arrows, 
+    \code{<->}.
+    
+    In general, every observed or latent variable in the model should be associated with a variance or error variance. This may be
+    a free parameter to estimate or a fixed constant (as in the case of a latent exogenous variable for which you wish to fix the variance, e.g.,
+    to 1). Again in general, there will be an \emph{error variance} associated with each endogenous variable in the model (i.e., each variable
+    to which at least one single-headed arrow points --- including observed indicators of latent variables), 
+    and a \emph{variance} associated with each exogenous variable (i.e., each variable that
+    appears only at the tails of single-headed arrows, never at the head).
+    
+    To my knowledge, the only \emph{apparent} exception to this rule is for observed variables that are declared to be fixed exogenous variables.
+    In this case, the program generates the necessary (fixed-constant) variances and covariances automatically.
+    
+    If there are missing variances, a warning message will be printed, and estimation will almost surely fail in some manner. Missing
+    variances might well indicate that there are missing covariances too, but it is not possible to deduce this in a mechanical manner.
+}
+
 \references{
     Bollen, K. A. (1989) 
     \emph{Structural Equations With Latent Variables.} Wiley.

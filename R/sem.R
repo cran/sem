@@ -1,4 +1,4 @@
-# last modified 28 Feb 04 by J. Fox
+# last modified 7 Mar 04 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -98,6 +98,10 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
             }
         }
     m <- max(ram[,2])
+    missing.variances <- setdiff(1:m, ram[,2][ram[,2] == ram[,3]])
+    if (length(missing.variances) > 0) warning(paste("The following variables have no variance or error-variance parameter (double-headed arrow):\n",
+        paste(var.names[missing.variances], collapse=", "), 
+        "\nThe model is almost surely misspecified; check also for missing covariances.\n"))
     t <- max(ram[,4])
     df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
     if (df < 0) stop(paste("The model has negative degrees of freedom =", df))

@@ -53,6 +53,10 @@ Changes to Version 0.7-9
    o Fixed bug that caused a model with only one endogenous variable to fail.
    
    o Improved computation of RMSEA confidence limits
+   
+Changes to Version 0.8-0
+
+   o Put in a warning for (unfixed) observed or latent variable without either variance or error-variance term specified (i.e., double-headed arrow). As far as I know, this will always produce an error.
 
 
    

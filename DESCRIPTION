@@ -1,6 +1,6 @@
 Package: sem
-Version: 0.7-9
-Date: 2004/2/28
+Version: 0.8-0
+Date: 2004/3/7
 Title: Structural Equation Models
 Author: John Fox <jfox@mcmaster.ca>
 Maintainer: John Fox <jfox@mcmaster.ca>
@@ -11,3 +11,4 @@ Description: This package contains functions for fitting general linear structur
     in observed-variable models by two-stage least squares.
 License: GPL version 2 or newer
 URL: http://www.r-project.org, http://www.socsci.mcmaster.ca/jfox/
+Packaged: Wed May  5 09:02:29 2004; John Fox
