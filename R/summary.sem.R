@@ -1,4 +1,4 @@
-# last modified 27 July 2002 by J. Fox
+# last modified 28 Feb 2004 by J. Fox
 
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -21,10 +21,20 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
      else NA
     chisq <- object$criterion * (N - 1)
     RMSEA <- sqrt(max(object$criterion/df - 1/(N - 1), 0))
-    save <- options(warn=-1)
-    lam.U <- optim(0, function(lam) ((1 - conf.level)/2 - pchisq(chisq, df, ncp=lam))^2)$par
-    lam.L <- optim(0, function(lam) (1 - (1 - conf.level)/2 - pchisq(chisq, df, ncp=lam))^2)$par
-    options(save)
+    tail <- (1 - conf.level)/2 
+    max <- 1000
+    while (max > 1){
+        res <- optimize(function(lam) (tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
+        if (sqrt(res$objective) < tail/100) break
+        max <- max/2
+        }
+    lam.U <- if (max <= 1) NA else res$minimum
+    while (max > 1){
+        res <- optimize(function(lam) (1 - tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
+        if (sqrt(res$objective) < tail/100) break
+        max <- max/2
+        }
+    lam.L <- if (max <= 1) NA else res$minimum
     RMSEA.U <- sqrt(lam.U/((N - 1)*df))
     RMSEA.L <- sqrt(lam.L/((N - 1)*df))
     RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)

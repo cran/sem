@@ -1,4 +1,4 @@
-# last modified 6 Oct 2003 by J. Fox
+# last modified 28 Feb 2004 by J. Fox
 
 startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     n <- nrow(S) 
@@ -12,9 +12,9 @@ startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     one.head <- ram[,1] == 1
     start <- (ram[,5])[par.posn]
     A.pat <-matrix(FALSE, m, m)
-    A.pat[ram[one.head, c(2,3)]] <- TRUE
+    A.pat[ram[one.head, c(2,3), drop=FALSE]] <- TRUE
     P.pat <- C <- matrix(0, m, m)
-    P.pat[ram[!one.head, c(2,3)]] <- P.pat[ram[!one.head, c(3,2)]] <- 1
+    P.pat[ram[!one.head, c(2,3), drop=FALSE]] <- P.pat[ram[!one.head, c(3,2), drop=FALSE]] <- 1
     C[observed, observed] <- R
     for (l in latent) {
         indicators <- A.pat[observed, l]

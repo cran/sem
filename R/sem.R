@@ -1,4 +1,4 @@
-# last modified 10 Oct 03 by J. Fox
+# last modified 28 Feb 04 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -115,11 +115,11 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     one.head <- ram[,1] == 1
     one.free <- which( (!fixed) & one.head )
     two.free <- which( (!fixed) & (!one.head) )
-    arrows.1 <- ram[one.head, c(2,3)]
-    arrows.2 <- ram[!one.head, c(2,3)]
-    arrows.2t <- ram[!one.head, c(3,2)]
-    arrows.1.free <- ram[one.free,c(2,3)]
-    arrows.2.free <- ram[two.free,c(2,3)]
+    arrows.1 <- ram[one.head, c(2,3), drop=FALSE]
+    arrows.2 <- ram[!one.head, c(2,3), drop=FALSE]
+    arrows.2t <- ram[!one.head, c(3,2), drop=FALSE]
+    arrows.1.free <- ram[one.free,c(2,3), drop=FALSE]
+    arrows.2.free <- ram[two.free,c(2,3), drop=FALSE]
     sel.free.1 <- sel.free[one.free]
     sel.free.2 <- sel.free[two.free]
     unique.free.1 <- unique(sel.free.1)

@@ -259,7 +259,7 @@ summary(sem.dhp.1)
 ##  Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302 
 ##  Goodness-of-fit index =  0.98439 
 ##  Adjusted goodness-of-fit index =  0.94275 
-##  RMSEA index =  0.048759   90% CI: (0.014516, 0.078314) 
+##  RMSEA index =  0.048759   90 percent CI: (0.014516, 0.078314) 
 ##  BIC =  -94.782  
 ##  
 ##  Normalized Residuals 
@@ -334,7 +334,7 @@ summary(sem.dhp.2)
 ##   Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302
 ##   Goodness-of-fit index =  0.98439
 ##   Adjusted goodness-of-fit index =  0.94275
-##   RMSEA index =  0.048759   90% CI: (0.014516, 0.078314)
+##   RMSEA index =  0.048759   90 percent CI: (0.014516, 0.078314)
 ##   BIC =  -94.782 
 ##  
 ##   Normalized Residuals
@@ -414,7 +414,7 @@ summary(sem.wh.1)
 ##   Model Chisquare =  13.485   Df =  9 Pr(>Chisq) = 0.14186
 ##   Goodness-of-fit index =  0.99527
 ##   Adjusted goodness-of-fit index =  0.98896
-##   RMSEA index =  0.023136   90% CI: (0, 0.047004)
+##   RMSEA index =  0.023136   90 percent CI: (0, 0.047004)
 ##   BIC =  -64.177 
 ##  
 ##   Normalized Residuals
@@ -471,7 +471,7 @@ summary(sem.wh.2)
 ##   Model Chisquare =  12.673   Df =  8 Pr(>Chisq) = 0.12360
 ##   Goodness-of-fit index =  0.99553
 ##   Adjusted goodness-of-fit index =  0.98828
-##   RMSEA index =  0.025049   90% CI: (0, 0.049855)
+##   RMSEA index =  0.025049   90 percent CI: (0, 0.049855)
 ##   BIC =  -56.36 
 ##  
 ##   Normalized Residuals
@@ -551,7 +551,7 @@ summary(sem.thur)
 ##   Model Chisquare =  38.196   Df =  24 Pr(>Chisq) = 0.033101
 ##   Goodness-of-fit index =  0.95957
 ##   Adjusted goodness-of-fit index =  0.9242
-##   RMSEA index =  0.052822   90% CI: (0.015262, 0.083058)
+##   RMSEA index =  0.052822   90 percent CI: (0.015262, 0.083058)
 ##   BIC =  -143.21 
 ##  
 ##   Normalized Residuals
@@ -631,7 +631,7 @@ summary(sem.kerch)
 ##   Model Chisquare =  6.537e-13   Df =  0 Pr(>Chisq) = NA
 ##   Goodness-of-fit index =  1
 ##   Adjusted goodness-of-fit index =  NA
-##   RMSEA index =  Inf   90% CI: (Inf, Inf)
+##   RMSEA index =  Inf   90 percent CI: (Inf, Inf)
 ##   BIC =  NA 
 ##  
 ##   Normalized Residuals
