@@ -1,4 +1,4 @@
-# last modified 14 April 2001 by J. Fox
+# last modified 25 July 2001 by J. Fox
 
 standardized.coefficients <- function(object, digits=5){
     old.digits <- options(digits=digits)
@@ -8,7 +8,7 @@ standardized.coefficients <- function(object, digits=5){
     t <- object$t
     par <- object$coeff
     par.posn <- object$par.posn
-    IAinv <- inv(diag(nrow(A)) - A)
+    IAinv <- solve(diag(nrow(A)) - A)
     C <- IAinv %*% P %*% t(IAinv)
     ram <- object$ram
     par.names <- rep(' ', nrow(ram))

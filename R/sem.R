@@ -1,4 +1,4 @@
-# last modified 14 April 2001 by J. Fox
+# last modified 25 July 2001 by J. Fox
 
 sem <- function(S, ram, N, param.names=paste('Param', 1:t, sep=''), 
     var.names=paste('V', 1:m, sep=''), observed=1:n, fixed.x=NULL, 
@@ -36,9 +36,9 @@ sem <- function(S, ram, N, param.names=paste('Param', 1:t, sep=''),
         val <- ifelse (fixed, ram[,5], par[sel.free])
         A[ram[one.head, c(2,3)]] <- val[one.head]
         P[ram[!one.head, c(2,3)]] <- P[ram[!one.head, c(3,2)]] <- val[!one.head]
-        I.Ainv <- inv(diag(m) - A)
+        I.Ainv <- solve(diag(m) - A)
         C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
-        F <- sum(diag(S %*% inv(C))) + log(det(C))
+        F <- sum(diag(S %*% solve(C))) + log(det(C))
         attributes(F) <- list(C=C, A=A, P=P)
         F
         }
@@ -55,7 +55,7 @@ sem <- function(S, ram, N, param.names=paste('Param', 1:t, sep=''),
     result$ram <- ram
     result$coeff <- par
     result$criterion <-  c(obj) - n - log(det(S))
-    cov <- (2/(N - 1)) * inv(res$hessian)
+    cov <- (2/(N - 1)) * solve(res$hessian)
     colnames(cov) <- rownames(cov) <- param.names
     result$cov <- cov
     rownames(S) <- colnames(S) <- var.names[observed]
@@ -80,5 +80,3 @@ sem <- function(S, ram, N, param.names=paste('Param', 1:t, sep=''),
     class(result) <- "sem"
     result
     }
-
-inv <- function(A) solve(A)

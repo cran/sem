@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 27 April 2001 by J. Fox
+# last modified 1 Aug 2001 by J. Fox
 
 tsls <- function(object, ...){
     UseMethod("tsls")
@@ -10,8 +10,8 @@ tsls <- function(object, ...){
 tsls.default <- function (y, X, Z, names=NULL) {
     n <- length(y)
     p <- ncol(X)
-    invZtZ <- inv(t(Z) %*% Z)
-    V <- inv(t(X) %*% Z %*% invZtZ %*% t(Z) %*% X)
+    invZtZ <- solve(t(Z) %*% Z)
+    V <- solve(t(X) %*% Z %*% invZtZ %*% t(Z) %*% X)
     b <- V %*% t(X) %*% Z %*% invZtZ %*% t(Z) %*% y
     residuals <- y - X %*% b
     s2 <- sum(residuals^2)/(n - p)
@@ -47,6 +47,7 @@ tsls.formula <- function(model, instruments, data, subset,
     m$instruments <- m$model <- m$contrasts <- NULL
     m[[1]] <- as.name("model.frame")
     mf <- eval(m, sys.frame(sys.parent()))
+    na.act <- attr(mf, "na.action")
     Z <- model.matrix(instruments, data = mf, contrasts)
     response <- attr(attr(mf, "terms"), "response")
     y <- mf[,response]
@@ -55,6 +56,8 @@ tsls.formula <- function(model, instruments, data, subset,
     result$response.name <- c1[2]
     result$formula <- model
     result$instruments <- instruments
+    if (!is.null(na.act)) 
+        result$na.action <- na.act
     class(result) <- "tsls"
     result
     }
@@ -96,7 +99,10 @@ summary.tsls <- function(object, digits=4){
     }
     
 residuals.tsls <- function(object){
-    object$residuals
+    res <- object$residuals
+    if (is.null(object$na.action)) 
+        res
+    else naresid(object$na.action, res)
     }
 
 coefficients.tsls <- function(object){
@@ -104,7 +110,10 @@ coefficients.tsls <- function(object){
     }
     
 fitted.tsls <- function(object){
-    as.vector(object$model.matrix %*% object$coefficients)
+    yhat <- as.vector(object$model.matrix %*% object$coefficients)
+    if (is.null(object$na.action)) 
+        yhat
+    else napredict(object$na.action, yhat)
     }
     
 anova.tsls <- function(model.1, model.2, s2, dfe){

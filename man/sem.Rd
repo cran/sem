@@ -3,6 +3,7 @@
 \alias{start.values}
 \alias{print.sem}
 \alias{summary.sem}
+\alias{print.summary.sem}
 
 \title{General Structural Equation Models}
 \description{
@@ -134,7 +135,7 @@ summary.sem(object, digits=5)
     
     Raftery, A. E. (1993)
     Bayesian model selection in structural equation models.
-    In Bollen, K . A. and Long, J. S. (eds.)
+    In Bollen, K. A. and Long, J. S. (eds.)
     \emph{Testing Structural Equation Models}, Sage.
 }
 \author{John Fox \email{jfox@mcmaster.ca}}

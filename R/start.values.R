@@ -1,4 +1,4 @@
-# last modified 14 April 2001 by J. Fox
+# last modified 27 July 2001 by J. Fox
 
 start.values <- function(S, ram, observed){
     n <- nrow(S)        
@@ -43,7 +43,7 @@ start.values <- function(S, ram, observed){
     for (j in 1:m){
         ind <- A.pat[j,]
         if (!any(ind)) next
-        A[j, ind] <- inv(C[ind, ind]) %*% C[ind, j]
+        A[j, ind] <- solve(C[ind, ind]) %*% C[ind, j]
         }
     A[observed,] <- A[observed,]*matrix(s, n, m)
     A[,observed] <- A[,observed]*matrix(s, m, n, byrow=T)

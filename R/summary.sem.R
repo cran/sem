@@ -1,4 +1,4 @@
-# last modified 22 April 2001 by J. Fox
+# last modified 25 July 2001 by J. Fox
 
 summary.sem <- function(object, digits=5) {
     norm.res <- normalized.residuals(object)
@@ -11,7 +11,7 @@ summary.sem <- function(object, digits=5) {
     C <- object$C
     N <- object$N
     df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
-    invC <- inv(C)
+    invC <- solve(C)
     CSC <- invC %*% (S - C)
     CSC <- CSC %*% CSC
     CS <- invC %*% S
