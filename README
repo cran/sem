@@ -1,0 +1,13 @@
+Changes to Version 0.7-0
+
+   o Fixed problem with analytic gradient, which caused convergence problems for some models.
+
+   o Simplified optimization.
+
+   o Added modification indices (preliminary version).
+    
+   o Some changes to start values.
+    
+   o Added RMSEA to fit indices. 
+   
+   o Added Klein dataset. 

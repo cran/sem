@@ -1,4 +1,7 @@
+Klein                    Klein's Data on the U. S. Economy
 Kmenta                   Partly Artificial Data on the U. S. Economy
+mod.indices              Modification Indices for Structural Equation
+                         Models
 path.diagram             Draw Path Diagram
 ram                      RAM Matrix for a Structural-Equation Model
 residuals.sem            Residual Covariances for a Structural Equation

@@ -1,4 +1,4 @@
-# last modified 23 Dec 2001 by J. Fox
+# last modified 29 Jan 2002 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -60,13 +60,14 @@ sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F
         cat('\n\n RAM:\n')
         print(ram)
         }
-    sem(ram=ram, S=S, N=N, param.names=pars, var.names=vars, fixed.x=fixed.x)
+    sem(ram=ram, S=S, N=N, param.names=pars, var.names=vars, fixed.x=fixed.x,
+        debug=debug, ...)
     }
      
 
 sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''), 
-    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, 
-    analytic.gradient=T, heywood=F, warn=F, control=list()){
+    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, debug=F,
+    analytic.gradient=T, warn=F, maxiter=500){
     is.triangular <- function(X) {
         is.matrix(X) && (nrow(X) == ncol(X)) && 
             (all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
@@ -76,11 +77,8 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         }
     if (is.triangular(S)) S <- S + t(S) - diag(diag(S))
     if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
-    con <- list(optim.control=list(),
-        optim.method=if (heywood) "L-BFGS-B" else "BFGS", nlm.iterlim=100)
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
         stop ('ram argument must be a 5-column numeric matrix')
-    con[names(control)] <- control
     n <- nrow(S)
     observed <- 1:n
     n.fix <- length(fixed.x)
@@ -95,6 +93,8 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     m <- max(ram[,2])
     t <- max(ram[,4])
     J <- matrix(0, n, m)
+    correct <- matrix(2, m, m)
+    diag(correct) <- 1
     J[cbind(1:n, observed)]<-1
     par.posn <- unlist(lapply(apply(outer(ram[,4], 1:t, '=='), 2, which), "[", 1))
     colnames(ram)<-c("heads", "to", "from", "parameter", "start value")
@@ -113,10 +113,10 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     arrows.2.free <- ram[two.free,c(2,3)]
     sel.free.1 <- sel.free[one.free]
     sel.free.2 <- sel.free[two.free]
-    start <- if (any(is.na(ram[,5][par.posn]))) startvalues(S, ram)
+    unique.free.1 <- unique(sel.free.1)
+    unique.free.2 <- unique(sel.free.2)
+    start <- if (any(is.na(ram[,5][par.posn]))) startvalues(S, ram, debug)
         else ram[,5][par.posn]
-    bounds <- rep(-Inf, t)
-    bounds[((ram[,1]==2) & (ram[,2]==ram[,3]))[par.posn]] <- if (heywood) .01 else -Inf
     objective.1 <- function(par){
         A <- P <- matrix(0, m, m)
         val <- ifelse (fixed, ram[,5], par[sel.free])
@@ -137,54 +137,21 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
         Cinv <- solve(C)
         F <- sum(diag(S %*% Cinv)) + log(det(C))
-        grad.P <- t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
-        grad.A <- grad.P %*% P %*% t(I.Ainv)
-        gradient <- rep(0, m)
-        gradient[sel.free.1] <- grad.A[arrows.1.free]
-        gradient[sel.free.2] <- grad.P[arrows.2.free]
+        grad.P <- correct * t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
+        grad.A <- grad.P %*% P %*% t(I.Ainv)        
+        gradient <- rep(0, t)
+        gradient[unique.free.1] <- tapply(grad.A[arrows.1.free],ram[ram[,1]==1 & ram[,4]!=0, 4], sum)
+        gradient[unique.free.2] <- tapply(grad.P[arrows.2.free],ram[ram[,1]==2 & ram[,4]!=0, 4], sum)
         attributes(F) <- list(C=C, A=A, P=P, gradient=gradient)
         F
-        }
-    gradient <- function(par){
-        A <- P <- matrix(0, m, m)
-        val <- ifelse (fixed, ram[,5], par[sel.free])
-        A[arrows.1] <- val[one.head]
-        P[arrows.2t] <- P[arrows.2] <- val[!one.head]
-        I.Ainv <- solve(diag(m) - A)
-        C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)        
-        Cinv <- solve(C)
-        grad.P <- t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
-        grad.A <- grad.P %*% P %*% t(I.Ainv)
-        gradient <- rep(0, m)
-        gradient[sel.free.1] <- grad.A[arrows.1.free]
-        gradient[sel.free.2] <- grad.P[arrows.2.free]
-        gradient
         }
     if (!warn){
         save.warn <- options(warn=-1)
         on.exit(options(save.warn))
         }
-    res <- if (con$optim.method == "L-BFGS-B") 
-        optim(start, objective.1, method="L-BFGS-B",  
-            gr=if (analytic.gradient) gradient,
-            control=con$optim.control, lower=bounds)
-        else optim(start, objective.1, method=con$optim.method,  
-            gr=if (analytic.gradient) gradient,
-            control=con$optim.control)
-    convergence.1 <- res$convergence
-    message.1 <- res$message
-    coef.1 <- res$par
-    if(res$convergence > 1) res$par <- start
     res <- nlm(if (analytic.gradient) objective.2 else objective.1, 
-        res$par, hessian=T, iterlim=con$nlm.iterlim, check=F)
-    convergence.2 <- res$code
-    if (convergence.2 > 2) {
-        coef.2 <- res$estimate
-        res$par <- if (convergence.2 > 4) start else coef.2
-        res <- nlm(if (!analytic.gradient) objective.2 else objective.1, 
-            res$par, hessian=T, iterlim=con$nlm.iterlim, check=F)
-        convergence.3 <- res$code
-        }
+        start, hessian=T, iterlim=maxiter, print.level=if(debug) 2 else 0)
+    convergence <- res$code
     if (!warn) options(save.warn)
     par <- res$estimate
     names(par) <- param.names
@@ -218,18 +185,9 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$m <- m
     result$t <- t
     result$par.posn <- par.posn
-    result$convergence.1 <- convergence.1
-    result$message.1 <- message.1
-    result$coef.1 <- coef.1
-    result$convergence.2 <- ultimate <- convergence.2
-    if (exists("convergence.3", inherits=F)){
-        result$coef.2 <- coef.2
-        result$convergence.3 <- ultimate <- convergence.3
-        }
-    if (convergence.1 > 0) warning('initial optimization DID NOT converge')
-    if (convergence.2 > 2) warning('second optimization DID NOT converge')
-    if ((convergence.1 > 0) | (convergence.2 > 2)) 
-        warning(paste('final optimization', if (ultimate > 2) 'DID NOT' else 'DID','converge'))
+    result$convergence <- convergence
+    result$iterations <- res$iterations
+    if (convergence > 2) warning('optimization DID NOT converge')
     class(result) <- "sem"
     result
     }

@@ -1,6 +1,6 @@
-# last modified 23 Dec 2001 by J. Fox
+# last modified 28 Jan 2002 by J. Fox
 
-startvalues <- function(S, ram){
+startvalues <- function(S, ram, debug=F){
     n <- nrow(S) 
     observed <- 1:n       
     m <- max(ram[,2])            
@@ -29,7 +29,7 @@ startvalues <- function(S, ram){
         }
     for (l in latent){
         for (k in latent){
-            C[l, k] <- if (l==k) 1 else {
+            C[l, k] <- C[k,l] <- if (l==k) 1 else {
                                 indicators.l <- A.pat[observed, l]
                                 indicators.k <- A.pat[observed, k]
                                 if ((!any(indicators.l)) | (!any(indicators.k))) runif(1, .3, .5) else {
@@ -57,6 +57,11 @@ startvalues <- function(S, ram){
         posn <- par.posn[par]
         if (ram[posn, 1] == 1) start[par] <- A[ram[posn, 2], ram[posn, 3]]
             else start[par] <- P[ram[posn, 2], ram[posn, 3]]
+        }
+    if (debug){
+        cat('\nStart values:\n')
+        print(start)
+        cat('\n')
         }
     start
     }

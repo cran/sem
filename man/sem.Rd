@@ -22,16 +22,16 @@
 sem(ram, ...)
 
 sem.mod(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F, ...)
-
-sem.default(ram, S, N, param.names=paste("Param", 1:t, sep = ""), 
-    var.names=paste("V", 1:m, sep = ""), fixed.x=NULL, 
-    analytic.gradient=T, heywood=F, warn=F, control=list())
     
-startvalues(S, ram)
+sem.default(ram, S, N, param.names = paste("Param", 1:t, sep = ""), 
+    var.names = paste("V", 1:m, sep = ""), fixed.x = NULL, debug = F, 
+    analytic.gradient = T, warn = F, maxiter = 500) 
+    
+startvalues(S, ram, debug = F)
 
 print.sem(x, ...)
 
-summary.sem(object, digits=5, ...)
+summary.sem(object, digits=5, conf.level=0.9, ...)
 }
 
 \arguments{
@@ -62,22 +62,14 @@ summary.sem(object, digits=5, ...)
     Note: Should not be specified when the \code{ram} matrix is given in symbolic form.}
   \item{analytic.gradient}{if \code{TRUE} (the default), then analytic first derivatives are
     used in the maximization of the likelihood; otherwise numeric derivatives are used.}
-  \item{heywood}{if \code{TRUE}, variances are constrained to be non-negative in the 
-    initial fitting process. The default is \code{FALSE}.}
-  \item{warn}{if \code{TRUE}, warnings produced by the optimization functions will be printed.
-    This should generally not be necessary, since \code{sem} prints its own warnings, and saves
+  \item{warn}{if \code{TRUE}, warnings produced by the optimization function will be printed.
+    This should generally not be necessary, since \code{sem} prints its own warning, and saves
     information about convergence. The default is \code{FALSE}.}
-  \item{control}{a list with up to three elements:
-    \code{optim.control}, a list of control parameters to be passed to 
-            the \code{optim} function via its \code{control} argument;
-    \code{optim.method}, the optimization method to be employed by \code{optim}; 
-            if \code{heywood} is \code{TRUE}, then this defaults to
-            \code{"L-BFGS-B"}, otherwise to \code{"BFGS"}.
-    \code{nlm.iterlim}, the maximum number of iterations for the 
-            \code{nlm} function, to be passed to it via its \code{iterlim}
-            argument.}
+  \item{maxiter}{the maximum number of iterations for the optimization performed by the
+    \code{nlm} function, to be passed to it via its \code{iterlim} argument.}
   \item{object, x}{an object of class \code{sem} returned by the \code{sem} function.}
   \item{digits}{number of digits for printed output.}
+  \item{conf.level}{level for confidence interval for the RMSEA index (default is .9).}
 } 
 
 \details{
@@ -136,12 +128,9 @@ summary.sem(object, digits=5, ...)
             the parameter estimates when the program is rerun.}
         }
         
-  \code{sem} fits the model by calling the \code{\link[base]{optim}}
-  and \code{\link[base]{nlm}} optimizers
-  sequentially to minimize the negative log-likelihood for the model. 
-  If \code{nlm} fails to converge using an analytic gradient, then a numeric gradient is tried
-  (and vice-versa if the numeric gradient is tried first). Under these circumstances, a warning
-  message is printed.
+  \code{sem} fits the model by calling the \code{\link[base]{nlm}} optimizer
+  to minimize the negative log-likelihood for the model. 
+  If \code{nlm} fails to converge, a warning message is printed.
   
   The RAM formulation of the general structural equation model is given by the basic equation
   \deqn{v = Av + u}
@@ -176,17 +165,8 @@ summary.sem(object, digits=5, ...)
   \item{par.posn}{indices of free parameters.}
   \item{var.names}{vector of variable names.}
   \item{observed}{indices of observed variables.}
-  \item{convergence.1}{convergence code returned by \code{optim} (a code > 0
-    indicates a problem).}
-  \item{message.1}{message returned by \code{optim} in the first stage of
-    optimization.}
-  \item{coef.1}{parameter estimates returned by \code{optim}.}
-  \item{convergence.2}{convergence code returned by \code{nlm} in the
-    second stage of optimization (a code > 2 indicates a problem).}
-  \item{coef.2}{parameter estimates returned by \code{nlm} in
-    second stage of optimization. Present only if second stage failed.}
-  \item{convergence.3}{convergence code returned by \code{nlm} in the
-    third stage of optimization. Present only if second stage failed.}
+  \item{convergence}{convergence code returned by \code{nlm} (a code > 2 indicates a problem).}
+  \item{iterations}{number of iterations performed}.
 }
 
 \references{
@@ -211,7 +191,7 @@ summary.sem(object, digits=5, ...)
 
 \author{John Fox \email{jfox@mcmaster.ca}}
 
-\seealso{\code{\link[base]{optim}}, \code{\link[base]{nlm}}}
+\seealso{\code{\link[base]{nlm}}}
 
 \examples{
 
@@ -265,37 +245,39 @@ sem.dhp.1 <- sem(model.dhp, R.DHP, 329, obs.vars.dhp,
 
 summary(sem.dhp.1)
 
-##  Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302
-##  Goodness-of-fit index =  0.98439
-##  Adjusted goodness-of-fit index =  0.94275
-##  BIC =  -94.782 
+##  Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302 
+##  Goodness-of-fit index =  0.98439 
+##  Adjusted goodness-of-fit index =  0.94275 
+##  RMSEA index =  0.048759   90% CI: (0.014516, 0.078314) 
+##  BIC =  -94.782  
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -8.01e-01 -1.18e-01  5.02e-16 -1.20e-02  3.98e-02  1.57e+00 
+##  Normalized Residuals 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.  
+## -0.8010 -0.1180  0.0000 -0.0120  0.0398  1.5700  
 ##  
-##  Parameter Estimates
-##          Estimate Std Error  z value   Pr(>|z|)                     
-##  gam11   0.161222  0.038487  4.18896 1.4012e-05 RGenAsp <--- RParAsp
-##  gam12   0.249649  0.044581  5.59995 1.0720e-08     RGenAsp <--- RIQ
-##  gam13   0.218404  0.043476  5.02355 2.5362e-07    RGenAsp <--- RSES
-##  gam14   0.071841  0.050335  1.42724 7.6755e-02    RGenAsp <--- FSES
-##  gam23   0.061885  0.051738  1.19612 1.1583e-01    FGenAsp <--- RSES
-##  gam24   0.228867  0.044495  5.14368 1.3471e-07    FGenAsp <--- FSES
-##  gam25   0.349036  0.044551  7.83455 2.3315e-15     FGenAsp <--- FIQ
-##  gam26   0.159535  0.040129  3.97552 3.5113e-05 FGenAsp <--- FParAsp
-##  beta12  0.184227  0.096207  1.91490 2.7753e-02 RGenAsp <--- FGenAsp
-##  beta21  0.235487  0.119744  1.96659 2.4616e-02 FGenAsp <--- RGenAsp
-##  lam21   1.062682  0.091969 11.55481 0.0000e+00  REdAsp <--- RGenAsp
-##  lam42   0.929717  0.071151 13.06687 0.0000e+00  FEdAsp <--- FGenAsp
-##  ps11    0.280987  0.046311  6.06740 6.5001e-10 RGenAsp <--> RGenAsp
-##  ps22    0.263838  0.044902  5.87587 2.1032e-09 FGenAsp <--> FGenAsp
-##  ps12   -0.022611  0.051650 -0.43778 3.3077e-01 FGenAsp <--> RGenAsp
-##  theta1  0.412147  0.052211  7.89389 1.4433e-15 ROccAsp <--> ROccAsp
-##  theta2  0.336144  0.053323  6.30390 1.4512e-10   REdAsp <--> REdAsp
-##  theta3  0.311191  0.046665  6.66866 1.2907e-11 FOccAsp <--> FOccAsp
-##  theta4  0.404607  0.046733  8.65782 0.0000e+00   FEdAsp <--> FEdAsp
-
+##  Parameter Estimates 
+##         Estimate Std Error z value   Pr(>|z|)                      
+## gam11   0.161224  0.038487  4.1890 2.8019e-05 RGenAsp <--- RParAsp 
+## gam12   0.249653  0.044580  5.6001 2.1428e-08     RGenAsp <--- RIQ 
+## gam13   0.218404  0.043476  5.0235 5.0730e-07    RGenAsp <--- RSES 
+## gam14   0.071843  0.050335  1.4273 1.5350e-01    RGenAsp <--- FSES 
+## gam23   0.061894  0.051738  1.1963 2.3158e-01    FGenAsp <--- RSES 
+## gam24   0.228868  0.044495  5.1437 2.6938e-07    FGenAsp <--- FSES 
+## gam25   0.349039  0.044551  7.8346 4.6629e-15     FGenAsp <--- FIQ 
+## gam26   0.159535  0.040129  3.9755 7.0224e-05 FGenAsp <--- FParAsp 
+## beta12  0.184226  0.096207  1.9149 5.5506e-02 RGenAsp <--- FGenAsp 
+## beta21  0.235458  0.119742  1.9664 4.9256e-02 FGenAsp <--- RGenAsp 
+## lam21   1.062674  0.091967 11.5549 0.0000e+00  REdAsp <--- RGenAsp 
+## lam42   0.929727  0.071152 13.0668 0.0000e+00  FEdAsp <--- FGenAsp 
+## ps11    0.280987  0.046311  6.0674 1.2999e-09 RGenAsp <--> RGenAsp 
+## ps22    0.263836  0.044902  5.8759 4.2067e-09 FGenAsp <--> FGenAsp 
+## ps12   -0.022601  0.051649 -0.4376 6.6168e-01 FGenAsp <--> RGenAsp 
+## theta1  0.412145  0.052211  7.8939 2.8866e-15 ROccAsp <--> ROccAsp 
+## theta2  0.336148  0.053323  6.3040 2.9003e-10   REdAsp <--> REdAsp 
+## theta3  0.311194  0.046665  6.6687 2.5800e-11 FOccAsp <--> FOccAsp 
+## theta4  0.404604  0.046733  8.6578 0.0000e+00   FEdAsp <--> FEdAsp
+##
+##  Iterations =  28 
 
 \dontrun{
 
@@ -338,37 +320,39 @@ sem.dhp.2 <- sem(ram.dhp, R.DHP, 329, params.dhp, vars.dhp, fixed.x=5:10)
 
 summary(sem.dhp.2)
     
-##  Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302
-##  Goodness-of-fit index =  0.98439
-##  Adjusted goodness-of-fit index =  0.94275
-##  BIC =  -94.782 
+##   Model Chisquare =  26.697   Df =  15 Pr(>Chisq) = 0.031302
+##   Goodness-of-fit index =  0.98439
+##   Adjusted goodness-of-fit index =  0.94275
+##   RMSEA index =  0.048759   90% CI: (0.014516, 0.078314)
+##   BIC =  -94.782 
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -8.01e-01 -1.18e-01  7.53e-16 -1.20e-02  3.98e-02  1.57e+00 
+##   Normalized Residuals
+##       Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##  -8.01e-01 -1.18e-01  5.01e-16 -1.20e-02  3.98e-02  1.57e+00 
 ##  
-##  Parameter Estimates
-##          Estimate Std Error  z value   Pr(>|z|)                     
-##  lam21   1.062682  0.091969 11.55481 0.0000e+00  REdAsp <--- RGenAsp
-##  lam42   0.929717  0.071151 13.06687 0.0000e+00  FEdAsp <--- FGenAsp
-##  gam11   0.161222  0.038487  4.18896 1.4012e-05 RGenAsp <--- RParAsp
-##  gam12   0.249649  0.044581  5.59995 1.0720e-08     RGenAsp <--- RIQ
-##  gam13   0.218404  0.043476  5.02355 2.5362e-07    RGenAsp <--- RSES
-##  gam14   0.071841  0.050335  1.42724 7.6755e-02    RGenAsp <--- FSES
-##  gam23   0.061885  0.051738  1.19612 1.1583e-01    FGenAsp <--- RSES
-##  gam24   0.228867  0.044495  5.14368 1.3471e-07    FGenAsp <--- FSES
-##  gam25   0.349036  0.044551  7.83455 2.3315e-15     FGenAsp <--- FIQ
-##  gam26   0.159535  0.040129  3.97552 3.5113e-05 FGenAsp <--- FParAsp
-##  beta12  0.184227  0.096207  1.91490 2.7753e-02 RGenAsp <--- FGenAsp
-##  beta21  0.235487  0.119744  1.96658 2.4616e-02 FGenAsp <--- RGenAsp
-##  theta1  0.412147  0.052211  7.89389 1.4433e-15 ROccAsp <--> ROccAsp
-##  theta2  0.336144  0.053323  6.30390 1.4512e-10   REdAsp <--> REdAsp
-##  theta3  0.311191  0.046665  6.66866 1.2907e-11 FOccAsp <--> FOccAsp
-##  theta4  0.404607  0.046733  8.65782 0.0000e+00   FEdAsp <--> FEdAsp
-##  psi11   0.280987  0.046311  6.06739 6.5001e-10 RGenAsp <--> RGenAsp
-##  psi22   0.263838  0.044902  5.87587 2.1032e-09 FGenAsp <--> FGenAsp
-##  psi12  -0.022611  0.051650 -0.43778 3.3077e-01 RGenAsp <--> FGenAsp
-
+##   Parameter Estimates
+##          Estimate Std Error z value   Pr(>|z|)                     
+##  lam21   1.062674  0.091967 11.5549 0.0000e+00  REdAsp <--- RGenAsp
+##  lam42   0.929727  0.071152 13.0668 0.0000e+00  FEdAsp <--- FGenAsp
+##  gam11   0.161224  0.038487  4.1890 2.8019e-05 RGenAsp <--- RParAsp
+##  gam12   0.249653  0.044580  5.6001 2.1428e-08     RGenAsp <--- RIQ
+##  gam13   0.218404  0.043476  5.0235 5.0730e-07    RGenAsp <--- RSES
+##  gam14   0.071843  0.050335  1.4273 1.5350e-01    RGenAsp <--- FSES
+##  gam23   0.061894  0.051738  1.1963 2.3158e-01    FGenAsp <--- RSES
+##  gam24   0.228868  0.044495  5.1437 2.6938e-07    FGenAsp <--- FSES
+##  gam25   0.349039  0.044551  7.8346 4.6629e-15     FGenAsp <--- FIQ
+##  gam26   0.159535  0.040129  3.9755 7.0224e-05 FGenAsp <--- FParAsp
+##  beta12  0.184226  0.096207  1.9149 5.5506e-02 RGenAsp <--- FGenAsp
+##  beta21  0.235458  0.119742  1.9664 4.9255e-02 FGenAsp <--- RGenAsp
+##  theta1  0.412145  0.052211  7.8939 2.8866e-15 ROccAsp <--> ROccAsp
+##  theta2  0.336148  0.053323  6.3040 2.9002e-10   REdAsp <--> REdAsp
+##  theta3  0.311194  0.046665  6.6687 2.5800e-11 FOccAsp <--> FOccAsp
+##  theta4  0.404604  0.046733  8.6578 0.0000e+00   FEdAsp <--> FEdAsp
+##  psi11   0.280987  0.046311  6.0674 1.2999e-09 RGenAsp <--> RGenAsp
+##  psi22   0.263836  0.044902  5.8759 4.2067e-09 FGenAsp <--> FGenAsp
+##  psi12  -0.022601  0.051649 -0.4376 6.6168e-01 RGenAsp <--> FGenAsp
+##
+##   Iterations =  28 
 
 
 # -------------------- Wheaton et al. alienation data ----------------------
@@ -413,39 +397,35 @@ model.wh.1 <- matrix(c(
 obs.vars.wh <- c('Anomia67','Powerless67','Anomia71','Powerless71','Education','SEI')
 
 sem.wh.1 <- sem(model.wh.1, S.wh, 932, obs.vars.wh)
-##  Warning messages: 
-##  1: second optimization DID NOT converge in: 
-##      sem.default(ram = ram, S = S, N = N, param.names = pars, var.names = vars,  
-##  2: final optimization DID converge in: 
-##      sem.default(ram = ram, S = S, N = N, param.names = pars, var.names = vars,  
-
-# Note failure of second optimization, but success of third
 
 summary(sem.wh.1)
 
-##  Model Chisquare =  13.485   Df =  9 Pr(>Chisq) = 0.14186
-##  Goodness-of-fit index =  0.99527
-##  Adjusted goodness-of-fit index =  0.98896
-##  BIC =  -64.177 
+##   Model Chisquare =  13.485   Df =  9 Pr(>Chisq) = 0.14186
+##   Goodness-of-fit index =  0.99527
+##   Adjusted goodness-of-fit index =  0.98896
+##   RMSEA index =  0.023136   90% CI: (0, 0.047004)
+##   BIC =  -64.177 
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -1.26e+00 -1.31e-01  9.69e-05 -2.87e-02  1.14e-01  8.75e-01 
+##   Normalized Residuals
+##      Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##  -1.26000 -0.13100  0.00014 -0.02870  0.11400  0.87500 
 ##  
-##  Parameter Estimates
-##      Estimate Std Error  z value   Pr(>|z|)                               
-##  lamb   5.36885  0.433991  12.3709 0.0000e+00                   SEI <--- SES
-##  gam1  -0.62994  0.056128 -11.2232 0.0000e+00          Alienation67 <--- SES
+##   Parameter Estimates
+##        Estimate Std Error  z value   Pr(>|z|)                               
+##  lamb   5.36880  0.433981  12.3710 0.0000e+00                   SEI <--- SES
+##  gam1  -0.62994  0.056128 -11.2234 0.0000e+00          Alienation67 <--- SES
 ##  beta   0.59312  0.046820  12.6680 0.0000e+00 Alienation71 <--- Alienation67
-##  gam2  -0.24086  0.055202  -4.3632 6.4085e-06          Alienation71 <--- SES
-##  the1   3.60790  0.200591  17.9863 0.0000e+00         Anomia67 <--> Anomia67
-##  the2   3.59496  0.165236  21.7566 0.0000e+00   Powerless67 <--> Powerless67
-##  the3   2.99366  0.498977   5.9996 9.8905e-10       Education <--> Education
-##  the4 259.57742 18.321464  14.1679 0.0000e+00                   SEI <--> SEI
-##  the5   0.90580  0.121712   7.4422 4.9516e-14         Anomia71 <--> Anomia67
-##  psi1   5.67051  0.422907  13.4084 0.0000e+00 Alienation67 <--> Alienation67
-##  psi2   4.51485  0.334999  13.4772 0.0000e+00 Alienation71 <--> Alienation71
-##  phi    6.61627  0.639511  10.3458 0.0000e+00                   SES <--> SES
+##  gam2  -0.24086  0.055202  -4.3632 1.2817e-05          Alienation71 <--- SES
+##  the1   3.60787  0.200589  17.9864 0.0000e+00         Anomia67 <--> Anomia67
+##  the2   3.59494  0.165234  21.7567 0.0000e+00   Powerless67 <--> Powerless67
+##  the3   2.99366  0.498971   5.9997 1.9774e-09       Education <--> Education
+##  the4 259.57583 18.321111  14.1681 0.0000e+00                   SEI <--> SEI
+##  the5   0.90579  0.121710   7.4422 9.9032e-14         Anomia71 <--> Anomia67
+##  psi1   5.67050  0.422906  13.4084 0.0000e+00 Alienation67 <--> Alienation67
+##  psi2   4.51481  0.334993  13.4773 0.0000e+00 Alienation71 <--> Alienation71
+##  phi    6.61632  0.639505  10.3460 0.0000e+00                   SES <--> SES
+##
+##   Iterations =  78 
 
 
 # The same model, but treating one loading for each latent variable as free.
@@ -474,38 +454,36 @@ model.wh.2 <- matrix(c(
                     ncol=3, byrow=T)                        
 
 sem.wh.2 <- sem(model.wh.2, S.wh, 932, obs.vars.wh)
-##  Warning messages: 
-##  1: second optimization DID NOT converge in: 
-##      sem.default(ram = ram, S = S, N = N, param.names = pars, var.names = vars,  
-##  2: final optimization DID converge in: 
-##      sem.default(ram = ram, S = S, N = N, param.names = pars, var.names = vars,  
 
 summary(sem.wh.2)
 
-##  Model Chisquare =  12.673   Df =  8 Pr(>Chisq) = 0.12360
-##  Goodness-of-fit index =  0.99553
-##  Adjusted goodness-of-fit index =  0.98828
-##  BIC =  -56.36 
+##   Model Chisquare =  12.673   Df =  8 Pr(>Chisq) = 0.12360
+##   Goodness-of-fit index =  0.99553
+##   Adjusted goodness-of-fit index =  0.98828
+##   RMSEA index =  0.025049   90% CI: (0, 0.049855)
+##   BIC =  -56.36 
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -0.997000 -0.139000  0.000142 -0.028500  0.100000  0.759000 
+##   Normalized Residuals
+##       Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##  -0.998000 -0.140000  0.000296 -0.028800  0.100000  0.759000 
 ##  
-##  Parameter Estimates
-##      Estimate Std Error  z value   Pr(>|z|)                               
-##  lamby   0.86262  0.033383  25.8399 0.0000e+00  Powerless67 <--- Alienation67
-##  lambx   5.35329  0.432588  12.3750 0.0000e+00                   SEI <--- SES
-##  gam1   -0.62132  0.056144 -11.0666 0.0000e+00          Alienation67 <--- SES
-##  beta    0.59424  0.047041  12.6324 0.0000e+00 Alienation71 <--- Alienation67
-##  gam2   -0.23584  0.054688  -4.3126 8.0685e-06          Alienation71 <--- SES
-##  the1    3.74502  0.249826  14.9905 0.0000e+00         Anomia67 <--> Anomia67
-##  the2    3.49376  0.200757  17.4030 0.0000e+00   Powerless67 <--> Powerless67
-##  the3    2.97442  0.499623   5.9533 1.3137e-09       Education <--> Education
-##  the4  260.12964 18.297803  14.2164 0.0000e+00                   SEI <--> SEI
-##  the5    0.90378  0.121818   7.4191 5.8953e-14         Anomia71 <--> Anomia67
-##  psi1    5.47354  0.464054  11.7951 0.0000e+00 Alienation67 <--> Alienation67
-##  psi2    4.36409  0.362720  12.0315 0.0000e+00 Alienation71 <--> Alienation71
-##  phi     6.63548  0.640408  10.3613 0.0000e+00                   SES <--> SES
+##   Parameter Estimates
+##         Estimate Std Error  z value   Pr(>|z|)                               
+##  lamby   0.86261  0.033383  25.8402 0.0000e+00  Powerless67 <--- Alienation67
+##  lambx   5.35302  0.432591  12.3743 0.0000e+00                   SEI <--- SES
+##  gam1   -0.62129  0.056142 -11.0663 0.0000e+00          Alienation67 <--- SES
+##  beta    0.59428  0.047040  12.6335 0.0000e+00 Alienation71 <--- Alienation67
+##  gam2   -0.23580  0.054684  -4.3121 1.6173e-05          Alienation71 <--- SES
+##  the1    3.74499  0.249823  14.9906 0.0000e+00         Anomia67 <--> Anomia67
+##  the2    3.49378  0.200754  17.4033 0.0000e+00   Powerless67 <--> Powerless67
+##  the3    2.97409  0.499660   5.9522 2.6454e-09       Education <--> Education
+##  the4  260.13252 18.298132  14.2163 0.0000e+00                   SEI <--> SEI
+##  the5    0.90377  0.121817   7.4191 1.1791e-13         Anomia71 <--> Anomia67
+##  psi1    5.47380  0.464073  11.7951 0.0000e+00 Alienation67 <--> Alienation67
+##  psi2    4.36410  0.362722  12.0315 0.0000e+00 Alienation71 <--> Alienation71
+##  phi     6.63576  0.640424  10.3615 0.0000e+00                   SES <--> SES
+##
+##   Iterations =  79 
 
 
 # ----------------------- Thurstone data ---------------------------------------
@@ -559,38 +537,41 @@ sem.thur <- sem(model.thur, R.thur, 213, obs.vars.thur)
 
 summary(sem.thur)
 
-##  Model Chisquare =  38.196   Df =  24 Pr(>Chisq) = 0.033101
-##  Goodness-of-fit index =  0.95957
-##  Adjusted goodness-of-fit index =  0.9242
-##  BIC =  -143.21 
+##   Model Chisquare =  38.196   Df =  24 Pr(>Chisq) = 0.033101
+##   Goodness-of-fit index =  0.95957
+##   Adjusted goodness-of-fit index =  0.9242
+##   RMSEA index =  0.052822   90% CI: (0.015262, 0.083058)
+##   BIC =  -143.21 
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -9.75e-01 -4.18e-01 -6.45e-05  4.01e-02  9.40e-02  1.63e+00 
+##   Normalized Residuals
+##       Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##  -9.75e-01 -4.17e-01 -3.30e-06  4.02e-02  9.41e-02  1.63e+00 
 ##  
-##  Parameter Estimates
-##      Estimate Std Error z value   Pr(>|z|)                                     
-##  lam11  0.51513  0.064963  7.9296 1.1102e-15                    Sentences <--- F1
-##  lam21  0.52032  0.065160  7.9852 6.6613e-16                   Vocabulary <--- F1
-##  lam31  0.48744  0.062420  7.8090 2.8866e-15              Sent.Completion <--- F1
-##  lam41  0.52110  0.063140  8.2532 1.1102e-16                First.Letters <--- F2
-##  lam52  0.49705  0.059676  8.3292 0.0000e+00               4.Letter.Words <--- F2
-##  lam62  0.43805  0.056481  7.7557 4.4409e-15                     Suffixes <--- F2
-##  lam73  0.45243  0.071371  6.3391 1.1553e-10                Letter.Series <--- F3
-##  lam83  0.41729  0.061036  6.8367 4.0515e-12                    Pedigrees <--- F3
-##  lam93  0.40763  0.064524  6.3175 1.3295e-10                 Letter.Group <--- F3
-##  gam1   1.44380  0.264162  5.4656 2.3071e-08                           F1 <--- F4
-##  gam2   1.25391  0.216623  5.7884 3.5521e-09                           F2 <--- F4
-##  gam3   1.40657  0.279336  5.0354 2.3841e-07                           F3 <--- F4
-##  th1    0.18150  0.028401  6.3907 8.2580e-11             Sentences <--> Sentences
-##  th2    0.16493  0.027797  5.9334 1.4840e-09           Vocabulary <--> Vocabulary
-##  th3    0.26713  0.033469  7.9816 7.7716e-16 Sent.Completion <--> Sent.Completion
-##  th4    0.30150  0.050686  5.9485 1.3531e-09     First.Letters <--> First.Letters
-##  th5    0.36450  0.052358  6.9617 1.6803e-12   4.Letter.Words <--> 4.Letter.Words
-##  th6    0.50641  0.059962  8.4455 0.0000e+00               Suffixes <--> Suffixes
-##  th7    0.39033  0.061598  6.3367 1.1735e-10     Letter.Series <--> Letter.Series
-##  th8    0.48137  0.065388  7.3618 9.0705e-14             Pedigrees <--> Pedigrees
-##  th9    0.50510  0.065227  7.7437 4.7740e-15       Letter.Group <--> Letter.Group
+##   Parameter Estimates
+##        Estimate Std Error z value   Pr(>|z|)                                     
+##  lam11  0.51512  0.064964  7.9293 2.2204e-15                    Sentences <--- F1
+##  lam21  0.52031  0.065162  7.9849 1.3323e-15                   Vocabulary <--- F1
+##  lam31  0.48743  0.062422  7.8087 5.7732e-15              Sent.Completion <--- F1
+##  lam41  0.52112  0.063137  8.2538 2.2204e-16                First.Letters <--- F2
+##  lam52  0.49707  0.059673  8.3298 0.0000e+00               4.Letter.Words <--- F2
+##  lam62  0.43806  0.056479  7.7562 8.6597e-15                     Suffixes <--- F2
+##  lam73  0.45243  0.071371  6.3392 2.3101e-10                Letter.Series <--- F3
+##  lam83  0.41729  0.061037  6.8367 8.1022e-12                    Pedigrees <--- F3
+##  lam93  0.40763  0.064524  6.3175 2.6584e-10                 Letter.Group <--- F3
+##  gam1   1.44381  0.264173  5.4654 4.6185e-08                           F1 <--- F4
+##  gam2   1.25383  0.216597  5.7888 7.0907e-09                           F2 <--- F4
+##  gam3   1.40655  0.279332  5.0354 4.7682e-07                           F3 <--- F4
+##  th1    0.18150  0.028400  6.3907 1.6517e-10             Sentences <--> Sentences
+##  th2    0.16493  0.027797  5.9334 2.9679e-09           Vocabulary <--> Vocabulary
+##  th3    0.26713  0.033468  7.9816 1.5543e-15 Sent.Completion <--> Sent.Completion
+##  th4    0.30150  0.050686  5.9484 2.7073e-09     First.Letters <--> First.Letters
+##  th5    0.36450  0.052358  6.9617 3.3620e-12   4.Letter.Words <--> 4.Letter.Words
+##  th6    0.50641  0.059963  8.4455 0.0000e+00               Suffixes <--> Suffixes
+##  th7    0.39033  0.061599  6.3367 2.3474e-10     Letter.Series <--> Letter.Series
+##  th8    0.48137  0.065388  7.3618 1.8141e-13             Pedigrees <--> Pedigrees
+##  th9    0.50510  0.065227  7.7437 9.5479e-15       Letter.Group <--> Letter.Group
+##
+##   Iterations =  53 
 
 
 #------------------------- Kerchoff/Kenney path analysis ---------------------
@@ -636,35 +617,38 @@ sem.kerch <- sem(model.kerch, R.kerch, 737, fixed.x=c('Intelligence','Siblings',
     
 summary(sem.kerch)
 
-##  Model Chisquare =  6.537e-13   Df =  0 Pr(>Chisq) = NA
-##  Goodness-of-fit index =  1
-##  Adjusted goodness-of-fit index =  NA
-##  BIC =  NA 
+##   Model Chisquare =  6.537e-13   Df =  0 Pr(>Chisq) = NA
+##   Goodness-of-fit index =  1
+##   Adjusted goodness-of-fit index =  NA
+##   RMSEA index =  Inf   90% CI: (Inf, Inf)
+##   BIC =  NA 
 ##  
-##  Normalized Residuals
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -1.70e-14 -3.75e-16  7.45e-16  3.53e-15  4.47e-15  3.62e-14 
+##   Normalized Residuals
+##       Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##  -8.52e-15  0.00e+00  3.75e-16  1.28e-15  1.49e-15  1.70e-14 
 ##  
-##  Parameter Estimates
+##   Parameter Estimates
 ##          Estimate Std Error  z value   Pr(>|z|)                           
 ##  gam51   0.525902  0.031182 16.86530 0.0000e+00   Grades <--- Intelligence
-##  gam52  -0.029942  0.030149 -0.99314 1.6032e-01       Grades <--- Siblings
-##  gam53   0.118966  0.038259  3.10951 9.3699e-04       Grades <--- FatherEd
-##  gam54   0.040603  0.037785  1.07456 1.4129e-01      Grades <--- FatherOcc
-##  gam61   0.160270  0.032710  4.89979 4.7970e-07  EducExp <--- Intelligence
-##  gam62  -0.111779  0.026876 -4.15899 1.5983e-05      EducExp <--- Siblings
-##  gam63   0.172719  0.034306  5.03461 2.3941e-07      EducExp <--- FatherEd
-##  gam64   0.151852  0.033688  4.50758 3.2785e-06     EducExp <--- FatherOcc
+##  gam52  -0.029942  0.030149 -0.99314 3.2064e-01       Grades <--- Siblings
+##  gam53   0.118966  0.038259  3.10951 1.8740e-03       Grades <--- FatherEd
+##  gam54   0.040603  0.037785  1.07456 2.8257e-01      Grades <--- FatherOcc
+##  gam61   0.160270  0.032710  4.89979 9.5940e-07  EducExp <--- Intelligence
+##  gam62  -0.111779  0.026876 -4.15899 3.1966e-05      EducExp <--- Siblings
+##  gam63   0.172719  0.034306  5.03461 4.7882e-07      EducExp <--- FatherEd
+##  gam64   0.151852  0.033688  4.50758 6.5571e-06     EducExp <--- FatherOcc
 ##  beta65  0.405150  0.032838 12.33799 0.0000e+00        EducExp <--- Grades
-##  gam71  -0.039405  0.034500 -1.14215 1.2670e-01 OccupAsp <--- Intelligence
-##  gam72  -0.018825  0.028222 -0.66700 2.5238e-01     OccupAsp <--- Siblings
-##  gam73  -0.041333  0.036216 -1.14126 1.2688e-01     OccupAsp <--- FatherEd
-##  gam74   0.099577  0.035446  2.80924 2.4829e-03    OccupAsp <--- FatherOcc
-##  beta75  0.157912  0.037443  4.21738 1.2358e-05       OccupAsp <--- Grades
+##  gam71  -0.039405  0.034500 -1.14215 2.5339e-01 OccupAsp <--- Intelligence
+##  gam72  -0.018825  0.028222 -0.66700 5.0477e-01     OccupAsp <--- Siblings
+##  gam73  -0.041333  0.036216 -1.14126 2.5376e-01     OccupAsp <--- FatherEd
+##  gam74   0.099577  0.035446  2.80924 4.9658e-03    OccupAsp <--- FatherOcc
+##  beta75  0.157912  0.037443  4.21738 2.4716e-05       OccupAsp <--- Grades
 ##  beta76  0.549593  0.038260 14.36486 0.0000e+00      OccupAsp <--- EducExp
 ##  psi5    0.650995  0.033946 19.17743 0.0000e+00         Grades <--> Grades
 ##  psi6    0.516652  0.026943 19.17590 0.0000e+00       EducExp <--> EducExp
 ##  psi7    0.556617  0.029026 19.17644 0.0000e+00     OccupAsp <--> OccupAsp
+##
+##   Iterations =  0 
 
     }
 }
