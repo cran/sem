@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 5 Oct 03 by J. Fox
+# last modified 17 Nov 03 by J. Fox
 
 tsls <- function(y, ...){
     UseMethod("tsls")
@@ -44,7 +44,7 @@ tsls.formula <- function (formula, instruments, data, subset, na.action, contras
     form <- as.formula(paste(response.name, "~", deparse(formula[[3]]), 
         "+", deparse(instruments[[2]])))
     m$formula <- form
-    m$instruments <- m$formula <- m$contrasts <- NULL
+    m$instruments <- m$contrasts <- NULL
     m[[1]] <- as.name("model.frame")
     mf <- eval(m, sys.frame(sys.parent()))
     na.act <- attr(mf, "na.action")

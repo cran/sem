@@ -43,6 +43,10 @@ Changes to Version 0.7-7
    o Added code to detect more instances of nonconvergence.
    
    o Other small changes to code and documentation.
+   
+Changes to Version 0.7-8
+
+   o Fixed bug in tsls.formula that could prevent model formula from being evaluated (producing an error).
 
 
    
