@@ -16,9 +16,9 @@
   instruments is equal to the number of predictors.
 }
 \usage{
-tsls(object, ...)
-tsls.formula(model, instruments, data, subset, na.action, contrasts=NULL)
-tsls.default(y, X, Z, names=NULL)
+tsls(y, ...)
+tsls.formula(formula, instruments, data, subset, na.action, contrasts=NULL, ...)
+tsls.default(y, X, Z, names=NULL, ...)
 
 print.tsls(x, ...)
 summary.tsls(object, digits=4, ...)
@@ -30,7 +30,7 @@ coefficients.tsls(object, ...)
 }
 
 \arguments{
-  \item{model}{model formula for structural equation to be estimated; a regression
+  \item{formula}{model formula for structural equation to be estimated; a regression
     constant is implied if not explicitly omitted.}
   \item{instruments}{one-sided model formula specifying instrumental variables.}
   \item{data}{an optional data frame containing the variables in the model. 
@@ -56,7 +56,7 @@ coefficients.tsls(object, ...)
   \item{dfe}{optional error degrees of freedom, to be specified when an estimate of error
     variance is given.}
   \item{digits}{number of digits for summary output.}
-  \item{...}{not for the user.}
+  \item{...}{arguments to be passed down.}
 }
 
 }

@@ -1,13 +1,13 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 27 March 02 by J. Fox
+# last modified 9 November 02 by J. Fox
 
-tsls <- function(object, ...){
+tsls <- function(y, ...){
     UseMethod("tsls")
     }
 
-tsls.default <- function (y, X, Z, names=NULL) {
+tsls.default <- function (y, X, Z, names=NULL, ...) {
     n <- length(y)
     p <- ncol(X)
     invZtZ <- solve(crossprod(Z))
@@ -34,28 +34,28 @@ tsls.default <- function (y, X, Z, names=NULL) {
     }
 
     
-tsls.formula <- function(model, instruments, data, subset, 
-    na.action, contrasts=NULL){
+tsls.formula <- function(formula, instruments, data, subset, 
+    na.action, contrasts=NULL, ...){
     if (missing(na.action)) 
         na.action <- options()$na.action
     m <- match.call(expand.dots = FALSE)
     if (is.matrix(eval(m$data, sys.frame(sys.parent())))) 
         m$data <- as.data.frame(data)
-    response.name <- deparse(model[[2]])
-    formula <- as.formula(paste(response.name, '~', 
-        deparse(model[[3]]), '+', deparse(instruments[[2]])))
-    m$formula <- formula
-    m$instruments <- m$model <- m$contrasts <- NULL
+    response.name <- deparse(formula[[2]])
+    form <- as.formula(paste(response.name, '~', 
+        deparse(formula[[3]]), '+', deparse(instruments[[2]])))
+    m$formula <- form
+    m$instruments <- m$formula <- m$contrasts <- NULL
     m[[1]] <- as.name("model.frame")
     mf <- eval(m, sys.frame(sys.parent()))
     na.act <- attr(mf, "na.action")
     Z <- model.matrix(instruments, data = mf, contrasts)
     response <- attr(attr(mf, "terms"), "response")
     y <- mf[,response]
-    X <- model.matrix(model, data=mf, contrasts)
+    X <- model.matrix(formula, data=mf, contrasts)
     result <- tsls(y, X, Z, colnames(X))
     result$response.name <- response.name
-    result$formula <- model
+    result$formula <- formula
     result$instruments <- instruments
     if (!is.null(na.act)) 
         result$na.action <- na.act

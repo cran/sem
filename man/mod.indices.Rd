@@ -16,7 +16,7 @@
 \usage{
 mod.indices(model, ...)
 
-mod.indices.sem(model)
+mod.indices.sem(model, ...)
 
 print.sem.modind(x, n.largest=5, ...)
 

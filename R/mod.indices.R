@@ -1,10 +1,10 @@
-## last modified 27 March 02 by J. Fox
+## last modified 9 November 02 by J. Fox
 
 mod.indices<-function(model, ...){
     UseMethod("mod.indices")
     }
 
-mod.indices.sem <- function(model){        
+mod.indices.sem <- function(model, ...){        
     accumulate <- function(A, B, C, D, d) {
         res <- matrix(0, d^2, d^2)    
         for (ii in 1:(d^2)){
