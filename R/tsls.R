@@ -1,0 +1,154 @@
+# Two-Stage Least Squares
+#   John Fox
+
+# last modified 27 April 2001 by J. Fox
+
+tsls <- function(object, ...){
+    UseMethod("tsls")
+    }
+
+tsls.default <- function (y, X, Z, names=NULL) {
+    n <- length(y)
+    p <- ncol(X)
+    invZtZ <- inv(t(Z) %*% Z)
+    V <- inv(t(X) %*% Z %*% invZtZ %*% t(Z) %*% X)
+    b <- V %*% t(X) %*% Z %*% invZtZ %*% t(Z) %*% y
+    residuals <- y - X %*% b
+    s2 <- sum(residuals^2)/(n - p)
+    V <- s2*V
+    result<-list()
+    result$n <- n
+    result$p <- p
+    b <- as.vector(b)
+    names(b) <- names
+    result$coefficients <- b
+    rownames(V) <- colnames(V) <- names
+    result$V <- V
+    result$s <- sqrt(s2)
+    result$residuals <- as.vector(residuals)
+    result$response <- y
+    result$model.matrix <- X
+    result$instruments <- Z
+    result
+    }
+
+    
+tsls.formula <- function(model, instruments, data, subset, 
+    na.action, contrasts=NULL){
+    if (missing(na.action)) 
+        na.action <- options()$na.action
+    m <- match.call(expand.dots = FALSE)
+    if (is.matrix(eval(m$data, sys.frame(sys.parent())))) 
+        m$data <- as.data.frame(data)
+    c1 <- as.character(model)
+    c2 <- as.character(instruments)
+    formula <- as.formula(paste(c1[2],c1[1],c1[3], '+', c2[2]))
+    m$formula <- formula
+    m$instruments <- m$model <- m$contrasts <- NULL
+    m[[1]] <- as.name("model.frame")
+    mf <- eval(m, sys.frame(sys.parent()))
+    Z <- model.matrix(instruments, data = mf, contrasts)
+    response <- attr(attr(mf, "terms"), "response")
+    y <- mf[,response]
+    X <- model.matrix(model, data=mf, contrasts)
+    result <- tsls(y, X, Z, colnames(X))
+    result$response.name <- c1[2]
+    result$formula <- model
+    result$instruments <- instruments
+    class(result) <- "tsls"
+    result
+    }
+
+print.tsls <- function(x){
+    cat("\nModel Formula: ")
+    print(x$formula)
+    cat("\nInstruments: ")
+    print(x$instruments)
+    cat("\nCoefficients:\n")
+    print(x$coefficients)
+    cat("\n")
+    invisible(x)
+    }
+    
+    
+summary.tsls <- function(object, digits=4){
+    save.digits <- unlist(options(digits=digits))
+    on.exit(options(digits=save.digits))
+    cat("\n 2SLS Estimates\n")
+    cat("\nModel Formula: ")
+    print(object$formula)
+    cat("\nInstruments: ")
+    print(object$instruments)
+    cat("\nResiduals:\n")
+    print(summary(residuals(object)))
+    cat("\n")
+    df <- object$n - object$p
+    std.errors <- sqrt(diag(object$V))
+    b <- object$coefficients
+    t <- b/std.errors
+    p <- 2*(1 - pt(abs(t), df))
+    table <- cbind(b, std.errors, t, p)
+    rownames(table) <- names(b)
+    colnames(table) <- c("Estimate","Std. Error","t value","Pr(>|t|)")
+    print(table)
+    cat(paste("\nResidual standard error:", round(object$s, digits),
+        "on", df, "degrees of freedom\n\n"))
+    }
+    
+residuals.tsls <- function(object){
+    object$residuals
+    }
+
+coefficients.tsls <- function(object){
+    object$coefficients
+    }
+    
+fitted.tsls <- function(object){
+    as.vector(object$model.matrix %*% object$coefficients)
+    }
+    
+anova.tsls <- function(model.1, model.2, s2, dfe){
+    if(class(model.2) != "tsls") stop('requires two models of class tsls')
+    s2.1 <- model.1$s^2
+    n.1 <- model.1$n 
+    p.1 <- model.1$p
+    dfe.1 <- n.1 - p.1
+    s2.2 <- model.2$s^2
+    n.2 <- model.2$n
+    p.2 <- model.2$p
+    dfe.2 <- n.2 - p.2
+    SS.1 <- s2.1 * dfe.1
+    SS.2 <- s2.2 * dfe.2
+    SS <- abs(SS.1 - SS.2)
+    Df <- abs(dfe.2 - dfe.1)
+    if (missing(s2)){
+        s2 <- if (dfe.1 > dfe.2) s2.1 else s2.2
+        F <- (SS/Df) / s2
+        RSS <- c(SS.1, SS.2)
+        Res.Df <- c(dfe.1, dfe.2)
+        SS <- c(NA, SS)
+        P <- c(NA, 1 - pf(F, Df, min(dfe.1, dfe.2)))
+        Df <- c(NA, Df)
+        F <- c(NA, F)
+        rows <- c("Model 1", "Model 2")
+        }
+    else{
+        F <- (SS/Df) / s2
+        RSS <- c(SS.1, SS.2, s2*dfe)
+        Res.Df <- c(dfe.1, dfe.2, dfe)
+        SS <- c(NA, SS, NA)
+        P <- c(NA, 1 - pf(F, Df, min(dfe.1, dfe.2)), NA)
+        Df <- c(NA, Df, NA)
+        F <- c(NA, F, NA)
+        rows <- c("Model 1", "Model 2", "Error")
+        }
+    table <- data.frame(Res.Df, RSS, Df, SS, F, P)
+    head.1 <- paste("Model 1: ",format(model.1$formula), "  Instruments:", 
+        format(model.1$instruments))
+    head.2 <- paste("Model 2: ",format(model.2$formula), "  Instruments:", 
+        format(model.2$instruments))
+    names(table) <- c("Res.Df", "RSS", "Df", "Sum of Sq", "F", "Pr(>F)")
+    row.names(table) <- rows
+    structure(table, heading = c("Analysis of Variance", "", head.1, head.2, ""), 
+        class = c("anova", "data.frame"))
+    }
