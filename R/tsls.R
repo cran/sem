@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 17 Nov 03 by J. Fox
+# last modified 19 Nov 04 by J. Fox
 
 tsls <- function(y, ...){
     UseMethod("tsls")
@@ -32,17 +32,20 @@ tsls.default <- function (y, X, Z, names=NULL, ...) {
     result$instruments <- Z
     result
     }
-
-    
+   
 tsls.formula <- function (formula, instruments, data, subset, na.action, contrasts = NULL, ...) {
-    if (missing(na.action)) 
+    if (missing(na.action))
         na.action <- options()$na.action
     m <- match.call(expand.dots = FALSE)
-    if (is.matrix(eval(m$data, sys.frame(sys.parent())))) 
+    if (is.matrix(eval(m$data, sys.frame(sys.parent()))))
         m$data <- as.data.frame(data)
     response.name <- deparse(formula[[2]])
-    form <- as.formula(paste(response.name, "~", deparse(formula[[3]]), 
-        "+", deparse(instruments[[2]])))
+    form <- as.formula(paste(
+        paste(response.name, collapse=""),
+        "~",
+        paste(deparse(formula[[3]]), collapse=""),
+        "+",
+        paste(deparse(instruments[[2]]), collapse="")))
     m$formula <- form
     m$instruments <- m$contrasts <- NULL
     m[[1]] <- as.name("model.frame")
@@ -55,12 +58,11 @@ tsls.formula <- function (formula, instruments, data, subset, na.action, contras
     result$response.name <- response.name
     result$formula <- formula
     result$instruments <- instruments
-    if (!is.null(na.act)) 
+    if (!is.null(na.act))
         result$na.action <- na.act
     class(result) <- "tsls"
     result
     }
-
 
 print.tsls <- function(x, ...){
     cat("\nModel Formula: ")

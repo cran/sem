@@ -58,5 +58,7 @@ Changes to Version 0.8-0
 
    o Put in a warning for (unfixed) observed or latent variable without either variance or error-variance term specified (i.e., double-headed arrow). As far as I know, this will always produce an error.
 
+Changes to Version 0.8-1
 
+   o Fixed a bug in tsls.formula that caused the function to fail when the printed representation of the instruments formula extended over more than one line.
    
