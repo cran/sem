@@ -1,6 +1,6 @@
-# last modified 28 Jan 2002 by J. Fox
+# last modified 27 March 02 by J. Fox
 
-startvalues <- function(S, ram, debug=F){
+startvalues <- function(S, ram, debug=FALSE){
     n <- nrow(S) 
     observed <- 1:n       
     m <- max(ram[,2])            
@@ -47,9 +47,9 @@ startvalues <- function(S, ram, debug=F){
         A[j, ind] <- solve(C[ind, ind]) %*% C[ind, j]
         }
     A[observed,] <- A[observed,]*matrix(s, n, m)
-    A[,observed] <- A[,observed]*matrix(s, m, n, byrow=T)
+    A[,observed] <- A[,observed]*matrix(s, m, n, byrow=TRUE)
     C[observed,] <- C[observed,]*matrix(s, n, m)
-    C[,observed] <- C[,observed]*matrix(s, m, n, byrow=T)
+    C[,observed] <- C[,observed]*matrix(s, m, n, byrow=TRUE)
     P <- (diag(m) - A) %*% C %*% t(diag(m) - A)
     P <- P.pat * P
     for (par in 1:t){

@@ -106,7 +106,7 @@ model.wh <- matrix(c(
                     'Alienation67   <-> Alienation67',  'psi1', NA,
                     'Alienation71   <-> Alienation71',  'psi2', NA,
                     'SES            <-> SES',           'phi',  NA), 
-                    ncol=3, byrow=T)
+                    ncol=3, byrow=TRUE)
                                             
 obs.vars.wh <- c('Anomia67','Powerless67','Anomia71','Powerless71','Education','SEI')
 rownames(S.wh) <- colnames(S.wh) <- obs.vars.wh
@@ -133,4 +133,3 @@ mod.indices(sem.wh)
 }
 
 \keyword{models}
-

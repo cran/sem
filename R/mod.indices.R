@@ -1,4 +1,4 @@
-## last modified 3 Feb 2002 by J. Fox
+## last modified 27 March 02 by J. Fox
 
 mod.indices<-function(model, ...){
     UseMethod("mod.indices")
@@ -122,5 +122,5 @@ print.sem.modind <- function(x, n.largest=5, ...){
     cat("\n ", n.largest, "largest modification indices, P matrix:\n")
     mod.P <- as.vector(x$mod.P)
     names(mod.P) <- outer(names, names, paste, sep=":")
-    print(rev(sort(mod.P[lower.tri(x$mod.P, diag=T)]))[1:n.largest])
+    print(rev(sort(mod.P[lower.tri(x$mod.P, diag=TRUE)]))[1:n.largest])
     }

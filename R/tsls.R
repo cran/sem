@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 21 Nov 2001 by J. Fox
+# last modified 27 March 02 by J. Fox
 
 tsls <- function(object, ...){
     UseMethod("tsls")
@@ -133,26 +133,26 @@ anova.tsls <- function(object, model.2, s2, dfe, ...){
     Df <- abs(dfe.2 - dfe.1)
     if (missing(s2)){
         s2 <- if (dfe.1 > dfe.2) s2.1 else s2.2
-        F <- (SS/Df) / s2
+        f <- (SS/Df) / s2
         RSS <- c(SS.1, SS.2)
         Res.Df <- c(dfe.1, dfe.2)
         SS <- c(NA, SS)
-        P <- c(NA, 1 - pf(F, Df, min(dfe.1, dfe.2)))
+        P <- c(NA, 1 - pf(f, Df, min(dfe.1, dfe.2)))
         Df <- c(NA, Df)
-        F <- c(NA, F)
+        f <- c(NA, f)
         rows <- c("Model 1", "Model 2")
         }
     else{
-        F <- (SS/Df) / s2
+        f <- (SS/Df) / s2
         RSS <- c(SS.1, SS.2, s2*dfe)
         Res.Df <- c(dfe.1, dfe.2, dfe)
         SS <- c(NA, SS, NA)
-        P <- c(NA, 1 - pf(F, Df, min(dfe.1, dfe.2)), NA)
+        P <- c(NA, 1 - pf(f, Df, min(dfe.1, dfe.2)), NA)
         Df <- c(NA, Df, NA)
-        F <- c(NA, F, NA)
+        f <- c(NA, f, NA)
         rows <- c("Model 1", "Model 2", "Error")
         }
-    table <- data.frame(Res.Df, RSS, Df, SS, F, P)
+    table <- data.frame(Res.Df, RSS, Df, SS, f, P)
     head.1 <- paste("Model 1: ",format(object$formula), "  Instruments:", 
         format(object$instruments))
     head.2 <- paste("Model 2: ",format(model.2$formula), "  Instruments:", 

@@ -92,9 +92,7 @@ coefficients.tsls(object, ...)
 
 \examples{
 data(Kmenta)
-attach(Kmenta)
-
-summary(tsls(Q ~ P + D, ~ D + F + A))     # demand equation
+summary(tsls(Q ~ P + D, ~ D + F + A, data=Kmenta))     # demand equation
 
 ##  2SLS Estimates
 ##  
@@ -113,7 +111,7 @@ summary(tsls(Q ~ P + D, ~ D + F + A))     # demand equation
 ##  
 ##  Residual standard error: 1.9663 on 17 degrees of freedom
 
-summary(tsls(Q ~ P + F + A, ~ D + F + A)) # supply equation
+summary(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta)) # supply equation
 
 ##  2SLS Estimates
 ##  
@@ -134,8 +132,8 @@ summary(tsls(Q ~ P + F + A, ~ D + F + A)) # supply equation
 ##  Residual standard error: 2.4576 on 16 degrees of freedom
 
 
-anova(tsls(Q ~ P + F + A, ~ D + F + A),
-    tsls(Q ~ 1, ~ D + F + A))
+anova(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta),
+    tsls(Q ~ 1, ~ D + F + A, data=Kmenta))
 
 ##  Analysis of Variance
 ##  

@@ -16,7 +16,7 @@ path.diagram(model, ...)
 
 path.diagram.sem(model, out.file, min.rank=NULL, max.rank=NULL, 
     same.rank=NULL, variables=model$var.names, parameters=rownames(object$ram), 
-    ignore.double=T, edge.labels=c("names", "values"), size=c(8, 8), 
+    ignore.double=TRUE, edge.labels=c("names", "values"), size=c(8, 8), 
     node.font=c("Helvetica", 14), edge.font=c("Helvetica", 10), 
     rank.direction=c("LR", "TB"))
 }
@@ -81,7 +81,7 @@ R.DHP <- matrix(c(
             .2930,  .2407,  .4105,  .3607,  .0186,  .1861,  .2707,  1,      0,      0,
             .2995,  .2863,  .5191,  .5007,  .0782,  .3355,  .2302,  .2950,  1,      0,
             .0760,  .0702,  .2784,  .1988,  .1147,  .1021,  .0931, -.0438,  .2087,  1
-            ), ncol=10, byrow=T)
+            ), ncol=10, byrow=TRUE)
 
 model.dhp <- matrix(c(
                       'RParAsp  -> RGenAsp', 'gam11',  NA,
@@ -105,7 +105,7 @@ model.dhp <- matrix(c(
                       'REdAsp  <-> REdAsp',  'theta2', NA,
                       'FOccAsp <-> FOccAsp', 'theta3', NA,
                       'FEdAsp  <-> FEdAsp',  'theta4', NA),
-                    ncol=3, byrow=T)
+                    ncol=3, byrow=TRUE)
 
 rownames(R.DHP) <- colnames(R.DHP) <- c('ROccAsp', 'REdAsp', 'FOccAsp', 
     'FEdAsp', 'RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp')

@@ -1,9 +1,11 @@
+# last modified 27 March 02 by J. Fox
+
 path.diagram <- function(model, ...){
     UseMethod("path.diagram")
     }
 
 path.diagram.sem <- function(model, out.file, min.rank=NULL, max.rank=NULL, same.rank=NULL,
-    variables=model$var.names, parameters=rownames(object$ram), ignore.double=T,
+    variables=model$var.names, parameters=rownames(object$ram), ignore.double=TRUE,
     edge.labels=c("names", "values"), size=c(8,8), node.font=c("Helvetica", 14),
     edge.font=c("Helvetica", 10), rank.direction=c("LR", "TB")){
     if(!missing(out.file)){

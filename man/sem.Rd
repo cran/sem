@@ -21,13 +21,13 @@
 \usage{
 sem(ram, ...)
 
-sem.mod(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F, ...)
+sem.mod(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...)
     
 sem.default(ram, S, N, param.names = paste("Param", 1:t, sep = ""), 
-    var.names = paste("V", 1:m, sep = ""), fixed.x = NULL, debug = F, 
-    analytic.gradient = T, warn = F, maxiter = 500) 
+    var.names = paste("V", 1:m, sep = ""), fixed.x = NULL, debug = FALSE, 
+    analytic.gradient = TRUE, warn = FALSE, maxiter = 500) 
     
-startvalues(S, ram, debug = F)
+startvalues(S, ram, debug = FALSE)
 
 print.sem(x, ...)
 
@@ -209,7 +209,7 @@ R.DHP <- matrix(c(      # lower triangle of correlation matrix
             .2930,  .2407,  .4105,  .3607,  .0186,  .1861,  .2707,  1,      0,      0,
             .2995,  .2863,  .5191,  .5007,  .0782,  .3355,  .2302,  .2950,  1,      0,
             .0760,  .0702,  .2784,  .1988,  .1147,  .1021,  .0931, -.0438,  .2087,  1
-            ), ncol=10, byrow=T)
+            ), ncol=10, byrow=TRUE)
 
 # Fit the model using a symbolic ram specification
 
@@ -235,7 +235,7 @@ model.dhp <- matrix(c(
                       'REdAsp  <-> REdAsp',  'theta2', NA,
                       'FOccAsp <-> FOccAsp', 'theta3', NA,
                       'FEdAsp  <-> FEdAsp',  'theta4', NA),
-                    ncol=3, byrow=T)
+                    ncol=3, byrow=TRUE)
 
 obs.vars.dhp <- c('ROccAsp', 'REdAsp', 'FOccAsp', 'FEdAsp', 'RParAsp', 'RIQ',
                 'RSES', 'FSES', 'FIQ', 'FParAsp')
@@ -306,7 +306,7 @@ ram.dhp <- matrix(c(
                 2,      11,     11,     17,     NA, # psi11
                 2,      12,     12,     18,     NA, # psi22
                 2,      11,     12,     19,     NA  # psi12
-                ), ncol=5, byrow=T)
+                ), ncol=5, byrow=TRUE)
 
 params.dhp <- c('lam21', 'lam42', 'gam11', 'gam12', 'gam13', 'gam14',
                  'gam23',  'gam24',  'gam25',  'gam26',
@@ -392,7 +392,7 @@ model.wh.1 <- matrix(c(
                     'Alienation67   <-> Alienation67',  'psi1', NA,
                     'Alienation71   <-> Alienation71',  'psi2', NA,
                     'SES            <-> SES',           'phi',  NA), 
-                    ncol=3, byrow=T)
+                    ncol=3, byrow=TRUE)
                         
 obs.vars.wh <- c('Anomia67','Powerless67','Anomia71','Powerless71','Education','SEI')
 
@@ -451,7 +451,7 @@ model.wh.2 <- matrix(c(
                     'Alienation67   <-> Alienation67',  'psi1',     NA,
                     'Alienation71   <-> Alienation71',  'psi2',     NA,
                     'SES            <-> SES',           'phi',      NA), 
-                    ncol=3, byrow=T)                        
+                    ncol=3, byrow=TRUE)                        
 
 sem.wh.2 <- sem(model.wh.2, S.wh, 932, obs.vars.wh)
 
@@ -499,7 +499,7 @@ R.thur <- matrix(c(
          .447,   .432,    .401,   .381,    .402,   .288,  1.,     0,      0, 
          .541,   .537,    .534,   .350,    .367,   .320,   .555,  1.,     0, 
          .380,   .358,    .359,   .424,    .446,   .325,   .598,   .452,  1.
-            ), ncol=9, byrow=T)
+            ), ncol=9, byrow=TRUE)
 
 model.thur <- matrix(c(
                         'F1 -> Sentences',                      'lam11', NA,
@@ -527,7 +527,7 @@ model.thur <- matrix(c(
                         'F2 <-> F2',                            NA,      1,
                         'F3 <-> F3',                            NA,      1,
                         'F4 <-> F4',                            NA,      1),
-                        ncol=3, byrow=T)
+                        ncol=3, byrow=TRUE)
                         
 obs.vars.thur <- c('Sentences','Vocabulary','Sent.Completion','First.Letters',
                 '4.Letter.Words','Suffixes','Letter.Series','Pedigrees',
@@ -585,7 +585,7 @@ R.kerch <- matrix(c(
      .572,  -.105,  .294,   .248,   1,      0,      0,
      .489,  -.213,  .446,   .410,   .597,   1,      0,
      .335,  -.153,  .303,   .331,   .478,   .651,   1),
-     ncol=7, byrow=T)
+     ncol=7, byrow=TRUE)
 
 rownames(R.kerch) <- colnames(R.kerch) <- c('Intelligence','Siblings',
     'FatherEd','FatherOcc','Grades','EducExp','OccupAsp')
@@ -610,7 +610,7 @@ model.kerch <- matrix(c(
                         'Grades <-> Grades',            'psi5',     NA,
                         'EducExp <-> EducExp',          'psi6',     NA,
                         'OccupAsp <-> OccupAsp',        'psi7',     NA),
-                       ncol=3, byrow=T)
+                       ncol=3, byrow=TRUE)
                        
 sem.kerch <- sem(model.kerch, R.kerch, 737, fixed.x=c('Intelligence','Siblings',
     'FatherEd','FatherOcc'))

@@ -8,7 +8,7 @@
 }
 
 \usage{
-ram(object, digits=5, startvalues=F)
+ram(object, digits=5, startvalues=FALSE)
 }
 
 

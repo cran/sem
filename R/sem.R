@@ -1,11 +1,11 @@
-# last modified 29 Jan 2002 by J. Fox
+# last modified 27 March 02 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
     UseMethod('sem', ram)
     }
 
-sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F, ...){
+sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...){
     parse.path <- function(path) {
         path.1 <- gsub('-', '', gsub(' ','', path))
         direction <- if (regexpr('<>', path.1) > 0) 2 
@@ -66,8 +66,8 @@ sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F
      
 
 sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''), 
-    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, debug=F,
-    analytic.gradient=T, warn=F, maxiter=500){
+    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, debug=FALSE,
+    analytic.gradient=TRUE, warn=FALSE, maxiter=500){
     is.triangular <- function(X) {
         is.matrix(X) && (nrow(X) == ncol(X)) && 
             (all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
@@ -125,8 +125,8 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         I.Ainv <- solve(diag(m) - A)
         C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
         Cinv <- solve(C)
-        F <- sum(diag(S %*% Cinv)) + log(det(C))
-        F
+        f <- sum(diag(S %*% Cinv)) + log(det(C))
+        f
         }
     objective.2 <- function(par){
         A <- P <- matrix(0, m, m)
@@ -136,21 +136,21 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         I.Ainv <- solve(diag(m) - A)
         C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
         Cinv <- solve(C)
-        F <- sum(diag(S %*% Cinv)) + log(det(C))
+        f <- sum(diag(S %*% Cinv)) + log(det(C))
         grad.P <- correct * t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
         grad.A <- grad.P %*% P %*% t(I.Ainv)        
         gradient <- rep(0, t)
         gradient[unique.free.1] <- tapply(grad.A[arrows.1.free],ram[ram[,1]==1 & ram[,4]!=0, 4], sum)
         gradient[unique.free.2] <- tapply(grad.P[arrows.2.free],ram[ram[,1]==2 & ram[,4]!=0, 4], sum)
-        attributes(F) <- list(C=C, A=A, P=P, gradient=gradient)
-        F
+        attributes(f) <- list(C=C, A=A, P=P, gradient=gradient)
+        f
         }
     if (!warn){
         save.warn <- options(warn=-1)
         on.exit(options(save.warn))
         }
     res <- nlm(if (analytic.gradient) objective.2 else objective.1, 
-        start, hessian=T, iterlim=maxiter, print.level=if(debug) 2 else 0)
+        start, hessian=TRUE, iterlim=maxiter, print.level=if(debug) 2 else 0)
     convergence <- res$code
     if (!warn) options(save.warn)
     par <- res$estimate
