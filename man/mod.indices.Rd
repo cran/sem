@@ -16,11 +16,11 @@
 \usage{
 mod.indices(model, ...)
 
-mod.indices.sem(model, ...)
+\method{mod.indices}{sem}(model, ...)
 
-print.sem.modind(x, n.largest=5, ...)
+\method{print}{sem.modind}(x, n.largest=5, ...)
 
-summary.sem.modind(object, round=2, 
+\method{summary}{sem.modind}(object, round=2, 
     print.matrices=c("both", "par.change", "mod.indices"), ...)
 }
     

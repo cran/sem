@@ -21,18 +21,18 @@
 \usage{
 sem(ram, ...)
 
-sem.mod(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...)
+\method{sem}{mod}(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...)
     
-sem.default(ram, S, N, param.names = paste("Param", 1:t, sep = ""), 
+\method{sem}{default}(ram, S, N, param.names = paste("Param", 1:t, sep = ""), 
     var.names = paste("V", 1:m, sep = ""), fixed.x = NULL, debug = FALSE, 
     analytic.gradient = TRUE, warn = FALSE, maxiter = 500, 
     par.size=c('ones', 'startvalues'), refit=TRUE, start.tol=1E-6, ...) 
     
 startvalues(S, ram, debug = FALSE, tol=1E-6)
 
-print.sem(x, ...)
+\method{print}{sem}(x, ...)
 
-summary.sem(object, digits=5, conf.level=0.9, ...)
+\method{summary}{sem}(object, digits=5, conf.level=0.9, ...)
 }
 
 \arguments{
@@ -70,8 +70,10 @@ summary.sem(object, digits=5, conf.level=0.9, ...)
   \item{maxiter}{the maximum number of iterations for the optimization performed by the
     \code{nlm} function, to be passed to it via its \code{iterlim} argument.}
   \item{par.size}{the anticipated size of the free parameters; if \code{"ones"},
-    the default, a vector of ones is used; if \code{"startvalues"}, taken from the start values.
-    You can try changing this argument if you encounter convergence problems.}
+    a vector of ones is used; if \code{"startvalues"}, taken from the start values.
+    You can try changing this argument if you encounter convergence problems.
+    The default is \code{"startvalues"} if the largest input variance is at
+    least 100 times the smallest, and \code{"ones"} otherwise.}
   \item{refit}{if \code{TRUE} (the default), attempt to refit the model eliminating apparently aliased parameters if 
     under-identification is detected.}
   \item{start.tol, tol}{if the magnitude of an automatic start value is less than \code{start.tol}, then

@@ -1,4 +1,4 @@
-# last modified 19 Sept 2002 by J. Fox
+# last modified 6 Oct 2003 by J. Fox
 
 startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     n <- nrow(S) 
@@ -8,7 +8,7 @@ startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     s <- sqrt(diag(S))
     R <- S/outer(s,s)
     latent<-(1:m)[-observed]
-    par.posn <- unlist(lapply(apply(outer(ram[,4], 1:t, '=='), 2, which), "[", 1))
+    par.posn <-  sapply(1:t, function(i) which(ram[,4] == i)[1])    
     one.head <- ram[,1] == 1
     start <- (ram[,5])[par.posn]
     A.pat <-matrix(FALSE, m, m)

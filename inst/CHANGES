@@ -29,6 +29,20 @@ Changes to Version 0.7-3
 Changes to Version 0.7-5
 
    o Made arguments to method functions consistent with generics (mostly adding ...).
+   
+Changes to Version 0.7-6
+
+   o Check for negative degrees of freedom.
+   
+Changes to Version 0.7-7
+
+   o Fixed bug in sem.default and startvalues that prevented the model from being fit when there are all equality constraints affect precisely the same numbers of parameters.
+   
+   o Fixed bug in tsls.formula that could cause the wrong variable to be identified as the response (causing the fit to fail).
+   
+   o Added code to detect more instances of nonconvergence.
+   
+   o Other small changes to code and documentation.
 
 
    

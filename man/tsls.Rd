@@ -17,16 +17,16 @@
 }
 \usage{
 tsls(y, ...)
-tsls.formula(formula, instruments, data, subset, na.action, contrasts=NULL, ...)
-tsls.default(y, X, Z, names=NULL, ...)
+\method{tsls}{formula}(formula, instruments, data, subset, na.action, contrasts=NULL, ...)
+\method{tsls}{default}(y, X, Z, names=NULL, ...)
 
-print.tsls(x, ...)
-summary.tsls(object, digits=4, ...)
-anova.tsls(object, model.2, s2, dfe, ...)
+\method{print}{tsls}(x, ...)
+\method{summary}{tsls}(object, digits=4, ...)
+\method{anova}{tsls}(object, model.2, s2, dfe, ...)
 
-fitted.tsls(object, ...)
-residuals.tsls(object, ...)
-coefficients.tsls(object, ...)
+\method{fitted}{tsls}(object, ...)
+\method{residuals}{tsls}(object, ...)
+\method{coefficients}{tsls}(object, ...)
 }
 
 \arguments{

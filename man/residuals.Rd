@@ -13,15 +13,15 @@
   model fit by \code{sem}.
 }
 \usage{
-residuals.sem(object, ...)
+\method{residuals}{sem}(object, ...)
 
 standardized.residuals(object, ...)
 
-standardized.residuals.sem(object, ...)
+\method{standardized.residuals}{sem}(object, ...)
 
 normalized.residuals(object, ...)
 
-normalized.residuals.sem(object, ...)
+\method{normalized.residuals}{sem}(object, ...)
 }
 
 \arguments{

@@ -1,4 +1,4 @@
-# last modified 3 Sept 02 by J. Fox
+# last modified 10 Oct 03 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -81,7 +81,11 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
         stop ('ram argument must be a 5-column numeric matrix')
-    par.size <- match.arg(par.size)
+    par.size <- if (missing(par.size)) {
+        range <- range(diag(S))
+        if (range[2]/range[1] > 100) 'startvalues' else 'ones'
+        }
+        else match.arg(par.size)
     n <- nrow(S)
     observed <- 1:n
     n.fix <- length(fixed.x)
@@ -95,11 +99,13 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         }
     m <- max(ram[,2])
     t <- max(ram[,4])
+    df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
+    if (df < 0) stop(paste("The model has negative degrees of freedom =", df))
     J <- matrix(0, n, m)
     correct <- matrix(2, m, m)
     diag(correct) <- 1
     J[cbind(1:n, observed)]<-1
-    par.posn <- unlist(lapply(apply(outer(ram[,4], 1:t, '=='), 2, which), "[", 1))
+    par.posn <-  sapply(1:t, function(i) which(ram[,4] == i)[1])
     colnames(ram)<-c("heads", "to", "from", "parameter", "start value")
     rownames(ram)<-rep("",nrow(ram))
     rownames(ram)[par.posn]<-param.names
@@ -192,8 +198,10 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     if (convergence > 2) 
         warning(paste('Optimization may not have converged; nlm return code = ',
             res$code, '. Consult ?nlm.\n', sep=""))
-    qr.hess <- qr(res$hessian)
-    if (qr.hess$rank < t){ 
+    qr.hess <- try(qr(res$hessian), silent=TRUE)
+    if (class(qr.hess) == "try-error")
+        warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
+    else if (qr.hess$rank < t){ 
         warning(' singular Hessian: model is probably underidentified.\n')
         cov <- matrix(NA, t, t)
         colnames(cov) <- rownames(cov) <- param.names
@@ -221,6 +229,10 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         cov <- (2/(N - 1)) * solve(res$hessian)
         colnames(cov) <- rownames(cov) <- param.names
         result$cov <- cov
+        if (any(diag(cov) < 0)) {
+            result$aliased <- c(param.names[diag(cov) < 0], result$aliased)
+            warning("Negative parameter variances.\nModel is probably underidentified.\n")
+            }
         }
     class(result) <- "sem"
     result
