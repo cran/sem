@@ -25,9 +25,10 @@ sem.mod(ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...)
     
 sem.default(ram, S, N, param.names = paste("Param", 1:t, sep = ""), 
     var.names = paste("V", 1:m, sep = ""), fixed.x = NULL, debug = FALSE, 
-    analytic.gradient = TRUE, warn = FALSE, maxiter = 500) 
+    analytic.gradient = TRUE, warn = FALSE, maxiter = 500, 
+    par.size=c('ones', 'startvalues'), refit=TRUE, start.tol=1E-6, ...) 
     
-startvalues(S, ram, debug = FALSE)
+startvalues(S, ram, debug = FALSE, tol=1E-6)
 
 print.sem(x, ...)
 
@@ -52,7 +53,8 @@ summary.sem(object, digits=5, conf.level=0.9, ...)
   \item{debug}{if \code{TRUE}, some information is printed to help you debug the symbolic
     model specification; for example, if a variable name is misspelled, \code{sem} will
     assume that the variable is a (new) latent variable. The default is \code{FALSE}.}
-  \item{...}{arguments to be passed down to \code{sem.default} (or ignored).}
+  \item{...}{arguments to be passed down, including from \code{sem.default} to the \code{\link[base]{nlm}}
+    optimizer.}
   \item{param.names}{names of the \eqn{t} free parameters, given in their numerical order;
     default names are \code{Param1}, \ldots, \code{Param}\emph{t}. Note: Should not be
     specified when the \code{ram} matrix is given in symbolic form.}
@@ -67,6 +69,13 @@ summary.sem(object, digits=5, conf.level=0.9, ...)
     information about convergence. The default is \code{FALSE}.}
   \item{maxiter}{the maximum number of iterations for the optimization performed by the
     \code{nlm} function, to be passed to it via its \code{iterlim} argument.}
+  \item{par.size}{the anticipated size of the free parameters; if \code{"ones"},
+    the default, a vector of ones is used; if \code{"startvalues"}, taken from the start values.
+    You can try changing this argument if you encounter convergence problems.}
+  \item{refit}{if \code{TRUE} (the default), attempt to refit the model eliminating apparently aliased parameters if 
+    under-identification is detected.}
+  \item{start.tol, tol}{if the magnitude of an automatic start value is less than \code{start.tol}, then
+    it is set to \code{start.tol}; defaults to 1E-6.}
   \item{object, x}{an object of class \code{sem} returned by the \code{sem} function.}
   \item{digits}{number of digits for printed output.}
   \item{conf.level}{level for confidence interval for the RMSEA index (default is .9).}

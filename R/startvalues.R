@@ -1,6 +1,6 @@
-# last modified 27 March 02 by J. Fox
+# last modified 19 Sept 2002 by J. Fox
 
-startvalues <- function(S, ram, debug=FALSE){
+startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     n <- nrow(S) 
     observed <- 1:n       
     m <- max(ram[,2])            
@@ -47,7 +47,7 @@ startvalues <- function(S, ram, debug=FALSE){
         A[j, ind] <- solve(C[ind, ind]) %*% C[ind, j]
         }
     A[observed,] <- A[observed,]*matrix(s, n, m)
-    A[,observed] <- A[,observed]*matrix(s, m, n, byrow=TRUE)
+    A[,observed] <- A[,observed]/matrix(s, m, n, byrow=TRUE)
     C[observed,] <- C[observed,]*matrix(s, n, m)
     C[,observed] <- C[,observed]*matrix(s, m, n, byrow=TRUE)
     P <- (diag(m) - A) %*% C %*% t(diag(m) - A)
@@ -57,6 +57,7 @@ startvalues <- function(S, ram, debug=FALSE){
         posn <- par.posn[par]
         if (ram[posn, 1] == 1) start[par] <- A[ram[posn, 2], ram[posn, 3]]
             else start[par] <- P[ram[posn, 2], ram[posn, 3]]
+        if (abs(start[par]) < tol) start[par] <- tol
         }
     if (debug){
         cat('\nStart values:\n')

@@ -1,4 +1,4 @@
-# last modified 29 Jan 2002 by J. Fox
+# last modified 27 July 2002 by J. Fox
 
 print.sem <- function(x, ...) {
     n <- x$n
@@ -9,5 +9,6 @@ print.sem <- function(x, ...) {
         "  Df = ", df, "\n\n")
     print(x$coeff)
     cat("\n Iterations = ", x$iterations, "\n")
+    if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
     invisible(x)
     }

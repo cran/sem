@@ -14,9 +14,15 @@ Changes to Version 0.7-0
    
 Changes to Version 0.7-1
 
-   o Replaced F with FALSE as logical, F with f as variable
+   o Replaced F with FALSE as logical, F with f as variable.
    
 Changes to Version 0.7-2
 
-   O Fixed tsls examples to run even if a global variable named F exists.
+   o Fixed tsls examples to run even if a global variable named F exists.
+   
+Changes to Version 0.7-3
+
+   o Fixed bug in start-values routine that affected unstandardized models.
+   
+   o Added code to try to detect under-identified models.
    

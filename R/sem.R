@@ -1,4 +1,4 @@
-# last modified 27 March 02 by J. Fox
+# last modified 3 Sept 02 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -67,7 +67,9 @@ sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F
 
 sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''), 
     var.names=paste('V', 1:m, sep=''), fixed.x=NULL, debug=FALSE,
-    analytic.gradient=TRUE, warn=FALSE, maxiter=500){
+    analytic.gradient=TRUE, warn=FALSE, maxiter=500, par.size=c('ones', 'startvalues'), 
+    refit=TRUE, start.tol=1E-6, ...){
+    ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
     is.triangular <- function(X) {
         is.matrix(X) && (nrow(X) == ncol(X)) && 
             (all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
@@ -79,6 +81,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
         stop ('ram argument must be a 5-column numeric matrix')
+    par.size <- match.arg(par.size)
     n <- nrow(S)
     observed <- 1:n
     n.fix <- length(fixed.x)
@@ -115,7 +118,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     sel.free.2 <- sel.free[two.free]
     unique.free.1 <- unique(sel.free.1)
     unique.free.2 <- unique(sel.free.2)
-    start <- if (any(is.na(ram[,5][par.posn]))) startvalues(S, ram, debug)
+    start <- if (any(is.na(ram[,5][par.posn]))) startvalues(S, ram, debug=debug, tol=start.tol)
         else ram[,5][par.posn]
     objective.1 <- function(par){
         A <- P <- matrix(0, m, m)
@@ -149,8 +152,10 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         save.warn <- options(warn=-1)
         on.exit(options(save.warn))
         }
+    typsize <- if (par.size == 'startvalues') abs(start) else rep(1,t)
     res <- nlm(if (analytic.gradient) objective.2 else objective.1, 
-        start, hessian=TRUE, iterlim=maxiter, print.level=if(debug) 2 else 0)
+        start, hessian=TRUE, iterlim=maxiter, print.level=if(debug) 2 else 0,
+        typsize=typsize, ...)
     convergence <- res$code
     if (!warn) options(save.warn)
     par <- res$estimate
@@ -164,9 +169,6 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$ram <- ram
     result$coeff <- par
     result$criterion <-  c(obj) - n - log(det(S))
-    cov <- (2/(N - 1)) * solve(res$hessian)
-    colnames(cov) <- rownames(cov) <- param.names
-    result$cov <- cov
     rownames(S) <- colnames(S) <- var.names[observed]
     result$S <- S
     result$J <- J
@@ -187,7 +189,39 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$par.posn <- par.posn
     result$convergence <- convergence
     result$iterations <- res$iterations
-    if (convergence > 2) warning('optimization DID NOT converge')
+    if (convergence > 2) 
+        warning(paste('Optimization may not have converged; nlm return code = ',
+            res$code, '. Consult ?nlm.\n', sep=""))
+    qr.hess <- qr(res$hessian)
+    if (qr.hess$rank < t){ 
+        warning(' singular Hessian: model is probably underidentified.\n')
+        cov <- matrix(NA, t, t)
+        colnames(cov) <- rownames(cov) <- param.names
+        result$cov <- cov
+        which.aliased <- qr.hess$pivot[-(1:qr.hess$rank)]
+        aliased <- param.names[which.aliased]
+        position.aliased <- is.element(ram[,4], which.aliased)
+        if (refit){
+            warning(' refitting without aliased parameters.\n')
+            ram.refit <- ram[!position.aliased,]
+            par.refit <- ram.refit[,4]
+            par.refit[par.refit != 0] <- ord(par.refit[par.refit != 0])
+            ram.refit[,4] <- par.refit
+            iterations <- result$iterations
+            result <- Recall(ram.refit, S, N, 
+                param.names=param.names[-which.aliased], var.names=var.names,
+                debug=debug, analytic.gradient=analytic.gradient, 
+                warn=warn, maxiter=maxiter, par.size=par.size, refit=TRUE, ...)
+            result$iterations <- iterations + result$iterations
+            aliased <- c(aliased, result$aliased)
+            }
+        result$aliased <- aliased
+        }
+    else {
+        cov <- (2/(N - 1)) * solve(res$hessian)
+        colnames(cov) <- rownames(cov) <- param.names
+        result$cov <- cov
+        }
     class(result) <- "sem"
     result
     }

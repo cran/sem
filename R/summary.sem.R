@@ -1,4 +1,4 @@
-# last modified 30 Jan 2002 by J. Fox
+# last modified 27 July 2002 by J. Fox
 
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -38,7 +38,7 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     BIC <- if (df > 0) chisq - df * log(N*n) else NA
     ans <- list(chisq=chisq, df=df, GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, BIC=BIC, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
-        iterations=object$iterations)
+        iterations=object$iterations, aliased=object$aliased)
     class(ans) <- "summary.sem"
     ans
     }
@@ -52,12 +52,13 @@ print.summary.sem <- function(x, ...){
     cat("\n Goodness-of-fit index = ", x$GFI)
     cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
     cat("\n RMSEA index =  ", x$RMSEA[1],
-        "   ", 100*x$RMSEA[4], "% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
+        "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")
     print(summary(as.vector(x$norm.res)))
     cat("\n Parameter Estimates\n")
     print(x$coeff)
     cat("\n Iterations = ", x$iterations, "\n")
+    if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
     invisible(x)
     }
