@@ -66,3 +66,18 @@ Changes to Version 0.8-2
 
    o Fixed a bug in startvalues() and sem.default() that caused the variables (observed + unobserved) in the model to be counted incorrectly in some (unusual) circumstances.
    
+Changes to Version 0.9-0
+
+   o Added function specify.model() to simplify the process of sem model specification.
+   
+   o Added boot.sem() to compute bootstrapped standard-error estimates and confidence intervals for sem parameters.
+   
+   o sem package now has a namespace.
+   
+   o Added digits argument to path.diagram(), as suggested by William Revelle.
+   
+   o New argument raw to sem() to accommodate raw moment matrices (for models with intercepts, after a suggestion by Mike Stoolmiller). Added generic function raw.moments() with formula and default methods to compute raw-moment matrices.
+   
+   o Small changes.
+   
+   

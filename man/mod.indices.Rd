@@ -28,8 +28,8 @@ mod.indices(model, ...)
   \item{model}{an object of class \code{sem}, produced by the \code{\link{sem}} function.}
   \item{object, x}{an object of class \code{sem.modind}, produced by the 
     \code{mod.indices} function.}
-  \item{n.largest}{number of modification indices to print in each of the eqn{A} and
-    eqn{P} matrices of the RAM model.}
+  \item{n.largest}{number of modification indices to print in each of the \eqn{A} and
+    \eqn{P} matrices of the RAM model.}
   \item{round}{number of places to the right of the decimal point in printing 
     modification indices.}
   \item{print.matrices}{which matrices to print: estimated changes in the fixed parameters,
@@ -52,10 +52,10 @@ mod.indices(model, ...)
 
 \value{
   \code{mod.indices} returns an object of class \code{sem.modind} with the following elements:
-  \item{mod.A}{modification indices for the elements of the eqn{A} matrix.}
-  \item{mod.P}{modification indices for the elements of the eqn{P} matrix.}
-  \item{par.A}{estimated parameter changes for the elements of the eqn(A) matrix.}
-  \item{par.P}{estimated parameter changes for the elements of the eqn(P) matrix.}
+  \item{mod.A}{modification indices for the elements of the \eqn{A} matrix.}
+  \item{mod.P}{modification indices for the elements of the \eqn{P} matrix.}
+  \item{par.A}{estimated parameter changes for the elements of the \eqn{A} matrix.}
+  \item{par.P}{estimated parameter changes for the elements of the \eqn{P} matrix.}
 }
 
 \references{

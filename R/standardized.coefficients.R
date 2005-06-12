@@ -1,4 +1,4 @@
-# last modified 25 July 2001 by J. Fox
+# last modified 2 June 2005 by J. Fox
 
 standardized.coefficients <- function(object, digits=5){
     old.digits <- options(digits=digits)
@@ -26,7 +26,7 @@ standardized.coefficients <- function(object, digits=5){
                     var.names[ram[one.head,3]])
     coeff <- data.frame(par.names[one.head], coeff, par.code)
     names(coeff) <- c(" ", "Std. Estimate", " ")
-    print(coeff, rowlab=rep(" ", nrow(coeff)))
+    print(coeff, rowlab=rep(" ", nrow(coeff)), right=FALSE)
     }
 
 std.coef <- function (...){

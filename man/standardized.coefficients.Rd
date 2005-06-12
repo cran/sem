@@ -40,24 +40,25 @@ std.coef(...)
 \examples{
 
 # ------------- assumes that Duncan, Haller and Portes peer-influences model
-# -------------     has been fit and is in sem.dhp.1     \dontrun{
+# -------------     has been fit and is in sem.dhp.1     
+\dontrun{
 standardized.coefficients(sem.dhp.1) 
 
-##           Std. Estimate                      
-##     gam11      0.210276 RGenAsp <--- RParAsp 
-##     gam12      0.325609     RGenAsp <--- RIQ 
-##     gam13      0.284856    RGenAsp <--- RSES 
-##     gam14      0.093699    RGenAsp <--- FSES 
-##     gam23      0.074565    FGenAsp <--- RSES 
-##     gam24      0.275761    FGenAsp <--- FSES 
-##     gam25      0.420552     FGenAsp <--- FIQ 
-##     gam26      0.192223 FGenAsp <--- FParAsp 
-##    beta12      0.199420 RGenAsp <--- FGenAsp 
-##    beta21      0.217546 FGenAsp <--- RGenAsp 
-##                0.766716 ROccAsp <--- RGenAsp 
-##     lam21      0.814774  REdAsp <--- RGenAsp 
-##                0.829946 FOccAsp <--- FGenAsp 
-##     lam42      0.771617  FEdAsp <--- FGenAsp 
+##           Std. Estimate                     
+## 1  gam11  0.210278      RGenAsp <--- RParAsp
+## 2  gam12  0.325612      RGenAsp <--- RIQ    
+## 3  gam13  0.284855      RGenAsp <--- RSES   
+## 4  gam14  0.093702      RGenAsp <--- FSES   
+## 5  gam23  0.074576      FGenAsp <--- RSES   
+## 6  gam24  0.275763      FGenAsp <--- FSES   
+## 7  gam25  0.420558      FGenAsp <--- FIQ    
+## 8  gam26  0.192224      FGenAsp <--- FParAsp
+## 9  beta12 0.199418      RGenAsp <--- FGenAsp
+## 10 beta21 0.217521      FGenAsp <--- RGenAsp
+## 11        0.766717      ROccAsp <--- RGenAsp
+## 12 lam21  0.814771      REdAsp <--- RGenAsp 
+## 13        0.829943      FOccAsp <--- FGenAsp
+## 14 lam42  0.771619      FEdAsp <--- FGenAsp 
     }
 }
 

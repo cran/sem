@@ -12,16 +12,16 @@ The \code{Klein} data frame has 22 rows and 10 columns.
 \format{
   This data frame contains the following columns:
   \describe{
-    \item{year}{1921--1941}
-    \item{c}{consumption.}
-    \item{p}{private profits.}
-    \item{wp}{private wages.}
-    \item{i}{investment.}
-    \item{k.lag}{capital stock, lagged one year.}
-    \item{x}{equilibrium demand.}
-    \item{wg}{government wages.}
-    \item{g}{government non-wage spending.}
-    \item{t}{indirect business taxes and net exports.}
+    \item{Year}{1921--1941}
+    \item{C}{consumption.}
+    \item{P}{private profits.}
+    \item{Wp}{private wages.}
+    \item{I}{investment.}
+    \item{K.lag}{capital stock, lagged one year.}
+    \item{X}{equilibrium demand.}
+    \item{Wg}{government wages.}
+    \item{G}{government non-wage spending.}
+    \item{T}{indirect business taxes and net exports.}
   }
 }
 
@@ -37,5 +37,21 @@ The \code{Klein} data frame has 22 rows and 10 columns.
 }
 \examples{
 data(Klein)
+
+Klein$P.lag <- c(NA, Klein$P[-22])
+Klein$X.lag <- c(NA, Klein$X[-22])
+
+summary(tsls(C ~ P + P.lag + I(Wp + Wg), 
+    instruments=~1 + G + T + Wg + I(Year - 1931) + K.lag + P.lag + X.lag,
+    data=Klein))
+    
+summary(tsls(I ~ P + P.lag + K.lag,
+    instruments=~1 + G + T + Wg + I(Year - 1931) + K.lag + P.lag + X.lag,
+    data=Klein))
+    
+summary(tsls(Wp ~ X + X.lag + I(Year - 1931),
+    instruments=~1 + G + T + Wg + I(Year - 1931) + K.lag + P.lag + X.lag,
+    data=Klein))
+
 }
 \keyword{datasets}

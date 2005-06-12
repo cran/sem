@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 19 Nov 04 by J. Fox
+# last modified 9 June 05 by J. Fox
 
 tsls <- function(y, ...){
     UseMethod("tsls")
@@ -117,6 +117,8 @@ fitted.tsls <- function(object, ...){
         yhat
     else napredict(object$na.action, yhat)
     }
+    
+vcov.tsls <- function(object, ...) object$V
     
 anova.tsls <- function(object, model.2, s2, dfe, ...){
     if(class(model.2) != "tsls") stop('requires two models of class tsls')

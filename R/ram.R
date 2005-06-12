@@ -1,6 +1,6 @@
 # last modified 27 March 02 by J. Fox
 
-ram<-function(object, digits=5, startvalues=FALSE){
+ram <- function(object, digits=5, startvalues=FALSE){
     old.digits <- options(digits=digits)
     on.exit(options(old.digits))
     var.names <- rownames(object$A)

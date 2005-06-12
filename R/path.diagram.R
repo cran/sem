@@ -1,4 +1,4 @@
-# last modified 9 November 02 by J. Fox
+# last modified 1 June 05 by J. Fox
 
 path.diagram <- function(model, ...){
     UseMethod("path.diagram")
@@ -7,7 +7,7 @@ path.diagram <- function(model, ...){
 path.diagram.sem <- function(model, out.file, min.rank=NULL, max.rank=NULL, same.rank=NULL,
     variables=model$var.names, parameters=rownames(object$ram), ignore.double=TRUE,
     edge.labels=c("names", "values"), size=c(8,8), node.font=c("Helvetica", 14),
-    edge.font=c("Helvetica", 10), rank.direction=c("LR", "TB"), ...){
+    edge.font=c("Helvetica", 10), rank.direction=c("LR", "TB"), digits=2, ...){
     if(!missing(out.file)){
         handle <- file(out.file, "w")
         on.exit(close(handle))
@@ -49,7 +49,7 @@ path.diagram.sem <- function(model, out.file, min.rank=NULL, max.rank=NULL, same
     ram[names(model$coeff), 5] <- model$coeff
     rownames(ram)[model$fixed] <- ram[model$fixed,5]
     names <- rownames(ram)
-    values <- ram[,5]
+    values <- round(ram[,5], digits)
     heads <- ram[,1]
     to <- ram[,2]
     from <- ram[,3]

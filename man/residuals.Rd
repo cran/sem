@@ -36,9 +36,10 @@ normalized.residuals(object, ...)
   residual covariance by the product of the sample standard deviations of the 
   two variables, \eqn{(s_{ij} - c_{ij})/(s_{ii}s_{jj})^{1/2}}. The \emph{normalized} residual
   is given by
-  \deqn{\frac{s_{ij}-c_{ij}} {[(c_{ii}c_{jj}-c_{ij}^2)/N]^{1/2}}}{%
+  \deqn{\frac{s_{ij}-c_{ij}} {[(c_{ii}c_{jj}-c_{ij}^2)/N^{*}]^{1/2}}}{%
     (s_{ij} - c_{ij})/[(c_{ii}c_{jj} - c_{ij}²)/N]^{1/2}}
-  where \eqn{N} is the number of observations.
+  where \eqn{N^{*}} is the number of observations minus one if the model is fit to a
+  covariance matrix, or the number of observations if it is fit to a raw moment matrix.
 }
 
 \value{

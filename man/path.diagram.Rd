@@ -18,7 +18,7 @@ path.diagram(model, ...)
     same.rank=NULL, variables=model$var.names, parameters=rownames(object$ram), 
     ignore.double=TRUE, edge.labels=c("names", "values"), size=c(8, 8), 
     node.font=c("Helvetica", 14), edge.font=c("Helvetica", 10), 
-    rank.direction=c("LR", "TB"), ...)
+    rank.direction=c("LR", "TB"), digits=2, ...)
 }
 
 \arguments{
@@ -48,6 +48,8 @@ path.diagram(model, ...)
   \item{edge.font}{font name and point-size for printing arrow names or values.}
   \item{rank.direction}{draw graph left-to-right, \code{"LR"}, the default, 
     or top-to-bottom, \code{"TB"}.}
+  \item{digits}{number of digits after the decimal point (default, 2) to which 
+    to round parameter estimates.}
 }
 
 }

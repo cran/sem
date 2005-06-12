@@ -1,4 +1,4 @@
-# last modified 9 Dec 04 by J. Fox
+# last modified 10 June 05 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -66,7 +66,7 @@ sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F
      
 
 sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''), 
-    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, debug=FALSE,
+    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, raw=FALSE, debug=FALSE,
     analytic.gradient=TRUE, warn=FALSE, maxiter=500, par.size=c('ones', 'startvalues'), 
     refit=TRUE, start.tol=1E-6, ...){
     ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
@@ -77,6 +77,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     is.symmetric <- function(X) {
         is.matrix(X) && (nrow(X) == ncol(X)) && all(X == t(X))
         }
+    S <- unclass(S) # in case S is a rawmoment object
     if (is.triangular(S)) S <- S + t(S) - diag(diag(S))
     if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
@@ -199,6 +200,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$par.posn <- par.posn
     result$convergence <- convergence
     result$iterations <- res$iterations
+    result$raw <- raw
     if (convergence > 2) 
         warning(paste('Optimization may not have converged; nlm return code = ',
             res$code, '. Consult ?nlm.\n', sep=""))
@@ -230,7 +232,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         result$aliased <- aliased
         }
     else {
-        cov <- (2/(N - 1)) * solve(res$hessian)
+        cov <- (2/(N - (!raw))) * solve(res$hessian)
         colnames(cov) <- rownames(cov) <- param.names
         result$cov <- cov
         if (any(diag(cov) < 0)) {

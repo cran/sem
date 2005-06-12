@@ -1,4 +1,4 @@
-# last modified 14 April 2001 by J. Fox
+# last modified 2 June 2005 by J. Fox
 
 residuals.sem <- function(object, ...){
     object$S - object$C
@@ -20,7 +20,7 @@ normalized.residuals <- function(object, ...){
     
 normalized.residuals.sem <- function(object, ...){
     res <- residuals(object)
-    N <- object$N
+    N <- object$N - (!object$raw)
     C <- object$C
     c <- diag(C)
     res/sqrt((outer(c,c) + C^2)/N)

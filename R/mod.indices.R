@@ -1,4 +1,4 @@
-## last modified 9 November 02 by J. Fox
+## last modified 2 June 2005 by J. Fox
 
 mod.indices<-function(model, ...){
     UseMethod("mod.indices")
@@ -37,7 +37,7 @@ mod.indices.sem <- function(model, ...){
     C <- model$C
     J <- model$J
     m <- model$m
-    NM <- model$N - 1
+    NM <- model$N - (!model$raw)
     vars <- model$var.names    
     I.Ainv <- solve(diag(m) - A) 
     Cinv <- solve(C)    

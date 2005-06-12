@@ -5,6 +5,7 @@
 \alias{fitted.tsls}
 \alias{residuals.tsls}
 \alias{coefficients.tsls}
+\alias{vcov.tsls}
 \alias{anova.tsls}
 \alias{print.tsls}
 \alias{summary.tsls}
@@ -27,6 +28,7 @@ tsls(y, ...)
 \method{fitted}{tsls}(object, ...)
 \method{residuals}{tsls}(object, ...)
 \method{coefficients}{tsls}(object, ...)
+\method{vcov}{tsls}(object, ...)
 }
 
 \arguments{
@@ -39,10 +41,10 @@ tsls(y, ...)
   \item{subset}{an optional vector specifying a subset of observations to be used in 
     fitting the model.}
   \item{na.action}{a function that indicates what should happen when the 
-    data contain \code{NAs}. 
+    data contain \code{NA}s. 
     The default is set by the \code{na.action} option.}
   \item{contrasts}{an optional list. See the \code{contrasts.arg} of 
-    \code{\link[base:model.matrix]{model.matrix.default}}.}
+    \code{\link[stats:model.matrix]{model.matrix.default}}.}
   \item{y}{Response-variable vector.}
   \item{X}{Matrix of predictors, including a constant (if one is in the model).}
   \item{Z}{Matrix of instrumental variables, including a constant (if one is in the model).}

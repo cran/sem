@@ -1,4 +1,4 @@
-# last modified 28 Feb 2004 by J. Fox
+# last modified 2 June 2005 by J. Fox
 
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -19,8 +19,8 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     GFI <- 1 - sum(diag(CSC))/sum(diag(CS))
     AGFI <- if (df > 0) 1 - (n*(n + 1)/(2*df))*(1 - GFI)
      else NA
-    chisq <- object$criterion * (N - 1)
-    RMSEA <- sqrt(max(object$criterion/df - 1/(N - 1), 0))
+    chisq <- object$criterion * (N - (!object$raw))
+    RMSEA <- sqrt(max(object$criterion/df - 1/(N - (!object$raw)), 0))
     tail <- (1 - conf.level)/2 
     max <- 1000
     while (max > 1){
@@ -35,8 +35,8 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
         max <- max/2
         }
     lam.L <- if (max <= 1) NA else res$minimum
-    RMSEA.U <- sqrt(lam.U/((N - 1)*df))
-    RMSEA.L <- sqrt(lam.L/((N - 1)*df))
+    RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
+    RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
     RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
     var.names <- rownames(object$A)
     ram <- object$ram[object$par.posn,]
@@ -48,7 +48,7 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     BIC <- if (df > 0) chisq - df * log(N*n) else NA
     ans <- list(chisq=chisq, df=df, GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, BIC=BIC, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
-        iterations=object$iterations, aliased=object$aliased)
+        iterations=object$iterations, aliased=object$aliased, raw=object$raw)
     class(ans) <- "summary.sem"
     ans
     }
@@ -56,6 +56,7 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
 print.summary.sem <- function(x, ...){
     old.digits <- options(digits=x$digits)
     on.exit(options(old.digits))
+    if (x$raw) cat("\nModel fit to raw moment matrix.\n")
     cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 
         "Pr(>Chisq) =", if (x$df > 0) 1 - pchisq(x$chisq, x$df)
             else NA)
@@ -67,7 +68,7 @@ print.summary.sem <- function(x, ...){
     cat("\n Normalized Residuals\n")
     print(summary(as.vector(x$norm.res)))
     cat("\n Parameter Estimates\n")
-    print(x$coeff)
+    print(x$coeff, right=FALSE)
     cat("\n Iterations = ", x$iterations, "\n")
     if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
     invisible(x)
