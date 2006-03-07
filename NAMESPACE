@@ -29,6 +29,8 @@ S3method(print, summary.bootsem)
 S3method(raw.moments, formula)
 S3method(raw.moments, default)
 S3method(print, rawmoments)
+S3method(deviance, sem)
+S3method(df.residual, sem)
 
 
 

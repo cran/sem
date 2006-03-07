@@ -59,6 +59,7 @@ specify.model(file = "")
 \seealso{\code{\link{sem}}}
 
 \examples{
+    \dontrun{
 model.dhp <- specify.model()
     RParAsp  -> RGenAsp, gam11,  NA
     RIQ      -> RGenAsp, gam12,  NA
@@ -83,6 +84,7 @@ model.dhp <- specify.model()
     FEdAsp  <-> FEdAsp,  theta4, NA
 
 model.dhp
+    }
 }
 
 \keyword{models}

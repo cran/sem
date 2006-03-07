@@ -1,4 +1,4 @@
-# last modified 10 June 05 by J. Fox
+# last modified 19 August 05 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -201,6 +201,8 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$convergence <- convergence
     result$iterations <- res$iterations
     result$raw <- raw
+    if (!raw) result$chisqNull <- (N - 1) * 
+        (sum(diag(S %*% diag(1/diag(S)))) + log(prod(diag(S))))
     if (convergence > 2) 
         warning(paste('Optimization may not have converged; nlm return code = ',
             res$code, '. Consult ?nlm.\n', sep=""))

@@ -1,5 +1,5 @@
-# last modified 2 June 2005 by J. Fox
-
+# last modified 7 March 2006 by J. Fox
+                                                               
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
     se <- sqrt(diag(object$cov))
@@ -11,6 +11,7 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     C <- object$C
     N <- object$N
     df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
+    dfNull <- n*(n - 1)/2
     invC <- solve(C)
     CSC <- invC %*% (S - C)
     CSC <- CSC %*% CSC
@@ -20,6 +21,15 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     AGFI <- if (df > 0) 1 - (n*(n + 1)/(2*df))*(1 - GFI)
      else NA
     chisq <- object$criterion * (N - (!object$raw))
+    chisqNull <- object$chisqNull
+    if (!object$raw){
+        NFI <- (chisqNull - chisq)/chisqNull
+        NNFI <- (chisqNull/dfNull - chisq/df)/(chisqNull/dfNull - 1)
+        L1 <- max(chisq - df, 0)
+        L0 <- max(L1, chisqNull - dfNull)
+        CFI <- 1 - L1/L0
+        }
+    else NFI <- NNFI <- CFI <- NA
     RMSEA <- sqrt(max(object$criterion/df - 1/(N - (!object$raw)), 0))
     tail <- (1 - conf.level)/2 
     max <- 1000
@@ -46,7 +56,8 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
     row.names(coeff) <- names(object$coeff)
     BIC <- if (df > 0) chisq - df * log(N*n) else NA
-    ans <- list(chisq=chisq, df=df, GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, BIC=BIC, 
+    ans <- list(chisq=chisq, df=df, chisqNull=chisqNull, dfNull=dfNull,
+        GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
         iterations=object$iterations, aliased=object$aliased, raw=object$raw)
     class(ans) <- "summary.sem"
@@ -60,10 +71,16 @@ print.summary.sem <- function(x, ...){
     cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 
         "Pr(>Chisq) =", if (x$df > 0) 1 - pchisq(x$chisq, x$df)
             else NA)
+    if (!x$raw) cat("\n Chisquare (null model) = ", x$chisqNull,  "  Df = ", x$dfNull)
     cat("\n Goodness-of-fit index = ", x$GFI)
     cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
     cat("\n RMSEA index =  ", x$RMSEA[1],
         "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
+    if (!x$raw){
+        cat("\n Bentler-Bonnett NFI = ", x$NFI)
+        cat("\n Tucker-Lewis NNFI = ", x$NNFI)
+        cat("\n Bentler CFI = ", x$CFI)
+        }    
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")
     print(summary(as.vector(x$norm.res)))
@@ -72,4 +89,13 @@ print.summary.sem <- function(x, ...){
     cat("\n Iterations = ", x$iterations, "\n")
     if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
     invisible(x)
+    }
+    
+deviance.sem <- function(object, ...) object$criterion * (object$N - (!object$raw))
+
+df.residual.sem <- function(object, ...) {
+    n.fix <- object$n.fix
+    n <- object$n
+    t <- object$t
+    n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
     }

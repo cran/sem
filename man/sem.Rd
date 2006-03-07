@@ -7,6 +7,8 @@
 \alias{print.sem}
 \alias{summary.sem}
 \alias{print.summary.sem}
+\alias{deviance.sem}
+\alias{df.residual.sem}
 
 \title{General Structural Equation Models}
 \description{
@@ -33,6 +35,10 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 \method{print}{sem}(x, ...)
 
 \method{summary}{sem}(object, digits=5, conf.level=0.9, ...)
+
+\method{deviance}{sem}(object, ...)
+
+\method{df.residual}{sem}(object, ...)
 }
 
 \arguments{
@@ -166,6 +172,11 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   error variables (see the examples below).
   
   The \code{startvalues} function may be called directly, but is usually called by \code{sem.default}.
+  
+  The \code{sem} methods for the generic functions \code{\link[stats]{deviance}} 
+  and \code{\link[stats]{df.residual}} functions
+  return, respectively, minus twice the difference in the log-likelihoods for the fitted model and
+  a saturated model, and the degrees of freedom associated with the deviance. 
 }
 
 \value{
@@ -173,7 +184,8 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   \item{ram}{RAM matrix, including any rows generated for covariances
     among fixed exogenous variables; column 5 includes computed start values.}
   \item{coeff}{estimates of free parameters.}
-  \item{criterion}{fitting criterion --- negative log-liklihood divided by \eqn{N - 1}
+  \item{criterion}{fitting criterion --- minus twice the difference in the log-liklihood
+    between the fitted model and a saturated model, divided by \eqn{N - 1}
     (or \eqn{N} if the model is fit to a raw moment matrix).}
   \item{cov}{estimated asymptotic covariance matrix of parameter estimates.}
   \item{S}{observed covariance matrix.}
@@ -192,6 +204,9 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   \item{convergence}{convergence code returned by \code{nlm} (a code > 2 indicates a problem).}
   \item{iterations}{number of iterations performed.}
   \item{raw}{\code{TRUE} if the model is fit to a raw moment matrix, \code{FALSE} otherwise.}
+  \item{chisqNull}{Unless the model is fit to a raw moment matrix, the chisquare value
+  associated with a null model in which all of the observed variables are 
+  uncorrelated.}
 }
 
 \section{Warning}{
@@ -223,6 +238,9 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
     Bollen, K. A. (1989) 
     \emph{Structural Equations With Latent Variables.} Wiley.
     
+    Bollen, K. A. and Long, J. S. (eds.)
+    \emph{Testing Structural Equation Models}, Sage.
+    
     McArdle, J. J. and Epstein, D. (1987)
     Latent growth curves within developmental structural equation models.
     \emph{Child Development}
@@ -242,6 +260,7 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
     Bayesian model selection in structural equation models.
     In Bollen, K. A. and Long, J. S. (eds.)
     \emph{Testing Structural Equation Models}, Sage.
+    
 }
 
 \author{John Fox \email{jfox@mcmaster.ca}}
@@ -249,6 +268,8 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 \seealso{\code{\link{raw.moments}}, \code{\link[stats]{nlm}}}
 
 \examples{
+
+    \dontrun{
 
 # ------------- Duncan, Haller and Portes peer-influences model ----------------------
 # A nonrecursive SEM with unobserved endogenous variables and fixed exogenous variables
@@ -334,7 +355,6 @@ summary(sem.dhp.1)
 ##
 ##  Iterations =  28 
 
-\dontrun{
 
 # Fit the model using a numerical ram specification
 
