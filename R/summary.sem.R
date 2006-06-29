@@ -1,4 +1,4 @@
-# last modified 7 March 2006 by J. Fox
+# last modified 28 June 2006 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -22,31 +22,31 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
      else NA
     chisq <- object$criterion * (N - (!object$raw))
     chisqNull <- object$chisqNull
-    if (!object$raw){
+    if ((!object$raw) && df > 0){
         NFI <- (chisqNull - chisq)/chisqNull
         NNFI <- (chisqNull/dfNull - chisq/df)/(chisqNull/dfNull - 1)
         L1 <- max(chisq - df, 0)
         L0 <- max(L1, chisqNull - dfNull)
         CFI <- 1 - L1/L0
+        RMSEA <- sqrt(max(object$criterion/df - 1/(N - (!object$raw)), 0))
+        tail <- (1 - conf.level)/2 
+        max <- 1000
+        while (max > 1){
+            res <- optimize(function(lam) (tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
+            if (sqrt(res$objective) < tail/100) break
+            max <- max/2
+            }
+        lam.U <- if (max <= 1) NA else res$minimum
+        while (max > 1){
+            res <- optimize(function(lam) (1 - tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
+            if (sqrt(res$objective) < tail/100) break
+            max <- max/2
+            }
+        lam.L <- if (max <= 1) NA else res$minimum
+        RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
+        RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
         }
-    else NFI <- NNFI <- CFI <- NA
-    RMSEA <- sqrt(max(object$criterion/df - 1/(N - (!object$raw)), 0))
-    tail <- (1 - conf.level)/2 
-    max <- 1000
-    while (max > 1){
-        res <- optimize(function(lam) (tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
-        if (sqrt(res$objective) < tail/100) break
-        max <- max/2
-        }
-    lam.U <- if (max <= 1) NA else res$minimum
-    while (max > 1){
-        res <- optimize(function(lam) (1 - tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
-        if (sqrt(res$objective) < tail/100) break
-        max <- max/2
-        }
-    lam.L <- if (max <= 1) NA else res$minimum
-    RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
-    RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
+    else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- NA
     RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
     var.names <- rownames(object$A)
     ram <- object$ram[object$par.posn,]
@@ -55,7 +55,7 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     coeff <- data.frame(object$coeff, se, z, 2*(1 - pnorm(abs(z))), par.code)
     names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
     row.names(coeff) <- names(object$coeff)
-    BIC <- if (df > 0) chisq - df * log(N*n) else NA
+    BIC <- chisq - df * log(N*n)
     ans <- list(chisq=chisq, df=df, chisqNull=chisqNull, dfNull=dfNull,
         GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
@@ -73,14 +73,16 @@ print.summary.sem <- function(x, ...){
             else NA)
     if (!x$raw) cat("\n Chisquare (null model) = ", x$chisqNull,  "  Df = ", x$dfNull)
     cat("\n Goodness-of-fit index = ", x$GFI)
-    cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
-    cat("\n RMSEA index =  ", x$RMSEA[1],
-        "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
-    if (!x$raw){
-        cat("\n Bentler-Bonnett NFI = ", x$NFI)
-        cat("\n Tucker-Lewis NNFI = ", x$NNFI)
-        cat("\n Bentler CFI = ", x$CFI)
-        }    
+    if (x$df > 0){
+        cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
+        cat("\n RMSEA index =  ", x$RMSEA[1],
+            "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
+        if (!x$raw){
+            cat("\n Bentler-Bonnett NFI = ", x$NFI)
+            cat("\n Tucker-Lewis NNFI = ", x$NNFI)
+            cat("\n Bentler CFI = ", x$CFI)
+            }    
+        }
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")
     print(summary(as.vector(x$norm.res)))

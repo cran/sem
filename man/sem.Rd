@@ -269,8 +269,6 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 
 \examples{
 
-    \dontrun{
-
 # ------------- Duncan, Haller and Portes peer-influences model ----------------------
 # A nonrecursive SEM with unobserved endogenous variables and fixed exogenous variables
 
@@ -779,7 +777,8 @@ summary(sem.McArdle)
 ## Vd 11.78832 0.674059  17.4885 0        WISC1 <--> WISC1
 ##
 ##  Iterations =  37 
-    }
-}   
+
+}
+   
 
 \keyword{models}
