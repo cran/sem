@@ -1,4 +1,4 @@
-# last modified 28 June 2006 by J. Fox
+# last modified 25 July 2006 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -17,12 +17,11 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     CSC <- CSC %*% CSC
     CS <- invC %*% S
     CS <- CS %*% CS
-    GFI <- 1 - sum(diag(CSC))/sum(diag(CS))
-    AGFI <- if (df > 0) 1 - (n*(n + 1)/(2*df))*(1 - GFI)
-     else NA
     chisq <- object$criterion * (N - (!object$raw))
     chisqNull <- object$chisqNull
+    GFI <- if (!object$raw) 1 - sum(diag(CSC))/sum(diag(CS)) else NA
     if ((!object$raw) && df > 0){
+        AGFI <- 1 - (n*(n + 1)/(2*df))*(1 - GFI)
         NFI <- (chisqNull - chisq)/chisqNull
         NNFI <- (chisqNull/dfNull - chisq/df)/(chisqNull/dfNull - 1)
         L1 <- max(chisq - df, 0)
@@ -46,16 +45,16 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
         RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
         RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
         }
-    else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- NA
+    else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- NA
     RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
     var.names <- rownames(object$A)
-    ram <- object$ram[object$par.posn,]
+    ram <- object$ram[object$par.posn, , drop=FALSE]
     par.code <- paste(var.names[ram[,2]], c('<---', '<-->')[ram[,1]],
                     var.names[ram[,3]])
     coeff <- data.frame(object$coeff, se, z, 2*(1 - pnorm(abs(z))), par.code)
     names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
     row.names(coeff) <- names(object$coeff)
-    BIC <- chisq - df * log(N*n)
+    BIC <- chisq - df * log(N)
     ans <- list(chisq=chisq, df=df, chisqNull=chisqNull, dfNull=dfNull,
         GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
@@ -71,17 +70,17 @@ print.summary.sem <- function(x, ...){
     cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 
         "Pr(>Chisq) =", if (x$df > 0) 1 - pchisq(x$chisq, x$df)
             else NA)
-    if (!x$raw) cat("\n Chisquare (null model) = ", x$chisqNull,  "  Df = ", x$dfNull)
-    cat("\n Goodness-of-fit index = ", x$GFI)
-    if (x$df > 0){
+    if (!x$raw) {
+       cat("\n Chisquare (null model) = ", x$chisqNull,  "  Df = ", x$dfNull)
+       cat("\n Goodness-of-fit index = ", x$GFI)
+       }
+    if (x$df > 0 && !x$raw){
         cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
         cat("\n RMSEA index =  ", x$RMSEA[1],
             "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
-        if (!x$raw){
-            cat("\n Bentler-Bonnett NFI = ", x$NFI)
-            cat("\n Tucker-Lewis NNFI = ", x$NNFI)
-            cat("\n Bentler CFI = ", x$CFI)
-            }    
+        cat("\n Bentler-Bonnett NFI = ", x$NFI)
+        cat("\n Tucker-Lewis NNFI = ", x$NNFI)
+        cat("\n Bentler CFI = ", x$CFI)
         }
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")

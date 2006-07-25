@@ -7,15 +7,15 @@
 \description{
   \code{path.diagram} creates a description of the path diagram
   for a structural-equation-model object to be processed by the
-  graph-drawing program \emph{dot}; see Koutsofios and North (1996)
-  and \url{http://www.research.att.com/sw/tools/graphviz/}.
+  graph-drawing program \emph{dot}; see Koutsofios and North (2002)
+  and \url{http://www.graphviz.org/}.
 }
 
 \usage{
 path.diagram(model, ...)
 
 \method{path.diagram}{sem}(model, out.file, min.rank=NULL, max.rank=NULL, 
-    same.rank=NULL, variables=model$var.names, parameters=rownames(model$ram), 
+    same.rank=NULL, variables=model$var.names, parameters=rownames(model$ram),
     ignore.double=TRUE, edge.labels=c("names", "values"), size=c(8, 8), 
     node.font=c("Helvetica", 14), edge.font=c("Helvetica", 10), 
     rank.direction=c("LR", "TB"), digits=2, ...)
@@ -59,9 +59,9 @@ path.diagram(model, ...)
 }
 
 \references{
-    Koutsofios, E., and North, S. C. (1996)
+    Koutsofios, E., and North, S. C. (2002)
     Drawing graphs with \emph{dot}.
-    \url{http://www.research.att.com/sw/tools/graphviz/dotguide.pdf}.
+    \url{http://www.graphviz.org/Documentation/dotguide.pdf}.
     
 }
 \author{John Fox \email{jfox@mcmaster.ca}}
