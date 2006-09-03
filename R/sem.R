@@ -1,4 +1,4 @@
-# last modified 19 August 05 by J. Fox
+# last modified 3 August 06 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -6,7 +6,7 @@ sem <- function(ram, ...){
     }
 
 sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...){
-    parse.path <- function(path) {
+    parse.path <- function(path) {                                           
         path.1 <- gsub('-', '', gsub(' ','', path))
         direction <- if (regexpr('<>', path.1) > 0) 2 
             else if (regexpr('<', path.1) > 0) -1
@@ -201,8 +201,11 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     result$convergence <- convergence
     result$iterations <- res$iterations
     result$raw <- raw
-    if (!raw) result$chisqNull <- (N - 1) * 
-        (sum(diag(S %*% diag(1/diag(S)))) + log(prod(diag(S))))
+    if (!raw) {
+        CC <- diag(diag(S))
+        result$chisqNull <- (N - 1) * 
+            (sum(diag(S %*% solve(CC))) + log(det(CC)) -log(det(S)) - n)
+        }
     if (convergence > 2) 
         warning(paste('Optimization may not have converged; nlm return code = ',
             res$code, '. Consult ?nlm.\n', sep=""))

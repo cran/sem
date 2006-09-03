@@ -104,4 +104,14 @@ Changes to Version 0.9-4
    
    o  Small changes.
    
+Changes to Version 0.9-5
+
+   o  Corrected null model chisquare and, consequently, fit statistics that depend on it.
+
+   o  Added package stats to dependencies, and changed coefficients.tsls() to coef.tsls(), so sem compiles without a warning under R 2.4.0.
+   
+   o  Brought sample output in ?sem up to date.
+   
+   o  Fixed another version synchronization error.
+   
    

@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 9 June 05 by J. Fox
+# last modified 3 Sept 06 by J. Fox
 
 tsls <- function(y, ...){
     UseMethod("tsls")
@@ -107,7 +107,7 @@ residuals.tsls <- function(object, ...){
     else naresid(object$na.action, res)
     }
 
-coefficients.tsls <- function(object, ...){
+coef.tsls <- function(object, ...){
     object$coefficients
     }
     

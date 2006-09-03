@@ -4,7 +4,7 @@
 \alias{tsls.default}
 \alias{fitted.tsls}
 \alias{residuals.tsls}
-\alias{coefficients.tsls}
+\alias{coef.tsls}
 \alias{vcov.tsls}
 \alias{anova.tsls}
 \alias{print.tsls}
@@ -27,7 +27,7 @@ tsls(y, ...)
 
 \method{fitted}{tsls}(object, ...)
 \method{residuals}{tsls}(object, ...)
-\method{coefficients}{tsls}(object, ...)
+\method{coef}{tsls}(object, ...)
 \method{vcov}{tsls}(object, ...)
 }
 

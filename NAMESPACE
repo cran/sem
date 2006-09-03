@@ -1,3 +1,5 @@
+# last modified 3 Sept 2006 by J. Fox
+
 export(ram, standardized.residuals, normalized.residuals, startvalues,
     standardized.coefficients, std.coef, tsls, sem, mod.indices, path.diagram,
     specify.model, boot.sem, raw.moments)
@@ -10,7 +12,7 @@ S3method(tsls, formula)
 S3method(print, tsls)
 S3method(summary, tsls)
 S3method(residuals, tsls) 
-S3method(coefficients, tsls)
+S3method(coef, tsls)
 S3method(fitted, tsls)
 S3method(anova, tsls)
 S3method(vcov, tsls)
