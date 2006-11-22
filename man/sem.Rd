@@ -54,7 +54,9 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
     form of input is useful for fitting models with intercepts, in which case the moment matrix
     should include the mean square and cross-products for a unit variable all of whose entries are 1;
     of course, the raw mean square for the unit variable is 1. Raw-moment matrices may be computed
-    by \code{\link{raw.moments}}.}
+    by \code{\link{raw.moments}}. If the \code{ram} argument is given in symbolic form, then
+    the observed-variable covariance or raw-moment matrix may contain variables that do not appear in the model,
+    in which case a warning is printed.}
   \item{N}{number of observations on which the covariance matrix is based.}
   \item{obs.variables}{names of observed variables, by default taken from the row names of
     the covariance matrix \code{S}.}

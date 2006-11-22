@@ -114,4 +114,10 @@ Changes to Version 0.9-5
    
    o  Fixed another version synchronization error.
    
+Changes to Version 0.9-6
+
+   o  The input observed-variable covariance or moment matrix may now contain variables that are not used in the model, in which case a warning is printed (in response to a problem reported by Jarrett Byrnes).
+   
+   o  Stray escape character removed from print.summary.sem to avoid warning in r-devel.
+   
    

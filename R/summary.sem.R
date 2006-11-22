@@ -77,7 +77,7 @@ print.summary.sem <- function(x, ...){
     if (x$df > 0 && !x$raw){
         cat("\n Adjusted goodness-of-fit index = ", x$AGFI)
         cat("\n RMSEA index =  ", x$RMSEA[1],
-            "   ", 100*x$RMSEA[4], " \% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
+            "   ", 100*x$RMSEA[4], "% CI: (", x$RMSEA[2], ", ", x$RMSEA[3],")", sep="")
         cat("\n Bentler-Bonnett NFI = ", x$NFI)
         cat("\n Tucker-Lewis NNFI = ", x$NNFI)
         cat("\n Bentler CFI = ", x$CFI)

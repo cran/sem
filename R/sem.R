@@ -1,4 +1,4 @@
-# last modified 3 August 06 by J. Fox
+# last modified 22 November 06 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -33,6 +33,15 @@ sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=F
     ram <- matrix(0, p, 5)
     all.vars <- unique(c(to, from))
     latent.vars <- setdiff(all.vars, obs.variables)
+    not.used <- setdiff(obs.variables, all.vars)
+    if (length(not.used) > 0){
+        rownames(S) <- colnames(S) <- obs.variables
+        obs.variables <- setdiff(obs.variables, not.used)
+        S <- S[obs.variables, obs.variables]
+        warning("The following observed variables are in the input covariance or raw-moment matrix ",
+            "but do not appear in the model:\n",
+            paste(not.used, collapse=", "), "\n")
+        }
     vars <- c(obs.variables, latent.vars)
     pars <- na.omit(unique(par.names))
     ram[,1] <- heads
