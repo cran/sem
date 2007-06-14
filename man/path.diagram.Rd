@@ -72,45 +72,40 @@ path.diagram(model, ...)
 
 # The Duncan, Haller, and Portes Peer-Influences Model
 
-R.DHP <- matrix(c(     
-            1,      0,      0,      0,      0,      0,      0,      0,      0,      0,            
-            .6247,   1,     0,      0,      0,      0,      0,      0,      0,      0,            
-            .3269,  .3669,  1,      0,      0,      0,      0,      0,      0,      0,            
-            .4216,  .3275,  .6404,  1,      0,      0,      0,      0,      0,      0,
-            .2137,  .2742,  .1124,  .0839,  1,      0,      0,      0,      0,      0,
-            .4105,  .4043,  .2903,  .2598,  .1839,  1,      0,      0,      0,      0,
-            .3240,  .4047,  .3054,  .2786,  .0489,  .2220,  1,      0,      0,      0,
-            .2930,  .2407,  .4105,  .3607,  .0186,  .1861,  .2707,  1,      0,      0,
-            .2995,  .2863,  .5191,  .5007,  .0782,  .3355,  .2302,  .2950,  1,      0,
-            .0760,  .0702,  .2784,  .1988,  .1147,  .1021,  .0931, -.0438,  .2087,  1
-            ), ncol=10, byrow=TRUE)
+R.DHP <- read.moments(diag=FALSE, names=c('ROccAsp', 'REdAsp', 'FOccAsp', 
+                'FEdAsp', 'RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))
+    .6247                                                              
+    .3269  .3669                                                        
+    .4216  .3275  .6404                                      
+    .2137  .2742  .1124  .0839                                
+    .4105  .4043  .2903  .2598  .1839                          
+    .3240  .4047  .3054  .2786  .0489  .2220                    
+    .2930  .2407  .4105  .3607  .0186  .1861  .2707              
+    .2995  .2863  .5191  .5007  .0782  .3355  .2302  .2950        
+    .0760  .0702  .2784  .1988  .1147  .1021  .0931 -.0438  .2087  
 
-model.dhp <- matrix(c(
-                      'RParAsp  -> RGenAsp', 'gam11',  NA,
-                      'RIQ      -> RGenAsp', 'gam12',  NA,
-                      'RSES     -> RGenAsp', 'gam13',  NA,
-                      'FSES     -> RGenAsp', 'gam14',  NA,
-                      'RSES     -> FGenAsp', 'gam23',  NA,
-                      'FSES     -> FGenAsp', 'gam24',  NA,
-                      'FIQ      -> FGenAsp', 'gam25',  NA,
-                      'FParAsp  -> FGenAsp', 'gam26',  NA,
-                      'FGenAsp  -> RGenAsp', 'beta12', NA,
-                      'RGenAsp  -> FGenAsp', 'beta21', NA,
-                      'RGenAsp  -> ROccAsp',  NA,       1,
-                      'RGenAsp  -> REdAsp',  'lam21',  NA,
-                      'FGenAsp  -> FOccAsp',  NA,       1,
-                      'FGenAsp  -> FEdAsp',  'lam42',  NA,
-                      'RGenAsp <-> RGenAsp', 'ps11',   NA,
-                      'FGenAsp <-> FGenAsp', 'ps22',   NA,
-                      'RGenAsp <-> FGenAsp', 'ps12',   NA,
-                      'ROccAsp <-> ROccAsp', 'theta1', NA,
-                      'REdAsp  <-> REdAsp',  'theta2', NA,
-                      'FOccAsp <-> FOccAsp', 'theta3', NA,
-                      'FEdAsp  <-> FEdAsp',  'theta4', NA),
-                    ncol=3, byrow=TRUE)
-
-rownames(R.DHP) <- colnames(R.DHP) <- c('ROccAsp', 'REdAsp', 'FOccAsp', 
-    'FEdAsp', 'RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp')
+model.dhp <- specify.model()
+    RParAsp  -> RGenAsp, gam11,  NA
+    RIQ      -> RGenAsp, gam12,  NA
+    RSES     -> RGenAsp, gam13,  NA
+    FSES     -> RGenAsp, gam14,  NA
+    RSES     -> FGenAsp, gam23,  NA
+    FSES     -> FGenAsp, gam24,  NA
+    FIQ      -> FGenAsp, gam25,  NA
+    FParAsp  -> FGenAsp, gam26,  NA
+    FGenAsp  -> RGenAsp, beta12, NA
+    RGenAsp  -> FGenAsp, beta21, NA
+    RGenAsp  -> ROccAsp,  NA,       1
+    RGenAsp  -> REdAsp,  lam21,  NA
+    FGenAsp  -> FOccAsp,  NA,       1
+    FGenAsp  -> FEdAsp,  lam42,  NA
+    RGenAsp <-> RGenAsp, ps11,   NA
+    FGenAsp <-> FGenAsp, ps22,   NA
+    RGenAsp <-> FGenAsp, ps12,   NA
+    ROccAsp <-> ROccAsp, theta1, NA
+    REdAsp  <-> REdAsp,  theta2, NA
+    FOccAsp <-> FOccAsp, theta3, NA
+    FEdAsp  <-> FEdAsp,  theta4, NA
 
 sem.dhp <- sem(model.dhp, R.DHP, 329,
     fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))

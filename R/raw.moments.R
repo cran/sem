@@ -1,4 +1,4 @@
-# last modified 10 June 05 by J. Fox
+# last modified 14 June 07 by J. Fox
 
 raw.moments <- function(object, ...) UseMethod("raw.moments")
 
@@ -35,5 +35,18 @@ print.rawmoments <- function(x, ...){
     cat("\nN = ", attr(x, "N"), "\n")
     invisible(x)
     }
+    
+cov2raw <- function(cov, mean, N, sd){
+    if (all(1 == diag(cov)) && !is.missing(sd))
+        cov <- cov * outer(sd, sd)
+    raw <- ((N - 1)*cov + N*outer(mean, mean))/N
+    colnames(raw) <- rownames(raw) <- rownames(cov)
+    raw <- rbind(c(1, mean), cbind(mean, raw))
+    if (!("(Intercept)" %in% rownames(raw)))
+        colnames(raw)[1] <- rownames(raw)[1] <- "(Intercept)"
+    attr(raw, "N") <- N
+    class(raw) <- "rawmoments"
+    raw
+    } 
     
 

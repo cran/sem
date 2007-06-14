@@ -1,8 +1,9 @@
-# last modified 3 Sept 2006 by J. Fox
+# last modified 14 June 2007 by J. Fox
 
-export(ram, standardized.residuals, normalized.residuals, startvalues,
+export(ram, standardized.residuals, normalized.residuals, read.moments, 
+    startvalues,
     standardized.coefficients, std.coef, tsls, sem, mod.indices, path.diagram,
-    specify.model, boot.sem, raw.moments)
+    specify.model, boot.sem, raw.moments, cov2raw)
 S3method(print, sem)
 S3method(residuals, sem)
 S3method(standardized.residuals, sem)
@@ -33,6 +34,7 @@ S3method(raw.moments, default)
 S3method(print, rawmoments)
 S3method(deviance, sem)
 S3method(df.residual, sem)
+S3method(anova, sem)
 
 
 

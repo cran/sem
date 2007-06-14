@@ -2,6 +2,7 @@
 \alias{raw.moments}
 \alias{raw.moments.formula}
 \alias{raw.moments.default}
+\alias{cov2raw}
 \alias{print.rawmoments}
 
 \title{Compute Raw Moments Matrix}
@@ -16,6 +17,8 @@ raw.moments(object, ...)
     contrasts = NULL, ...)
 
 \method{raw.moments}{default}(object, ...)
+
+cov2raw(cov, mean, N, sd)
 
 \method{print}{rawmoments}(x, ...)
 }
@@ -35,12 +38,19 @@ raw.moments(object, ...)
     contain \code{NA}s. The default is set by the \code{na.action} option.}
   \item{contrasts}{an optional list. See the \code{contrasts.arg} of 
     \code{\link[stats:model.matrix]{model.matrix.default}}}.
+  \item{cov}{a covariance or correlation matrix.}
+  \item{mean}{a vector of means.}
+  \item{N}{the number of observations on which the covariances or correlations 
+    are based.}
+  \item{sd}{an optional vector of standard deviations, to be given if \code{cov} is a
+    correlation matrix.}
   \item{x}{an object of class \code{rawmoments} to print.}
   \item{\dots}{arguments passed down.}
 }
 
 \value{
-  Returns an object of class \code{rawmoments}, which is simply a matrix
+  \code{raw.moments} and \code{cov2raw} return an object of class \code{rawmoments}, 
+  which is simply a matrix
   with an attribute \code{"N"} that contains the number of observations on
   which the moments are based.
 }
@@ -53,6 +63,9 @@ raw.moments(object, ...)
 data(Kmenta)
 raw.moments(cbind(1, Kmenta))
 raw.moments(~ Q + P + D + F + A, data=Kmenta)
+
+Cov <- with(Kmenta, cov(cbind(Q, P, D, F, A)))
+cov2raw(Cov, colMeans(Kmenta), nrow(Kmenta))
 }
 
 \keyword{manip}

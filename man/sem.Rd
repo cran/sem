@@ -9,6 +9,7 @@
 \alias{print.summary.sem}
 \alias{deviance.sem}
 \alias{df.residual.sem}
+\alias{anova.sem}
 
 \title{General Structural Equation Models}
 \description{
@@ -39,6 +40,8 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 \method{deviance}{sem}(object, ...)
 
 \method{df.residual}{sem}(object, ...)
+
+\method{anova}{sem}(object, model.2, ...)
 }
 
 \arguments{
@@ -97,6 +100,8 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   \item{object, x}{an object of class \code{sem} returned by the \code{sem} function.}
   \item{digits}{number of digits for printed output.}
   \item{conf.level}{level for confidence interval for the RMSEA index (default is .9).}
+  \item{model.2}{an object of class \code{sem} returned by the \code{sem} function, to be compared by a 
+    likelihood-ratio test to \code{object}; the two models must be fit to the same data.}
 } 
 
 \details{
@@ -276,33 +281,28 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 \examples{
 
 # Note: These examples can't be run via example() because the default file
-#  argument of specify.model() requires that the model specification be entered
+#  argument of specify.model() and read.moments() requires that the model 
+#  specification and covariances, correlations, or raw moments be entered
 #  at the command prompt. The examples can be copied and run in the R console,
-#  however. See ?specify.model for further information
+#  however. See ?specify.model and ?read.moments for further information.
 
     \dontrun{
 
 # ------------- Duncan, Haller and Portes peer-influences model ----------------------
 # A nonrecursive SEM with unobserved endogenous variables and fixed exogenous variables
 
-R.DHP <- matrix(c(      # lower triangle of correlation matrix
-            1,      0,      0,      0,      0,      0,      0,      0,      0,      0,            
-            .6247,   1,     0,      0,      0,      0,      0,      0,      0,      0,            
-            .3269,  .3669,  1,      0,      0,      0,      0,      0,      0,      0,            
-            .4216,  .3275,  .6404,  1,      0,      0,      0,      0,      0,      0,
-            .2137,  .2742,  .1124,  .0839,  1,      0,      0,      0,      0,      0,
-            .4105,  .4043,  .2903,  .2598,  .1839,  1,      0,      0,      0,      0,
-            .3240,  .4047,  .3054,  .2786,  .0489,  .2220,  1,      0,      0,      0,
-            .2930,  .2407,  .4105,  .3607,  .0186,  .1861,  .2707,  1,      0,      0,
-            .2995,  .2863,  .5191,  .5007,  .0782,  .3355,  .2302,  .2950,  1,      0,
-            .0760,  .0702,  .2784,  .1988,  .1147,  .1021,  .0931, -.0438,  .2087,  1
-            ), ncol=10, byrow=TRUE)
+R.DHP <- read.moments(diag=FALSE, names=c("ROccAsp", "REdAsp", "FOccAsp", 
+                "FEdAsp", "RParAsp", "RIQ", "RSES", "FSES", "FIQ", "FParAsp"))
+    .6247     
+    .3269  .3669       
+    .4216  .3275  .6404
+    .2137  .2742  .1124  .0839
+    .4105  .4043  .2903  .2598  .1839
+    .3240  .4047  .3054  .2786  .0489  .2220
+    .2930  .2407  .4105  .3607  .0186  .1861  .2707
+    .2995  .2863  .5191  .5007  .0782  .3355  .2302  .2950
+    .0760  .0702  .2784  .1988  .1147  .1021  .0931 -.0438  .2087
             
-rownames(R.DHP) <- colnames(R.DHP) <- 
-    c('ROccAsp', 'REdAsp', 'FOccAsp', 'FEdAsp', 'RParAsp', 'RIQ',
-        'RSES', 'FSES', 'FIQ', 'FParAsp')
-
-
 # Fit the model using a symbolic ram specification
 
 model.dhp <- specify.model()
@@ -342,6 +342,7 @@ summary(sem.dhp.1)
 ##     Bentler-Bonnett NFI =  0.96938
 ##     Tucker-Lewis NNFI =  0.95757
 ##     Bentler CFI =  0.98586
+##     SRMR =  0.020204
 ##     BIC =  -60.244 
 ##    
 ##     Normalized Residuals
@@ -420,6 +421,7 @@ summary(sem.dhp.2)
 ##     Bentler-Bonnett NFI =  0.96938
 ##     Tucker-Lewis NNFI =  0.95757
 ##     Bentler CFI =  0.98586
+##     SRMR =  0.020204
 ##     BIC =  -60.244 
 ##    
 ##     Normalized Residuals
@@ -448,24 +450,21 @@ summary(sem.dhp.2)
 ##    psi22   0.263836 0.044902   5.8759 4.2067e-09 FGenAsp <--> FGenAsp
 ##    psi12  -0.022601 0.051649  -0.4376 6.6168e-01 RGenAsp <--> FGenAsp
     
-     Iterations =  28 
+##   Iterations =  28 
 
 
 # -------------------- Wheaton et al. alienation data ----------------------
     
 
-S.wh <- matrix(c(
-   11.834,     0,        0,        0,       0,        0,
-    6.947,    9.364,     0,        0,       0,        0,
-    6.819,    5.091,   12.532,     0,       0,        0,
-    4.783,    5.028,    7.495,    9.986,    0,        0,
-   -3.839,   -3.889,   -3.841,   -3.625,   9.610,     0,
-  -21.899,  -18.831,  -21.748,  -18.775,  35.522,  450.288), 
-  6, 6)
-  
-rownames(S.wh) <- colnames(S.wh) <-
-    c('Anomia67','Powerless67','Anomia71','Powerless71','Education','SEI')
-  
+S.wh <- read.moments(names=c('Anomia67','Powerless67','Anomia71',
+                                    'Powerless71','Education','SEI'))
+   11.834                                    
+    6.947    9.364                            
+    6.819    5.091   12.532                    
+    4.783    5.028    7.495    9.986            
+   -3.839   -3.889   -3.841   -3.625   9.610     
+  -21.899  -18.831  -21.748  -18.775  35.522  450.288
+
 # This is the model in the SAS manual for PROC CALIS: A Recursive SEM with
 # latent endogenous and exogenous variables.
 # Curiously, both factor loadings for two of the latent variables are fixed.
@@ -505,6 +504,7 @@ summary(sem.wh.1)
 ##     Bentler-Bonnett NFI =  0.99367
 ##     Tucker-Lewis NNFI =  0.99647
 ##     Bentler CFI =  0.99788
+##     SRMR =  0.014998
 ##     BIC =  -48.051 
 ##    
 ##     Normalized Residuals
@@ -529,7 +529,8 @@ summary(sem.wh.1)
 ##     Iterations =  78 
 
 
-# The same model, but treating one loading for each latent variable as free.
+# The same model, but treating one loading for each latent variable as free
+# (and equal to each other).
 
 model.wh.2 <- specify.model()
     Alienation67   ->  Anomia67,      NA,        1
@@ -566,6 +567,7 @@ summary(sem.wh.2)
 ##     Bentler-Bonnett NFI =  0.99405
 ##     Tucker-Lewis NNFI =  0.99586
 ##     Bentler CFI =  0.9978
+##     SRMR =  0.012981
 ##     BIC =  -42.026 
 ##    
 ##     Normalized Residuals
@@ -591,25 +593,32 @@ summary(sem.wh.2)
 ##     Iterations =  79 
 ##
 
+# Compare the two models by a likelihood-ratio test:
+
+anova(sem.wh.1, sem.wh.2)
+
+##    LR Test for Difference Between Models
+##    
+##            Model Df Model Chisq Df LR Chisq Pr(>Chisq)
+##    Model 1        9     13.4851                       
+##    Model 2        8     12.6731  1   0.8119     0.3676
+
+
 # ----------------------- Thurstone data ---------------------------------------
 #  Second-order confirmatory factor analysis, from the SAS manual for PROC CALIS
 
-R.thur <- matrix(c(
-        1.,       0,      0,      0,      0,      0,      0,      0,      0, 
-         .828,   1.,      0,      0,      0,      0,      0,      0,      0, 
-         .776,   .779,   1.,      0,      0,      0,      0,      0,      0, 
-         .439,   .493,    .460,   1.,     0,      0,      0,      0,      0, 
-         .432,   .464,    .425,   .674,   1.,     0,      0,      0,      0, 
-         .447,   .489,    .443,   .590,    .541,  1.,     0,      0,      0, 
-         .447,   .432,    .401,   .381,    .402,   .288,  1.,     0,      0, 
-         .541,   .537,    .534,   .350,    .367,   .320,   .555,  1.,     0, 
-         .380,   .358,    .359,   .424,    .446,   .325,   .598,   .452,  1.
-            ), ncol=9, byrow=TRUE)
+R.thur <- read.moments(diag=FALSE, names=c('Sentences','Vocabulary',
+        'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
+        'Letter.Series','Pedigrees', 'Letter.Group'))
+    .828                                              
+    .776   .779                                        
+    .439   .493    .46                                 
+    .432   .464    .425   .674                           
+    .447   .489    .443   .59    .541                    
+    .447   .432    .401   .381    .402   .288              
+    .541   .537    .534   .35    .367   .32   .555        
+    .38   .358    .359   .424    .446   .325   .598   .452  
             
-rownames(R.thur) <- colnames(R.Thur) <-
-    c('Sentences','Vocabulary','Sent.Completion','First.Letters',
-        '4.Letter.Words','Suffixes','Letter.Series','Pedigrees', 'Letter.Group')
-
 model.thur <- specify.model()
     F1 -> Sentences,                      lam11, NA
     F1 -> Vocabulary,                     lam21, NA
@@ -649,6 +658,7 @@ summary(sem.thur)
 ##     Bentler-Bonnett NFI =  0.96534
 ##     Tucker-Lewis NNFI =  0.98002
 ##     Bentler CFI =  0.98668
+##     SRMR =  0.043595
 ##     BIC =  -90.475 
 ##    
 ##     Normalized Residuals
@@ -685,19 +695,14 @@ summary(sem.thur)
 #------------------------- Kerchoff/Kenney path analysis ---------------------
 # An observed-variable recursive SEM from the LISREL manual
 
-R.kerch <- matrix(c(
-    1,      0,      0,      0,      0,      0,      0,
-    -.100,  1,      0,      0,      0,      0,      0,
-     .277,  -.152,  1,      0,      0,      0,      0,
-     .250,  -.108,  .611,   1,      0,      0,      0,
-     .572,  -.105,  .294,   .248,   1,      0,      0,
-     .489,  -.213,  .446,   .410,   .597,   1,      0,
-     .335,  -.153,  .303,   .331,   .478,   .651,   1),
-     ncol=7, byrow=TRUE)
-
-rownames(R.kerch) <- colnames(R.kerch) <- c('Intelligence','Siblings',
-    'FatherEd','FatherOcc','Grades','EducExp','OccupAsp')
-
+R.kerch <- read.moments(diag=FALSE, names=c('Intelligence','Siblings',
+                        'FatherEd','FatherOcc','Grades','EducExp','OccupAsp'))
+    -.100                                
+     .277  -.152                          
+     .250  -.108  .611                     
+     .572  -.105  .294   .248               
+     .489  -.213  .446   .410   .597         
+     .335  -.153  .303   .331   .478   .651   
     
 model.kerch <- specify.model()
     Intelligence -> Grades,       gam51,    NA
@@ -763,28 +768,24 @@ summary(sem.kerch)
 # raw moment matrix to fit a model with an intercept. (The example was suggested
 # by Mike Stoolmiller.)
 
-M.McArdle <- scan()
-365.661     0           0           0           0
-503.175     719.905     0           0           0
-675.656     958.479    1303.392     0           0
-890.680    1265.846    1712.475    2278.257     0
- 18.034      25.819      35.255      46.593     1.000
- 
-M.McArdle <- matrix(M.McArdle, 5, 5, byrow=TRUE)
-rownames(M.McArdle) <- colnames(M.McArdle) <- scan(what="")
-WISC1 WISC2 WISC3 WISC4 UNIT
+M.McArdle <- read.moments(names=c('WISC1', 'WISC2', 'WISC3', 'WISC4', 'UNIT'))
+    365.661                                      
+    503.175     719.905                           
+    675.656     958.479    1303.392                
+    890.680    1265.846    1712.475    2278.257     
+     18.034      25.819      35.255      46.593     1.000
  
 mod.McArdle <- specify.model()
-C -> WISC1, NA, 6.07
-C -> WISC2, B2, NA
-C -> WISC3, B3, NA
-C -> WISC4, B4, NA
-UNIT -> C, Mc, NA
-C <-> C, Vc, NA,
-WISC1 <-> WISC1, Vd, NA
-WISC2 <-> WISC2, Vd, NA
-WISC3 <-> WISC3, Vd, NA
-WISC4 <-> WISC4, Vd, NA
+    C -> WISC1, NA, 6.07
+    C -> WISC2, B2, NA
+    C -> WISC3, B3, NA
+    C -> WISC4, B4, NA
+    UNIT -> C, Mc, NA
+    C <-> C, Vc, NA,
+    WISC1 <-> WISC1, Vd, NA
+    WISC2 <-> WISC2, Vd, NA
+    WISC3 <-> WISC3, Vd, NA
+    WISC4 <-> WISC4, Vd, NA
 
 sem.McArdle <- sem(mod.McArdle, M.McArdle, 204, fixed.x="UNIT", raw=TRUE)
 summary(sem.McArdle)

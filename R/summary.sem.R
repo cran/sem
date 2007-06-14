@@ -1,4 +1,4 @@
-# last modified 25 July 2006 by J. Fox
+# last modified 14 June 2007 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -55,8 +55,10 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
     row.names(coeff) <- names(object$coeff)
     BIC <- chisq - df * log(N)
+    SRMR <- sqrt(sum(standardized.residuals(object)^2 * 
+        upper.tri(diag(n), diag=TRUE))/(n*(n + 1)/2))
     ans <- list(chisq=chisq, df=df, chisqNull=chisqNull, dfNull=dfNull,
-        GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, 
+        GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, SRMR=SRMR, 
         norm.res=norm.res, coeff=coeff, digits=digits, 
         iterations=object$iterations, aliased=object$aliased, raw=object$raw)
     class(ans) <- "summary.sem"
@@ -81,6 +83,7 @@ print.summary.sem <- function(x, ...){
         cat("\n Bentler-Bonnett NFI = ", x$NFI)
         cat("\n Tucker-Lewis NNFI = ", x$NNFI)
         cat("\n Bentler CFI = ", x$CFI)
+        cat("\n SRMR = ", x$SRMR)
         }
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")

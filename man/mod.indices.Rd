@@ -76,43 +76,38 @@ mod.indices(model, ...)
 \examples{
 # This example is adapted from the SAS manual
 
-S.wh <- matrix(c(
-   11.834,     0,        0,        0,       0,        0,
-    6.947,    9.364,     0,        0,       0,        0,
-    6.819,    5.091,   12.532,     0,       0,        0,
-    4.783,    5.028,    7.495,    9.986,    0,        0,
-   -3.839,   -3.889,   -3.841,   -3.625,   9.610,     0,
-  -21.899,  -18.831,  -21.748,  -18.775,  35.522,  450.288), 
-  6, 6)
+S.wh <- read.moments(names=c('Anomia67','Powerless67','Anomia71',
+                                    'Powerless71','Education','SEI'))
+   11.834                                    
+    6.947    9.364                            
+    6.819    5.091   12.532                    
+    4.783    5.028    7.495    9.986            
+   -3.839   -3.889   -3.841   -3.625   9.610     
+  -21.899  -18.831  -21.748  -18.775  35.522  450.288
 
-model.wh <- matrix(c(
-                    'Alienation67   ->  Anomia67',      NA,     1,
-                    'Alienation67   ->  Powerless67',   NA,     0.833,
-                    'Alienation71   ->  Anomia71',      NA,     1,
-                    'Alienation71   ->  Powerless71',   NA,     0.833, 
-                    'SES            ->  Education',     NA,     1,     
-                    'SES            ->  SEI',           'lamb', NA,
-                    'SES            ->  Alienation67',  'gam1', NA,
-                    'Alienation67   ->  Alienation71',  'beta', NA,
-                    'SES            ->  Alienation71',  'gam2', NA,
-                    'Anomia67       <-> Anomia67',      'the1', NA,
-                    'Anomia71       <-> Anomia71',      'the1', NA,
-                    'Powerless67    <-> Powerless67',   'the2', NA,
-                    'Powerless71    <-> Powerless71',   'the2', NA,
-                    'Education      <-> Education',     'the3', NA,
-                    'SEI            <-> SEI',           'the4', NA,
-                    'Anomia67       <-> Anomia71',      'the5', NA,
-                    'Powerless67    <-> Powerless71',   'the5', NA,
-                    'Alienation67   <-> Alienation67',  'psi1', NA,
-                    'Alienation71   <-> Alienation71',  'psi2', NA,
-                    'SES            <-> SES',           'phi',  NA), 
-                    ncol=3, byrow=TRUE)
-                                            
-obs.vars.wh <- c('Anomia67','Powerless67','Anomia71','Powerless71','Education','SEI')
-rownames(S.wh) <- colnames(S.wh) <- obs.vars.wh
+model.wh <- specify.model()
+    Alienation67   ->  Anomia67,      NA,   1
+    Alienation67   ->  Powerless67,   NA,   0.833
+    Alienation71   ->  Anomia71,      NA,   1
+    Alienation71   ->  Powerless71,   NA,   0.833
+    SES            ->  Education,     NA,   1     
+    SES            ->  SEI,           lamb, NA
+    SES            ->  Alienation67,  gam1, NA
+    Alienation67   ->  Alienation71,  beta, NA
+    SES            ->  Alienation71,  gam2, NA
+    Anomia67       <-> Anomia67,      the1, NA
+    Anomia71       <-> Anomia71,      the1, NA
+    Powerless67    <-> Powerless67,   the2, NA
+    Powerless71    <-> Powerless71,   the2, NA
+    Education      <-> Education,     the3, NA
+    SEI            <-> SEI,           the4, NA
+    Anomia67       <-> Anomia71,      the5, NA
+    Powerless67    <-> Powerless71,   the5, NA
+    Alienation67   <-> Alienation67,  psi1, NA
+    Alienation71   <-> Alienation71,  psi2, NA
+    SES            <-> SES,           phi,  NA
 
 sem.wh <- sem(model.wh, S.wh, 932)
-
 mod.indices(sem.wh)
 
 ##   5 largest modification indices, A matrix:

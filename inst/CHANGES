@@ -120,4 +120,14 @@ Changes to Version 0.9-6
    
    o  Stray escape character removed from print.summary.sem to avoid warning in r-devel.
    
+Changes to Version 0.9-7
+
+   o  Small fixes to docs.
+   
+   o  Fixed standardized.coefficients() so that it works even when there is only one structural parameter in the model (fixing a bug reported by Jarrett Byrnes).
+   
+   o  Added read.moments() to facilitate input of covariance, correlation, and raw-moment matrices; cov2raw() to compute raw-moments matrix from a covariance or correlation matrix; and anova.sem() to compare nested models (all suggested by Michael Friendly).
+   
+   o  Added SRMR fit index (requested by Mathieu d'Acremont).
+   
    
