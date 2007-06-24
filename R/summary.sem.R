@@ -1,4 +1,4 @@
-# last modified 14 June 2007 by J. Fox
+# last modified 24 June 2007 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -47,13 +47,16 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
         }
     else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- NA
     RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
-    var.names <- rownames(object$A)
-    ram <- object$ram[object$par.posn, , drop=FALSE]
-    par.code <- paste(var.names[ram[,2]], c('<---', '<-->')[ram[,1]],
-                    var.names[ram[,3]])
-    coeff <- data.frame(object$coeff, se, z, 2*(1 - pnorm(abs(z))), par.code)
-    names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
-    row.names(coeff) <- names(object$coeff)
+    if (!is.null(object$coeff)){
+        var.names <- rownames(object$A)
+        ram <- object$ram[object$par.posn, , drop=FALSE]
+        par.code <- paste(var.names[ram[,2]], c('<---', '<-->')[ram[,1]],
+                        var.names[ram[,3]])
+        coeff <- data.frame(object$coeff, se, z, 2*(1 - pnorm(abs(z))), par.code)
+        names(coeff) <- c("Estimate", "Std Error", "z value", "Pr(>|z|)", " ")
+        row.names(coeff) <- names(object$coeff)
+        }
+    else coeff <- NULL
     BIC <- chisq - df * log(N)
     SRMR <- sqrt(sum(standardized.residuals(object)^2 * 
         upper.tri(diag(n), diag=TRUE))/(n*(n + 1)/2))
@@ -88,10 +91,12 @@ print.summary.sem <- function(x, ...){
     cat("\n BIC = ", x$BIC, "\n")
     cat("\n Normalized Residuals\n")
     print(summary(as.vector(x$norm.res)))
-    cat("\n Parameter Estimates\n")
-    print(x$coeff, right=FALSE)
-    cat("\n Iterations = ", x$iterations, "\n")
-    if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
+    if (!is.null(x$coeff)){
+        cat("\n Parameter Estimates\n")
+        print(x$coeff, right=FALSE)
+        cat("\n Iterations = ", x$iterations, "\n")
+        if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
+        }
     invisible(x)
     }
     

@@ -130,4 +130,8 @@ Changes to Version 0.9-7
    
    o  Added SRMR fit index (requested by Mathieu d'Acremont).
    
+Changes to Version 0.9-8
+
+   o  sem() will now fit a model with no free parameters (as suggested by Ken Bollen).
+   
    
