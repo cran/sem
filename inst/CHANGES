@@ -134,4 +134,12 @@ Changes to Version 0.9-8
 
    o  sem() will now fit a model with no free parameters (as suggested by Ken Bollen).
    
+Changes to Version 0.9-9
+
+   o  Fixed bug in summary.sem() that sometimes prevented computation of confidence limits for RMSEA (problem reported by Frank Lawrence).
    
+   o  Small fixes to docs.
+   
+Changes to Version 0.9-10
+
+   o  Fixed bug in anova.tsls(), which was computing the error variance from the smaller rather than the larger model (pointed out by Achim Zeleis).

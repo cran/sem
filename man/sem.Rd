@@ -338,7 +338,7 @@ summary(sem.dhp.1)
 ##     Chisquare (null model) =  872   Df =  45
 ##     Goodness-of-fit index =  0.98439
 ##     Adjusted goodness-of-fit index =  0.94275
-##     RMSEA index =  0.048759   90 % CI: (0.014517, 0.07831)
+##     RMSEA index =  0.048759   90 \% CI: (0.014517, 0.07831)
 ##     Bentler-Bonnett NFI =  0.96938
 ##     Tucker-Lewis NNFI =  0.95757
 ##     Bentler CFI =  0.98586
@@ -417,7 +417,7 @@ summary(sem.dhp.2)
 ##     Chisquare (null model) =  872   Df =  45
 ##     Goodness-of-fit index =  0.98439
 ##     Adjusted goodness-of-fit index =  0.94275
-##     RMSEA index =  0.048759   90 % CI: (0.014517, 0.07831)
+##     RMSEA index =  0.048759   90 \% CI: (0.014517, 0.07831)
 ##     Bentler-Bonnett NFI =  0.96938
 ##     Tucker-Lewis NNFI =  0.95757
 ##     Bentler CFI =  0.98586
@@ -500,7 +500,7 @@ summary(sem.wh.1)
 ##     Chisquare (null model) =  2131.4   Df =  15
 ##     Goodness-of-fit index =  0.99527
 ##     Adjusted goodness-of-fit index =  0.98896
-##     RMSEA index =  0.023136   90 % CI: (NA, 0.046997)
+##     RMSEA index =  0.023136   90 \% CI: (NA, 0.046997)
 ##     Bentler-Bonnett NFI =  0.99367
 ##     Tucker-Lewis NNFI =  0.99647
 ##     Bentler CFI =  0.99788
@@ -563,7 +563,7 @@ summary(sem.wh.2)
 ##     Chisquare (null model) =  2131.4   Df =  15
 ##     Goodness-of-fit index =  0.99553
 ##     Adjusted goodness-of-fit index =  0.98828
-##     RMSEA index =  0.025049   90 % CI: (NA, 0.04985)
+##     RMSEA index =  0.025049   90 \% CI: (NA, 0.04985)
 ##     Bentler-Bonnett NFI =  0.99405
 ##     Tucker-Lewis NNFI =  0.99586
 ##     Bentler CFI =  0.9978
@@ -654,7 +654,7 @@ summary(sem.thur)
 ##     Chisquare (null model) =  1101.9   Df =  36
 ##     Goodness-of-fit index =  0.95957
 ##     Adjusted goodness-of-fit index =  0.9242
-##     RMSEA index =  0.052822   90 % CI: (0.015262, 0.083067)
+##     RMSEA index =  0.052822   90 \% CI: (0.015262, 0.083067)
 ##     Bentler-Bonnett NFI =  0.96534
 ##     Tucker-Lewis NNFI =  0.98002
 ##     Bentler CFI =  0.98668

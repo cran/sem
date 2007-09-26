@@ -1,4 +1,4 @@
-# last modified 24 June 2007 by J. Fox
+# last modified 1 July 2007 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
     norm.res <- normalized.residuals(object)
@@ -29,13 +29,14 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
         CFI <- 1 - L1/L0
         RMSEA <- sqrt(max(object$criterion/df - 1/(N - (!object$raw)), 0))
         tail <- (1 - conf.level)/2 
-        max <- 1000
+        max <- N
         while (max > 1){
             res <- optimize(function(lam) (tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
             if (sqrt(res$objective) < tail/100) break
             max <- max/2
             }
         lam.U <- if (max <= 1) NA else res$minimum
+        max <- max(max, 1)
         while (max > 1){
             res <- optimize(function(lam) (1 - tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
             if (sqrt(res$objective) < tail/100) break

@@ -133,18 +133,19 @@ summary(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta)) # supply equation
 ##  
 ##  Residual standard error: 2.4576 on 16 degrees of freedom
 
-
 anova(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta),
     tsls(Q ~ 1, ~ D + F + A, data=Kmenta))
-
+##    
 ##  Analysis of Variance
-##  
+##    
 ##  Model 1:  Q ~ P + F + A   Instruments: ~D + F + A
 ##  Model 2:  Q ~ 1   Instruments: ~D + F + A
-##  
-##          Res.Df     RSS Df Sum of Sq      F  Pr(>F)
-##  Model 1     16  96.633                            
-##  Model 2     19 268.114  3   171.481 4.0507 0.02553
+##    
+##          Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+##  Model 1     16  96.633                                  
+##  Model 2     19 268.114  3   171.481 9.4643 0.0007834 ***
+##  ---
+##  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
 }
 \keyword{models}
