@@ -32,7 +32,7 @@
   }
 }
 
-}
+
 \source{
   York University Institute for Social Research.
 }

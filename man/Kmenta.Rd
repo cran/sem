@@ -1,6 +1,6 @@
 \name{Kmenta}
 \alias{Kmenta}
-\non_function{}
+\docType{data}
 \title{Partly Artificial Data on the U. S. Economy}
 \usage{data(Kmenta)}
 \description{

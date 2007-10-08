@@ -28,7 +28,6 @@ read.moments(file = "", diag = TRUE,
     label the rows and columns of the moment matrix.}
 }
 
-}
 \value{
  Returns a lower-triangular matrix (i.e., with zeroes above the main diagonal)
  suitable for input to \code{sem}.

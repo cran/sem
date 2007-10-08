@@ -1,6 +1,6 @@
 \name{Klein}
 \alias{Klein}
-\non_function{}
+\docType{data}
 \title{Klein's Data on the U. S. Economy}
 \usage{data(Klein)}
 \description{

@@ -52,18 +52,17 @@ path.diagram(model, ...)
     to round parameter estimates.}
 }
 
-}
 \value{
   \code{NULL}: \code{path.diagram} is used for its side-effect, producing a
-  graph description of the model.}
+  graph description of the model.
 }
 
 \references{
     Koutsofios, E., and North, S. C. (2002)
     Drawing graphs with \emph{dot}.
-    \url{http://www.graphviz.org/Documentation/dotguide.pdf}.
-    
+    \url{http://www.graphviz.org/Documentation/dotguide.pdf}.    
 }
+
 \author{John Fox \email{jfox@mcmaster.ca}}
 
 \seealso{\code{\link{sem}}}
@@ -140,5 +139,6 @@ path.diagram(sem.dhp, min.rank='RIQ, RSES, RParAsp, FParAsp, FSES, FIQ',
 ##   }
 
 }
+
 \keyword{dplot}
 \keyword{models}

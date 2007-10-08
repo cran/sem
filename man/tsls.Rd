@@ -61,7 +61,6 @@ tsls(y, ...)
   \item{...}{arguments to be passed down.}
 }
 
-}
 \value{
   \code{tsls.formula} returns an object of class \code{tsls}, with the following components:
   \item{n}{number of observations.}

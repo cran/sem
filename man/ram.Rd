@@ -19,8 +19,6 @@ ram(object, digits=5, startvalues=FALSE)
     otherwise, the parameter estimates are printed; the default is \code{FALSE}.}
 }
 
-
-}
 \value{
   A data frame containing the labelled RAM definition matrix, which is normally
   just printed.
