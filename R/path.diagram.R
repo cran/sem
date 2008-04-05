@@ -1,4 +1,4 @@
-# last modified 29 June 06 by J. Fox
+# last modified 3 February 08 by J. Fox
 
 path.diagram <- function(model, ...){
     UseMethod("path.diagram")
@@ -48,12 +48,11 @@ path.diagram.sem <- function(model, out.file, min.rank=NULL, max.rank=NULL, same
     ram <- model$ram
     ram[names(model$coeff), 5] <- model$coeff
     rownames(ram)[model$fixed] <- ram[model$fixed,5]
-    names <- rownames(ram)
     values <- round(ram[,5], digits)
     heads <- ram[,1]
     to <- ram[,2]
     from <- ram[,3]
-    labels <- if (edge.labels == "names") names else values
+    labels <- if (edge.labels == "names") parameters else values
     direction <- ifelse((heads == 2), ' dir=both', "")
     for (par in 1:nrow(ram)){
         if((!ignore.double) || (heads[par] == 1))

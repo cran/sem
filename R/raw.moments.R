@@ -1,4 +1,4 @@
-# last modified 14 June 07 by J. Fox
+# last modified 5 April 08 by J. Fox
 
 raw.moments <- function(object, ...) UseMethod("raw.moments")
 
@@ -37,7 +37,7 @@ print.rawmoments <- function(x, ...){
     }
     
 cov2raw <- function(cov, mean, N, sd){
-    if (all(1 == diag(cov)) && !is.missing(sd))
+    if (all(1 == diag(cov)) && !missing(sd))
         cov <- cov * outer(sd, sd)
     raw <- ((N - 1)*cov + N*outer(mean, mean))/N
     colnames(raw) <- rownames(raw) <- rownames(cov)
