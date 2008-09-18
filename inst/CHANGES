@@ -153,3 +153,9 @@ Changes to Version 0.9-12
   o  Fixed bug in path.diagram() that prevented customized parameter labels (reported by Christopher Marcum).
 
   o  Small fixes/changes.
+  
+Changes to Version 0.9-13
+ 
+  o  Added vcov.sem() and coef.sem() methods (suggested by Achim Zeileis).
+  
+  o  If sem() can't compute the covariance matrix of the coefficients, then summary.sem() now prints an informative error message rather than failing cryptically. 

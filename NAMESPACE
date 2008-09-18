@@ -35,6 +35,7 @@ S3method(print, rawmoments)
 S3method(deviance, sem)
 S3method(df.residual, sem)
 S3method(anova, sem)
-
+S3method(coef, sem)
+S3method(vcov, sem)
 
 

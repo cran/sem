@@ -1,6 +1,7 @@
-# last modified 1 July 2007 by J. Fox
+# last modified 18 September 2008 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
+	if (any(is.na(object$cov))) stop("coefficient covariances cannot be computed")
     norm.res <- normalized.residuals(object)
     se <- sqrt(diag(object$cov))
     z <- object$coeff/se

@@ -10,6 +10,8 @@
 \alias{deviance.sem}
 \alias{df.residual.sem}
 \alias{anova.sem}
+\alias{coef.sem}
+\alias{vcov.sem}
 
 \title{General Structural Equation Models}
 \description{
@@ -42,6 +44,10 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 \method{df.residual}{sem}(object, ...)
 
 \method{anova}{sem}(object, model.2, ...)
+
+\method{coef}{sem}(object, ...)
+
+\method{vcov}{sem}(object, ...)
 }
 
 \arguments{

@@ -1,4 +1,4 @@
-# last modified 24 June 07 by J. Fox
+# last modified 18 September 08 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -90,6 +90,7 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     S <- unclass(S) # in case S is a rawmoment object
     if (is.triangular(S)) S <- S + t(S) - diag(diag(S))
     if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
+	if (qr(S)$rank < ncol(S)) warning("S is numerically singular: expect problems")
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
         stop ('ram argument must be a 5-column numeric matrix')
     par.size <- if (missing(par.size)) {
@@ -213,8 +214,12 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
             warning(paste('Optimization may not have converged; nlm return code = ',
                 res$code, '. Consult ?nlm.\n', sep=""))
         qr.hess <- try(qr(res$hessian), silent=TRUE)
-        if (class(qr.hess) == "try-error")
+        if (class(qr.hess) == "try-error"){
             warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
+			cov <- matrix(NA, t, t)
+			colnames(cov) <- rownames(cov) <- param.names
+			result$cov <- cov
+			}
         else if (qr.hess$rank < t){
             warning(' singular Hessian: model is probably underidentified.\n')
             cov <- matrix(NA, t, t)
@@ -267,3 +272,11 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
     class(result) <- "sem"
     result
     }
+	
+vcov.sem <- function(object, ...) {
+	object$cov
+}
+
+coef.sem <- function(object, ...){
+	object$coeff
+}
