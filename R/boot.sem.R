@@ -1,6 +1,6 @@
 # bootstrapped standard errors and confidence intervals for sem
 
-# last modified 8 June 2005 by J. Fox
+# last modified 26 November 2008 by J. Fox
 
 boot.sem <- function(data, model, R=100, cov=cov, ...){
     refit <- function(){
@@ -74,7 +74,7 @@ summary.bootsem <- function(object,
         up  <- if (type == "norm") 3 else 5 
         for (i in 1:p){
             ci <- as.vector(boot.ci(object, type=type, index=i, 
-                conf=level)[[type]])
+                conf=level)[[type, exact=FALSE]])
             lower[i] <- ci[low]
             upper[i] <- ci[up]
             }

@@ -1,4 +1,4 @@
-# last modified 18 September 08 by J. Fox
+# last modified 2 November 08 by J. Fox
 
 sem <- function(ram, ...){
     if (is.character(ram)) class(ram) <- 'mod'
@@ -84,13 +84,12 @@ sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''),
         is.matrix(X) && (nrow(X) == ncol(X)) && 
             (all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
         }    
-    is.symmetric <- function(X) {
-        is.matrix(X) && (nrow(X) == ncol(X)) && all(X == t(X))
-        }
     S <- unclass(S) # in case S is a rawmoment object
     if (is.triangular(S)) S <- S + t(S) - diag(diag(S))
-    if (!is.symmetric(S)) stop('S must be a square triangular or symmetric matrix')
+    if (!isSymmetric(S)) stop('S must be a square triangular or symmetric matrix')
 	if (qr(S)$rank < ncol(S)) warning("S is numerically singular: expect problems")
+	if (any(eigen(S, symmetric=TRUE, only.values=TRUE)$values <= 0)) 
+		warning("S is not positive-definite: expect problems")
     if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
         stop ('ram argument must be a 5-column numeric matrix')
     par.size <- if (missing(par.size)) {

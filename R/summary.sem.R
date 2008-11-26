@@ -1,4 +1,4 @@
-# last modified 18 September 2008 by J. Fox
+# last modified 10 Novmeber 2008 by J. Fox
                                                                
 summary.sem <- function(object, digits=5, conf.level=.90, ...) {
 	if (any(is.na(object$cov))) stop("coefficient covariances cannot be computed")
@@ -33,6 +33,11 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
         max <- N
         while (max > 1){
             res <- optimize(function(lam) (tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
+			if (is.na(res$objective) || res$objective < 0){
+				max <- 0
+				warning("cannot find upper bound of RMSEA")
+				break
+				}				
             if (sqrt(res$objective) < tail/100) break
             max <- max/2
             }
@@ -42,6 +47,11 @@ summary.sem <- function(object, digits=5, conf.level=.90, ...) {
             res <- optimize(function(lam) (1 - tail - pchisq(chisq, df, ncp=lam))^2, interval=c(0, max))
             if (sqrt(res$objective) < tail/100) break
             max <- max/2
+			if (is.na(res$objective) || res$objective < 0){
+				max <- 0
+				warning("cannot find lower bound of RMSEA")
+				break
+				}				
             }
         lam.L <- if (max <= 1) NA else res$minimum
         RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))

@@ -159,3 +159,13 @@ Changes to Version 0.9-13
   o  Added vcov.sem() and coef.sem() methods (suggested by Achim Zeileis).
   
   o  If sem() can't compute the covariance matrix of the coefficients, then summary.sem() now prints an informative error message rather than failing cryptically. 
+  
+Changes to Version 0.9-14
+
+  o  Changed test for symmetry of input covariance matrix so that it uses isSymmetric() (suggested by Brian Lai).
+  
+  o  Added a test for positive-definiteness of the input covariance matrix.
+  
+  o  Intercept error in summary.sem() when bounds of RMSEA can't be computed (following problem reported by Andrew J. Wawrzyniak).
+  
+  o  Fixed error in summary.bootsem() produced by elimination in R of partial matching of list elements (problem reported by Sergio A. Estay).
