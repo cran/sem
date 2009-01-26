@@ -169,3 +169,8 @@ Changes to Version 0.9-14
   o  Intercept error in summary.sem() when bounds of RMSEA can't be computed (following problem reported by Andrew J. Wawrzyniak).
   
   o  Fixed error in summary.bootsem() produced by elimination in R of partial matching of list elements (problem reported by Sergio A. Estay).
+
+Changes to Version 0.9-15
+
+  o  Small fixes to mod.indices.Rd.
+ 

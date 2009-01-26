@@ -47,7 +47,7 @@ mod.indices(model, ...)
   Modification indices and estimated parameter changes for currently free parameters are given as
   \code{NA}.
   
-  The method employed is described in Saris, Satorra, and S\"{o}rbom (1987) and S\"{o}rbom (1989).
+  The method employed is described in Saris, Satorra, and Sorbom (1987) and Sorbom (1989).
 }
 
 \value{
@@ -59,12 +59,12 @@ mod.indices(model, ...)
 }
 
 \references{
-    Sarris, W. E., Satorra, A., and S\"{o}rbom, D. (1987)
+    Sarris, W. E., Satorra, A., and Sorbom, D. (1987)
     The detection and correction of specification errors in structural
     equation models. Pp. 105--129 in Clogg, C. C. (ed.), \emph{Sociological Methodology 1987.}
     American Sociological Association.
     
-    S\"{o}rbom, D. (1989)
+    Sorbom, D. (1989)
     Model modification.
     \emph{Psychometrika} \bold{54}, 371--384.
 }
