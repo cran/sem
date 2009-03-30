@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 26 Sept 07 by J. Fox
+# last modified 28 March 2009 by J. Fox
 
 tsls <- function(y, ...){
     UseMethod("tsls")
@@ -12,7 +12,8 @@ tsls.default <- function (y, X, Z, names=NULL, ...) {
     p <- ncol(X)
     invZtZ <- solve(crossprod(Z))
     XtZ <- crossprod(X, Z)
-    V <- solve(XtZ %*% invZtZ %*% t(XtZ))
+#    V <- solve(XtZ %*% invZtZ %*% t(XtZ))
+	V <- chol2inv(chol(XtZ %*% invZtZ %*% t(XtZ)))
     b <- V %*% XtZ %*% invZtZ %*% crossprod(Z, y)
     residuals <- y - X %*% b
     s2 <- sum(residuals^2)/(n - p)

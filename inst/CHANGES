@@ -173,4 +173,10 @@ Changes to Version 0.9-14
 Changes to Version 0.9-15
 
   o  Small fixes to mod.indices.Rd.
+  
+Changes to Version 0.9-16
+
+  o  tsls() now uses Cholesky decomposition to speed up computations with many variables (slightly).
+  
+  o  Added fscores() function to compute factor scores, after serveral requests.
  

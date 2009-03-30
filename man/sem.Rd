@@ -58,7 +58,7 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
     or (less conveniently) in numeric form, invoking \code{sem.default} directly
     (see \bold{Details} below).}
   \item{S}{covariance matrix among observed variables; may be input as a symmetric matrix,
-    or as a lower- or upper-triangular matrix. \code{S} may also be a raw (i.e., ``uncorrected'')
+    or as a lower- or upper-triangular matrix. \code{S} may also be a raw (i.e., \dQuote{uncorrected})
     moment matrix --- that is, a sum-of-squares-and-products matrix divided by \code{N}. This
     form of input is useful for fitting models with intercepts, in which case the moment matrix
     should include the mean square and cross-products for a unit variable all of whose entries are 1;
@@ -111,10 +111,10 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 } 
 
 \details{
-  The model is set up using RAM (`reticular action model' -- don't ask!) 
+  The model is set up using RAM (\dQuote{reticular action model} -- don't ask!) 
   notation -- a simple format
   for specifying general structural equation models by coding the
-  `arrows' in the path diagram for the model (see, e.g., McArdle and McDonald, 1984).
+  \dQuote{arrows} in the path diagram for the model (see, e.g., McArdle and McDonald, 1984).
   
   The variables in the \eqn{v} vector in the model (typically, the observed and
   unobserved variables, but not error variables) are numbered from 1 to \eqn{m}.  

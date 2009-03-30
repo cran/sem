@@ -7,7 +7,7 @@
 
 \title{Compute Raw Moments Matrix}
 \description{
- Computes the ``uncorrected'' sum-of-squares-and-products matrix divided by the
+ Computes the \dQuote{uncorrected} sum-of-squares-and-products matrix divided by the
  number of observations.
 }
 \usage{
