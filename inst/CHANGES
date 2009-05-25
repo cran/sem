@@ -179,4 +179,10 @@ Changes to Version 0.9-16
   o  tsls() now uses Cholesky decomposition to speed up computations with many variables (slightly).
   
   o  Added fscores() function to compute factor scores, after serveral requests.
+  
+Changes to Verstion 0.9-17
+
+  o  standardized.coefficients() now standardizes both path coefficients and variances/covariances (thanks to code provided by Adam Kramer).
+  
+  o  path.digram() now has an option for displaying standardized coefficients (again thanks to Adam Kramer).
  

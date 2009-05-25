@@ -248,6 +248,12 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
 }
 
 \references{
+
+	Fox, J. (2006)
+	Structural equation modeling with the sem package in R.
+	\emph{Structural Equation Modeling} 
+	\bold{13}:465--486.
+	
     Bollen, K. A. (1989) 
     \emph{Structural Equations With Latent Variables.} Wiley.
     

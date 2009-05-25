@@ -16,9 +16,9 @@ path.diagram(model, ...)
 
 \method{path.diagram}{sem}(model, out.file, min.rank=NULL, max.rank=NULL, 
     same.rank=NULL, variables=model$var.names, parameters=rownames(model$ram),
-    ignore.double=TRUE, edge.labels=c("names", "values"), size=c(8, 8), 
+    ignore.double=TRUE, edge.labels=c("names", "values", "both"), size=c(8, 8), 
     node.font=c("Helvetica", 14), edge.font=c("Helvetica", 10), 
-    rank.direction=c("LR", "TB"), digits=2, ...)
+    rank.direction=c("LR", "TB"), digits=2, standardize=FALSE, ...)
 }
 
 \arguments{
@@ -42,7 +42,7 @@ path.diagram(model, ...)
   \item{ignore.double}{if \code{TRUE}, the default, double-headed arrows, representing
     variances and covariances, are not graphed.}
   \item{edge.labels}{\code{"names"} to label arrows with parameter names; 
-    \code{"values"} to label arrows with parameter estimates.}
+    \code{"values"} to label arrows with parameter estimates, or \code{"both"}.}
   \item{size}{the size of the graph, in inches.}
   \item{node.font}{font name and point-size for printing variable names.}
   \item{edge.font}{font name and point-size for printing arrow names or values.}
@@ -50,6 +50,7 @@ path.diagram(model, ...)
     or top-to-bottom, \code{"TB"}.}
   \item{digits}{number of digits after the decimal point (default, 2) to which 
     to round parameter estimates.}
+  \item{standardize}{if \code{TRUE}, display standardized coefficients; default is \code{FALSE}.}
 }
 
 \value{
