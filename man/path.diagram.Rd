@@ -7,26 +7,33 @@
 \description{
   \code{path.diagram} creates a description of the path diagram
   for a structural-equation-model object to be processed by the
-  graph-drawing program \emph{dot}; see Koutsofios and North (2002)
-  and \url{http://www.graphviz.org/}.
+  graph-drawing program \emph{dot}, which can be called
+  automatically; see Koutsofios and North (2002)
+  and \url{http://www.graphviz.org/}. To obtain graphics output
+  directly, the \emph{dot} program must be on the system search path.
 }
 
 \usage{
 path.diagram(model, ...)
 
-\method{path.diagram}{sem}(model, out.file, min.rank=NULL, max.rank=NULL, 
-    same.rank=NULL, variables=model$var.names, parameters=rownames(model$ram),
-    ignore.double=TRUE, edge.labels=c("names", "values", "both"), size=c(8, 8), 
-    node.font=c("Helvetica", 14), edge.font=c("Helvetica", 10), 
-    rank.direction=c("LR", "TB"), digits=2, standardize=FALSE, ...)
+\method{path.diagram}{sem}(model, file, min.rank = NULL, max.rank = NULL,
+	same.rank = NULL, variables = model$var.names, parameters = rownames(model$ram),
+	ignore.double = TRUE, edge.labels = c("names", "values", "both"), 
+	size = c(8, 8), node.font = c("Helvetica", 14),
+	edge.font = c("Helvetica", 10), rank.direction = c("LR", "TB"), 
+	digits = 2, standardize = FALSE, output.type=c("graphics", "dot"),
+	graphics.fmt="pdf", dot.options=NULL, ...)
 }
 
 \arguments{
   \item{model}{a structural-equation-model object produced by \code{sem}.}
   \item{\dots}{arguments to be passed down to \code{path.diagram.sem}.}
-  \item{out.file}{a file to which to write the \emph{dot} description of the
-    path diagram; if not specified, the description is written to standard
-    output (normally the R Console).}
+  \item{file}{a file name, given \emph{without} an extension, to which to write the \emph{dot} description of the
+    path diagram and, by default, to use that to draw a graph of the model; 
+    if not specified, the \emph{dot} description is written to standard output (normally the R Console).
+    Note that by default (see the \code{output.type} argument below), \emph{two} files are written:
+    a ".dot" file and a graphics file of type specified by the \code{graphics.fmt} argument (below);
+    \code{file} may include a path specification.}
   \item{min.rank}{a character string listing names of variables to be assigned
     minimum rank (order) in the graph; the names should be separated by commas.}
   \item{max.rank}{a character string listing names of variables to be assigned
@@ -51,6 +58,11 @@ path.diagram(model, ...)
   \item{digits}{number of digits after the decimal point (default, 2) to which 
     to round parameter estimates.}
   \item{standardize}{if \code{TRUE}, display standardized coefficients; default is \code{FALSE}.}
+  \item{output.type}{if \code{"graphics"}, the default, \emph{both} a ".dot" file and a
+  	graphics file will be created.}
+  \item{graphics.fmt}{a graphics format recognized by the \emph{dot} program; the default is "pdf";
+  	\code{graphics.fmt} is also used for the extension of the graphics file that is created.}
+  \item{dot.options}{options to be passed to the \emph{dot} program, given as a character string.}
 }
 
 \value{
@@ -64,12 +76,12 @@ path.diagram(model, ...)
     \url{http://www.graphviz.org/Documentation/dotguide.pdf}.    
 }
 
-\author{John Fox \email{jfox@mcmaster.ca}}
+\author{John Fox \email{jfox@mcmaster.ca}, Adam Kramer, and Michael Friendly}
 
 \seealso{\code{\link{sem}}}
 
 \examples{
-
+	\dontrun{
 # The Duncan, Haller, and Portes Peer-Influences Model
 
 R.DHP <- read.moments(diag=FALSE, names=c('ROccAsp', 'REdAsp', 'FOccAsp', 
@@ -138,7 +150,7 @@ path.diagram(sem.dhp, min.rank='RIQ, RSES, RParAsp, FParAsp, FSES, FIQ',
 ##   "FGenAsp" -> "FOccAsp" [label=""];
 ##   "FGenAsp" -> "FEdAsp" [label="lam42"];
 ##   }
-
+	}
 }
 
 \keyword{dplot}

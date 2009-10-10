@@ -78,7 +78,7 @@ startvalues(S, ram, debug = FALSE, tol=1E-6)
   \item{debug}{if \code{TRUE}, some information is printed to help you debug the symbolic
     model specification; for example, if a variable name is misspelled, \code{sem} will
     assume that the variable is a (new) latent variable. The default is \code{FALSE}.}
-  \item{...}{arguments to be passed down, including from \code{sem.default} to the \code{\link[base]{nlm}}
+  \item{...}{arguments to be passed down, including from \code{sem.default} to the \code{\link[stats]{nlm}}
     optimizer.}
   \item{param.names}{names of the \eqn{t} free parameters, given in their numerical order;
     default names are \code{Param1}, \ldots, \code{Param}\emph{t}. Note: Should not be

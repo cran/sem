@@ -185,4 +185,16 @@ Changes to Verstion 0.9-17
   o  standardized.coefficients() now standardizes both path coefficients and variances/covariances (thanks to code provided by Adam Kramer).
   
   o  path.digram() now has an option for displaying standardized coefficients (again thanks to Adam Kramer).
+  
+Changes to Version 0.9-18
+
+  o  path.diagram() can now run dot to create graphics output (thanks to a contribution from Michael Friendly).
+  
+  o  Fix to URL in DESCRIPTION (broken link reported by Jonathan Henkelman).
+  
+  o  Fix to startvalues() to avoid an error when the user unnecessarily but not incorrectly sets fixed variance parameters to 0 (problem reported by Rob Cribbie).
+  
+Changes to Version 0.9-19
+
+  o  Fix to cross-reference in sem.Rd.
  

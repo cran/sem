@@ -1,6 +1,7 @@
-# last modified 9 Dec 2004 by J. Fox
+# last modified 30 September 2009 by J. Fox
 
 startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
+	ram <- ram[!(ram[, "parameter"] == 0 & ram[, "start value"] == 0), , drop=FALSE] # eliminate fixed parameters set to 0
     n <- nrow(S) 
     observed <- 1:n       
     m <- max(ram[,c(2,3)])            
