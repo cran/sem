@@ -197,4 +197,8 @@ Changes to Version 0.9-18
 Changes to Version 0.9-19
 
   o  Fix to cross-reference in sem.Rd.
+  
+Changes to Version 0.9-20
+
+  o  Fixed a bug that occurred when there is only one observed variable (reported by Anna Simonetto).
  
