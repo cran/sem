@@ -43,7 +43,7 @@ std.coef(...)
 
 # ------------- assumes that Duncan, Haller and Portes peer-influences model
 # -------------     has been fit and is in sem.dhp.1     
-\dontrun{
+	\dontrun{
 standardized.coefficients(sem.dhp.1) 
 
 ##           Std. Estimate                     

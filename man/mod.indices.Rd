@@ -74,6 +74,8 @@ mod.indices(model, ...)
 \seealso{\code{\link{sem}}}
 
 \examples{
+
+	\dontrun{
 # This example is adapted from the SAS manual
 
 S.wh <- read.moments(names=c('Anomia67','Powerless67','Anomia71',
@@ -125,6 +127,7 @@ mod.indices(sem.wh)
 ##                 2.7608                2.3122 
 ##        SEI:Powerless67 
 ##                 1.3185 
+	}
 }
 
 \keyword{models}
