@@ -8,23 +8,22 @@
   in a structural-equation model.
 }
 \usage{
-fscores(model, ...)
-
-\method{fscores}{sem}(model, data, center = TRUE, scale = FALSE, ...)
+\method{fscores}{sem}(model, data=model$data, center=TRUE, scale=FALSE, ...)
 }
 
 \arguments{
   \item{model}{an object of class \code{"sem"}, produced by the \code{\link{sem}}
     function.}
   \item{data}{an optional numeric data frame or matrix containing the observed variables
-    in the model; if present, the estimated factor scores are returned; if absent, the
-    factor-score \emph{coefficients} are returned.}
+    in the model; if not \code{NULL}, the estimated factor scores are returned; if \code{NULL}, the
+    factor-score \emph{coefficients} are returned. The default is the \code{data} element of \code{model},
+    which is non-\code{NULL} if the model was fit to a data set rather than a covariance or moment matrix.}
   \item{center}{if \code{TRUE}, the default, the means of the observed variables are
     subtracted prior to computing factor scores. One would normally use this option
     if the model is estimated from a covariance or correlation matrix among the
     observed variables.}
   \item{scale}{if \code{TRUE}, the possibly centered variables are divided by their
-    room-mean-squares; the default is \code{FALSE}.
+    root-mean-squares; the default is \code{FALSE}.
     One would normally use this option if the model is estimated
     from a correlation matrix among the observed variables. Centering and scaling 
     are performed by the \code{\link[base]{scale}} function.}
@@ -51,9 +50,14 @@ fscores(model, ...)
 \seealso{\code{\link{sem}}, \code{\link[base]{scale}}}
 
 \examples{
+
+# In the first example, readMoments() and specifyModel() read from the
+# input stream. This example cannot be executed via example() but can be entered
+# at the command prompt. The example is repeated using file input;
+# this example can be executed via example(). 
 	   \dontrun{
 
-S.wh <- read.moments(names=c('Anomia67','Powerless67','Anomia71',
+S.wh <- readMoments(names=c('Anomia67','Powerless67','Anomia71',
                                     'Powerless71','Education','SEI'))
    11.834                                    
     6.947    9.364                            
@@ -64,7 +68,7 @@ S.wh <- read.moments(names=c('Anomia67','Powerless67','Anomia71',
 
 # This model in the SAS manual for PROC CALIS
 
-model.wh.1 <- specify.model()
+model.wh.1 <- specifyModel()
     Alienation67   ->  Anomia67,      NA,     1
     Alienation67   ->  Powerless67,   NA,     0.833
     Alienation71   ->  Anomia71,      NA,     1
@@ -90,16 +94,18 @@ model.wh.1 <- specify.model()
 sem.wh.1 <- sem(model.wh.1, S.wh, 932)
 
 fscores(sem.wh.1)
-
-##                Alienation67 Alienation71         SES
-##    Anomia67     0.413112363  0.048268330 -0.05212632
-##    Powerless67  0.345402079  0.040014780 -0.04355578
-##    Anomia71     0.052663484  0.430618716 -0.03999218
-##    Powerless71  0.043704122  0.360044434 -0.03339943
-##    Education   -0.074921670 -0.063969383  0.50571037
-##    SEI         -0.004638977 -0.003960837  0.03131242
-
    }
+
+# The following example can be executed via example():
+
+etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
+   
+(S.wh <- readMoments(file=file.path(etc, "S-Wheaton.txt"),
+					names=c('Anomia67','Powerless67','Anomia71',
+                            'Powerless71','Education','SEI')))
+(model.wh.1 <- specifyModel(file=file.path(etc, "model-Wheaton-1.txt")))        
+(sem.wh.1 <- sem(model.wh.1, S.wh, 932))
+fscores(sem.wh.1)
 }
 
 \keyword{models}

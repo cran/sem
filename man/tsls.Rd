@@ -12,12 +12,11 @@
 
 \title{Two-Stage Least Squares}
 \description{
-  Fits an equation in a structural-equation model by two-stage least squares. This
+  Fits a regression equation, such as an equation in a structural-equation model, by two-stage least squares. This
   is equivalent to direct instrumental-variables estimation when the number of
   instruments is equal to the number of predictors.
 }
 \usage{
-tsls(y, ...)
 \method{tsls}{formula}(formula, instruments, data, subset, na.action, contrasts=NULL, ...)
 \method{tsls}{default}(y, X, Z, names=NULL, ...)
 
@@ -36,20 +35,20 @@ tsls(y, ...)
     constant is implied if not explicitly omitted.}
   \item{instruments}{one-sided model formula specifying instrumental variables.}
   \item{data}{an optional data frame containing the variables in the model. 
-    By default the variables are taken from the environment from which tsls is
+    By default the variables are taken from the environment from which \code{tsls} is
     called.}
   \item{subset}{an optional vector specifying a subset of observations to be used in 
     fitting the model.}
   \item{na.action}{a function that indicates what should happen when the 
     data contain \code{NA}s. 
     The default is set by the \code{na.action} option.}
-  \item{contrasts}{an optional list. See the \code{contrasts.arg} of 
+  \item{contrasts}{an optional list. See the \code{contrasts.arg} argument of 
     \code{\link[stats:model.matrix]{model.matrix.default}}.}
   \item{y}{Response-variable vector.}
   \item{X}{Matrix of predictors, including a constant (if one is in the model).}
   \item{Z}{Matrix of instrumental variables, including a constant (if one is in the model).}
   \item{names}{optional character vector of names for the columns of the \code{X} matrix.}
-  \item{x, object, model.2}{objects of class \code{tsls} returned by \code{tsls.formula}, 
+  \item{x, object, model.2}{objects of class \code{tsls} returned by \code{tsls.formula}, for \code{anova} 
     containing nested models
     to be compared by an incremental \eqn{F}-test. One model should be nested in the other; the
     order of models is immaterial.}
@@ -92,59 +91,11 @@ tsls(y, ...)
 \seealso{\code{\link{sem}}}
 
 \examples{
-data(Kmenta)
 summary(tsls(Q ~ P + D, ~ D + F + A, data=Kmenta))     # demand equation
-
-##  2SLS Estimates
-##  
-##  Model Formula: Q ~ P + D
-##  
-##  Instruments: ~D + F + A
-##  
-##  Residuals:
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -3.43e+00 -1.24e+00 -1.89e-01 -2.49e-13  1.58e+00  2.49e+00 
-##  
-##              Estimate Std. Error t value  Pr(>|t|)
-##  (Intercept)  94.6333    7.92084  11.947 1.076e-09
-##  P            -0.2436    0.09648  -2.524 2.183e-02
-##  D             0.3140    0.04694   6.689 3.811e-06
-##  
-##  Residual standard error: 1.9663 on 17 degrees of freedom
 
 summary(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta)) # supply equation
 
-##  2SLS Estimates
-##  
-##  Model Formula: Q ~ P + F + A
-##  
-##  Instruments: ~D + F + A
-##  
-##  Residuals:
-##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  -4.87e+00 -1.26e+00  6.42e-01 -5.64e-12  1.47e+00  3.49e+00 
-##  
-##              Estimate Std. Error t value  Pr(>|t|)
-##  (Intercept)  49.5324   12.01053   4.124 7.954e-04
-##  P             0.2401    0.09993   2.402 2.878e-02
-##  F             0.2556    0.04725   5.410 5.785e-05
-##  A             0.2529    0.09966   2.538 2.193e-02
-##  
-##  Residual standard error: 2.4576 on 16 degrees of freedom
-
 anova(tsls(Q ~ P + F + A, ~ D + F + A, data=Kmenta),
     tsls(Q ~ 1, ~ D + F + A, data=Kmenta))
-##    
-##  Analysis of Variance
-##    
-##  Model 1:  Q ~ P + F + A   Instruments: ~D + F + A
-##  Model 2:  Q ~ 1   Instruments: ~D + F + A
-##    
-##          Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
-##  Model 1     16  96.633                                  
-##  Model 2     19 268.114  3   171.481 9.4643 0.0007834 ***
-##  ---
-##  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
-
 }
 \keyword{models}

@@ -2,7 +2,7 @@
 \alias{Klein}
 \docType{data}
 \title{Klein's Data on the U. S. Economy}
-\usage{data(Klein)}
+\usage{Klein}
 \description{
 Data for Klein's (1950) simple econometric model of the U. S. economy.
 
@@ -36,8 +36,6 @@ The \code{Klein} data frame has 22 rows and 10 columns.
     Wiley.
 }
 \examples{
-data(Klein)
-
 Klein$P.lag <- c(NA, Klein$P[-22])
 Klein$X.lag <- c(NA, Klein$X[-22])
 
@@ -52,6 +50,5 @@ summary(tsls(I ~ P + P.lag + K.lag,
 summary(tsls(Wp ~ X + X.lag + I(Year - 1931),
     instruments=~1 + G + T + Wg + I(Year - 1931) + K.lag + P.lag + X.lag,
     data=Klein))
-
 }
 \keyword{datasets}

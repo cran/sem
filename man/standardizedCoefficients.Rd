@@ -1,57 +1,41 @@
-\name{residuals.sem}
-\alias{residuals.sem}
-\alias{standardizedResiduals}
-\alias{standardizedResiduals.sem}
-\alias{normalizedResiduals}
-\alias{normalizedResiduals.objectiveML}
-\alias{normalizedResiduals.objectiveGLS}
+\name{standardizedCoefficients}
+\alias{standardizedCoefficients}
+\alias{stdCoef}
 
-\title{Residual Covariances for a Structural Equation Model}
+\title{Standardized Coefficients for Structural Equation Models}
 \description{
-  These functions compute residual covariances, variance-standardized
-  residual covariances, and normalized residual covariances
-  for the observed variables in a structural-equation
-  model fit by \code{sem}.
+  These functions calculate standardized regression coefficients
+  for structural equation models. The function \code{stdCoef} is
+  simply an abbreviation for \code{standardizedCoefficients}.
 }
+
 \usage{
-\method{residuals}{sem}(object, ...)
+standardizedCoefficients(object, digits = 5, oneheaded=TRUE, twoheaded=TRUE)
 
-\method{standardizedResiduals}{sem}(object, ...)
-
-\method{normalizedResiduals}{objectiveML}(object, ...)
-
-\method{normalizedResiduals}{objectiveGLS}(object, ...)
+stdCoef(...)
 }
 
 \arguments{
-  \item{object}{an object inheriting from class \code{sem} returned by the \code{\link{sem}} function.}
-  \item{...}{not for the user.}
-}
-
-\details{
-  Residuals are defined as \eqn{S - C}, where \eqn{S} is the sample covariance matrix
-  of the observed variables and \eqn{C} is the model-reproduced covariance matrix.
-  The \emph{standardized} residual covariance for a pair of variables divides the
-  residual covariance by the product of the sample standard deviations of the 
-  two variables, \eqn{(s_{ij} - c_{ij})/(s_{ii}s_{jj})^{1/2}}. The \emph{normalized} residual
-  is given by
-  \deqn{\frac{s_{ij}-c_{ij}} {[(c_{ii}c_{jj}-c_{ij}^2)/N^{*}]^{1/2}}}{%
-    (s[ij] - c[ij])/[(c[ii]c[ii] + c[ij]^2)/N*]^[1/2]}
-  where \eqn{N^{*}} is the number of observations minus one if the model is fit to a
-  covariance matrix, or the number of observations if it is fit to a raw moment matrix.
+  \item{object}{an object of class \code{sem} returned by the 
+    \code{\link{sem}} function.}
+  \item{digits}{number of digits for printed output.}
+  \item{oneheaded}{standardize path coefficients? Default is \code{TRUE}.}
+  \item{twoheaded}{standardize variances and covariances? Default is \code{TRUE}.}
+  \item{...}{arguments to pass to \code{standardized.coefficients}.}
 }
 
 \value{
-  Each function returns a matrix of residuals.
+  Returns a data frame with the coefficients, labelled 
+  both by parameter names and by arrows in the path diagram for the
+  model.
 }
 
 \references{
     Bollen, K. A. (1989) 
     \emph{Structural Equations With Latent Variables.} Wiley.
-    }
-    
-\author{John Fox \email{jfox@mcmaster.ca}}
+}
 
+\author{John Fox \email{jfox@mcmaster.ca} and Adam Kramer}
 
 \seealso{\code{\link{sem}}}
 
@@ -100,10 +84,8 @@ model.dhp <- specifyModel()
 
 sem.dhp <- sem(model.dhp, R.DHP, 329,
     fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))
-residuals(sem.dhp)
-normalizedResiduals(sem.dhp) 
-standardizedResiduals(sem.dhp) # same as residuals because model is fit to correlations
-    }
+standardizedCoefficients(sem.dhp) 
+	}
 # The following example can be executed via example():
 
 etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
@@ -114,12 +96,7 @@ etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and mode
 (model.dhp <- specifyModel(file=file.path(etc, "model-DHP.txt")))
 (sem.dhp <- sem(model.dhp, R.DHP, 329,
     fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp')))
-
-residuals(sem.dhp)
-
-normalizedResiduals(sem.dhp) 
-
-standardizedResiduals(sem.dhp)  # same as residuals because model is fit to correlations
+standardizedCoefficients(sem.dhp) 
 }
 
 \keyword{models}

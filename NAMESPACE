@@ -1,42 +1,66 @@
-# last modified 30 March 2009 by J. Fox
+# last modified 2011-11-04 by J. Fox
 
-export(ram, standardized.residuals, normalized.residuals, read.moments, 
+import(stats)
+
+export(ram, standardizedResiduals, normalizedResiduals, readMoments, 
     startvalues,
-    standardized.coefficients, std.coef, tsls, sem, mod.indices, path.diagram,
-    specify.model, boot.sem, raw.moments, cov2raw, fscores)
-S3method(print, sem)
+    standardizedCoefficients, stdCoef, tsls, sem, modIndices, pathDiagram,
+    specifyModel, bootSem, rawMoments, cov2raw, fscores,
+    AICc, CAIC,
+    classifyVariables, combineModels, removeRedundantPaths,
+    optimizerNlm, optimizerOptim, optimizerNlminb,
+    objectiveML, objectiveGLS,
+    # deprecated:
+    standardized.residuals, normalized.residuals, read.moments,
+    standardized.coefficients, std.coef, mod.indices, path.diagram,
+    specify.model, boot.sem, raw.moments
+    )
+
+S3method(effects, sem)
+S3method(logLik, objectiveML)
 S3method(residuals, sem)
-S3method(standardized.residuals, sem)
-S3method(normalized.residuals, sem)
+S3method(standardizedResiduals, sem)
+S3method(normalizedResiduals, objectiveML)
+S3method(normalizedResiduals, objectiveGLS)
 S3method(tsls, default)
 S3method(tsls, formula)
 S3method(print, tsls)
 S3method(summary, tsls)
 S3method(residuals, tsls) 
 S3method(coef, tsls)
+S3method(coef, sem)
 S3method(fitted, tsls)
 S3method(anova, tsls)
+S3method(anova, objectiveML)
 S3method(vcov, tsls)
-S3method(sem, mod)
+S3method(vcov, sem)
+S3method(sem, semmod)
 S3method(sem, default)
-S3method(summary, sem)
-S3method(print, summary.sem)
-S3method(summary, sem.modind)
-S3method(print, sem.modind)
-S3method(mod.indices, sem)
-S3method(path.diagram, sem)     
-S3method(print, mod)
+S3method(summary, objectiveML)
+S3method(summary, objectiveGLS)
+S3method(print, summary.objectiveML)
+S3method(summary, modIndices)
+S3method(print, modIndices)
+S3method(modIndices, objectiveML)
+S3method(pathDiagram, sem)
+S3method(print, semeffects)     
+S3method(print, semmod)
 S3method(print, bootsem)
+S3method(print, objectiveML)
+S3method(print, objectiveGLS)
 S3method(summary, bootsem)
 S3method(print, summary.bootsem)
-S3method(raw.moments, formula)
-S3method(raw.moments, default)
+S3method(rawMoments, formula)
+S3method(rawMoments, default)
 S3method(print, rawmoments)
-S3method(deviance, sem)
+S3method(deviance, objectiveML)
 S3method(df.residual, sem)
-S3method(anova, sem)
 S3method(coef, sem)
 S3method(vcov, sem)
 S3method(fscores, sem)
-
-
+S3method(AIC, objectiveML)
+S3method(AICc, objectiveML)
+S3method(CAIC, objectiveML)
+S3method(BIC, objectiveML)
+S3method(combineModels, semmod)
+S3method(update, semmod)

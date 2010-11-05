@@ -2,7 +2,7 @@
 \alias{Kmenta}
 \docType{data}
 \title{Partly Artificial Data on the U. S. Economy}
-\usage{data(Kmenta)}
+\usage{Kmenta}
 \description{
 These are partly contrived data from Kmenta (1986), constructed
 to illustrate estimation of a simultaneous-equation model.
@@ -40,7 +40,5 @@ time in years.
  Kmenta, J. (1986)
  \emph{Elements of Econometrics, Second Edition}, Macmillan.
 }
-\examples{
-data(Kmenta)
-}
+
 \keyword{datasets}

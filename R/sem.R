@@ -1,281 +1,313 @@
-# last modified 10 March 10 by J. Fox
+# last modified 2011-10-30 by J. Fox
 
-sem <- function(ram, ...){
-    if (is.character(ram)) class(ram) <- 'mod'
-    UseMethod('sem', ram)
-    }
+sem <- function(model, ...){
+	if (is.character(model)) class(model) <- "semmod"
+	UseMethod("sem", model)
+}
 
-sem.mod <- function (ram, S, N, obs.variables=rownames(S), fixed.x=NULL, debug=FALSE, ...){
-    parse.path <- function(path) {                                           
-        path.1 <- gsub('-', '', gsub(' ','', path))
-        direction <- if (regexpr('<>', path.1) > 0) 2 
-            else if (regexpr('<', path.1) > 0) -1
-            else if (regexpr('>', path.1) > 0) 1
-            else stop(paste('ill-formed path:', path))
-        path.1 <- strsplit(path.1, '[<>]')[[1]]
-        list(first=path.1[1], second=path.1[length(path.1)], direction=direction)
-        }
-    if ((!is.matrix(ram)) | ncol(ram) != 3) stop ('ram argument must be a 3-column matrix')
-    startvalues <- as.numeric(ram[,3])
-    par.names <- ram[,2]
-    n.paths <- length(par.names)
-    heads <- from <- to <- rep(0, n.paths)
-    for (p in 1:n.paths){
-        path <- parse.path(ram[p,1])
-        heads[p] <- abs(path$direction)
-        to[p] <- path$second
-        from[p] <- path$first
-        if (path$direction == -1) {
-            to[p] <- path$first
-            from[p] <- path$second
-            }
-        }
-    ram <- matrix(0, p, 5)
-    all.vars <- unique(c(to, from))
-    latent.vars <- setdiff(all.vars, obs.variables)
-    not.used <- setdiff(obs.variables, all.vars)
-    if (length(not.used) > 0){
-        rownames(S) <- colnames(S) <- obs.variables
-        obs.variables <- setdiff(obs.variables, not.used)
-        S <- S[obs.variables, obs.variables]
-        warning("The following observed variables are in the input covariance or raw-moment matrix ",
-            "but do not appear in the model:\n",
-            paste(not.used, collapse=", "), "\n")
-        }
-    vars <- c(obs.variables, latent.vars)
-    pars <- na.omit(unique(par.names))
-    ram[,1] <- heads
-    ram[,2] <- apply(outer(vars, to, '=='), 2, which)
-    ram[,3] <- apply(outer(vars, from, '=='), 2, which)   
-    par.nos <- apply(outer(pars, par.names, '=='), 2, which)
-    if (length(par.nos) > 0)
-        ram[,4] <- unlist(lapply(par.nos, function(x) if (length(x) == 0) 0 else x))
-    ram[,5]<- startvalues
-    colnames(ram) <- c('heads', 'to', 'from', 'parameter', 'start')
-    if (!is.null(fixed.x)) fixed.x <- apply(outer(vars, fixed.x, '=='), 2, which)
-    n <- length(obs.variables)
-    m <- length(all.vars)
-    t <- length(pars)
-    if (debug) {
-        cat('\n observed variables:\n') 
-        print(paste(paste(1:n,':', sep=''), obs.variables, sep=''))
-        cat('\n')
-        if (m > n){ 
-            cat('\n latent variables:\n')
-            print(paste(paste((n+1):m,':', sep=''), latent.vars, sep=''))
-            cat('\n')
-            }
-        cat('\n parameters:\n') 
-        print(paste(paste(1:t,':', sep=''), pars, sep=''))
-        cat('\n\n RAM:\n')
-        print(ram)
-        }
-    sem(ram=ram, S=S, N=N, param.names=pars, var.names=vars, fixed.x=fixed.x,
-        debug=debug, ...)
-    }
-     
+sem.semmod <- function(model, S, N, data, raw=FALSE, obs.variables=rownames(S), 
+		fixed.x=NULL, formula= ~ ., robust=!missing(data), debug=FALSE, ...){
+	parse.path <- function(path) {                                           
+		path.1 <- gsub("-", "", gsub(" ","", path))
+		direction <- if (regexpr("<>", path.1) > 0) 2 
+				else if (regexpr("<", path.1) > 0) -1
+				else if (regexpr(">", path.1) > 0) 1
+				else stop(paste("ill-formed path:", path))
+		path.1 <- strsplit(path.1, "[<>]")[[1]]
+		list(first=path.1[1], second=path.1[length(path.1)], direction=direction)
+	}
+	if (missing(S)){
+		if (missing(data)) stop("S and data cannot both be missing")
+		N.all <- nrow(data)
+		data <- model.matrix(formula, data=data)
+		S <- if (raw) rawMoments(data) else {
+					data <-  data[, colnames(data) != "(Intercept)"]
+					cov(data)
+				}
+		N <- nrow(data)
+		if (N < N.all) warning(N - N.all, " observations removed due to missingness")
+	}
+	if ((!is.matrix(model)) | ncol(model) != 3) stop ("model argument must be a 3-column matrix")
+	startvalues <- as.numeric(model[,3])
+	par.names <- model[,2]
+	n.paths <- length(par.names)
+	heads <- from <- to <- rep(0, n.paths)
+	for (p in 1:n.paths){
+		path <- parse.path(model[p,1])
+		heads[p] <- abs(path$direction)
+		to[p] <- path$second
+		from[p] <- path$first
+		if (path$direction == -1) {
+			to[p] <- path$first
+			from[p] <- path$second
+		}
+	}
+	ram <- matrix(0, p, 5)
+	all.vars <- unique(c(to, from))
+	latent.vars <- setdiff(all.vars, obs.variables)
+	not.used <- setdiff(obs.variables, all.vars)
+	if (length(not.used) > 0){
+		rownames(S) <- colnames(S) <- obs.variables
+		obs.variables <- setdiff(obs.variables, not.used)
+		S <- S[obs.variables, obs.variables]
+		warning("The following observed variables are in the input covariance or raw-moment matrix ",
+				"but do not appear in the model:\n",
+				paste(not.used, collapse=", "), "\n")
+	}
+	vars <- c(obs.variables, latent.vars)
+	pars <- na.omit(unique(par.names))
+	ram[,1] <- heads
+	ram[,2] <- apply(outer(vars, to, "=="), 2, which)
+	ram[,3] <- apply(outer(vars, from, "=="), 2, which)   
+	par.nos <- apply(outer(pars, par.names, "=="), 2, which)
+	if (length(par.nos) > 0)
+		ram[,4] <- unlist(lapply(par.nos, function(x) if (length(x) == 0) 0 else x))
+	ram[,5]<- startvalues
+	colnames(ram) <- c("heads", "to", "from", "parameter", "start")
+	if (!is.null(fixed.x)) fixed.x <- apply(outer(vars, fixed.x, "=="), 2, which)
+	n <- length(obs.variables)
+	m <- length(all.vars)
+	t <- length(pars)
+	if (debug) {
+		cat("\n observed variables:\n") 
+		print(paste(paste(1:n,":", sep=""), obs.variables, sep=""))
+		cat("\n")
+		if (m > n){ 
+			cat("\n latent variables:\n")
+			print(paste(paste((n+1):m,":", sep=""), latent.vars, sep=""))
+			cat("\n")
+		}
+		cat("\n parameters:\n") 
+		print(paste(paste(1:t,":", sep=""), pars, sep=""))
+		cat("\n\n RAM:\n")
+		print(ram)
+	}
+	data <- if (missing(data)) NULL else data[, obs.variables]
+	sem(ram, S=S, N=N, raw=raw, data=data, param.names=pars, var.names=vars, fixed.x=fixed.x,
+			semmod=model, robust=robust, debug=debug, ...)
+}
 
-sem.default <- function(ram, S, N, param.names=paste('Param', 1:t, sep=''), 
-    var.names=paste('V', 1:m, sep=''), fixed.x=NULL, raw=FALSE, debug=FALSE,
-    analytic.gradient=TRUE, warn=FALSE, maxiter=500, par.size=c('ones', 'startvalues'), 
-    refit=TRUE, start.tol=1E-6, ...){
-    ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
-    is.triangular <- function(X) {
-        is.matrix(X) && (nrow(X) == ncol(X)) && 
-            (all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
-        }    
-    S <- unclass(S) # in case S is a rawmoment object
-    if (nrow(S) > 1 && is.triangular(S)) S <- S + t(S) - diag(diag(S))
-    if (!isSymmetric(S)) stop('S must be a square triangular or symmetric matrix')
+sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names, 
+		var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
+		analytic.gradient=TRUE, warn=FALSE, maxiter=500, par.size=c("ones", "startvalues"), 
+		start.tol=1E-6, optimizer=optimizerNlm, objective=objectiveML, ...){
+	ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
+	is.triangular <- function(X) {
+		is.matrix(X) && (nrow(X) == ncol(X)) && 
+				(all(0 == X[upper.tri(X)])) || (all(0 == X[lower.tri(X)]))
+	} 
+	ram <- model
+	S <- unclass(S) # in case S is a rawmoment object
+	if (nrow(S) > 1 && is.triangular(S)) S <- S + t(S) - diag(diag(S))
+	if (!isSymmetric(S)) stop("S must be a square triangular or symmetric matrix")
 	if (qr(S)$rank < ncol(S)) warning("S is numerically singular: expect problems")
 	if (any(eigen(S, symmetric=TRUE, only.values=TRUE)$values <= 0)) 
 		warning("S is not positive-definite: expect problems")
-    if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
-        stop ('ram argument must be a 5-column numeric matrix')
-    par.size <- if (missing(par.size)) {
-        range <- range(diag(S))
-        if (range[2]/range[1] > 100) 'startvalues' else 'ones'
-        }
-        else match.arg(par.size)
-    n <- nrow(S)
-    observed <- 1:n
-    n.fix <- length(fixed.x)
-    if (!is.null(fixed.x)){
-        for (i in 1:n.fix){
-            for (j in 1:i){
-                ram <- rbind(ram, c(2, fixed.x[i], fixed.x[j], 
-                    0, S[fixed.x[i], fixed.x[j]]))
-                }
-            }
-        }
-    m <- max(ram[,c(2,3)])
-    missing.variances <- setdiff(1:m, ram[,2][ram[,2] == ram[,3]])
-    if (length(missing.variances) > 0) warning(paste("The following variables have no variance or error-variance parameter (double-headed arrow):\n",
-        paste(var.names[missing.variances], collapse=", "), 
-        "\nThe model is almost surely misspecified; check also for missing covariances.\n"))
-    t <- max(ram[,4])
-    df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
-    if (df < 0) stop(paste("The model has negative degrees of freedom =", df))
-    J <- matrix(0, n, m)
-    correct <- matrix(2, m, m)
-    diag(correct) <- 1
-    J[cbind(1:n, observed)]<-1
-    par.posn <-  sapply(1:t, function(i) which(ram[,4] == i)[1])
-    colnames(ram)<-c("heads", "to", "from", "parameter", "start value")
-    rownames(ram)<-rep("",nrow(ram))
-    if (length(param.names) > 0) rownames(ram)[par.posn]<-param.names
-    fixed <- ram[,4] == 0
-    sel.free <- ram[,4]
-    sel.free[fixed] <- 1
-    one.head <- ram[,1] == 1
-    one.free <- which( (!fixed) & one.head )
-    two.free <- which( (!fixed) & (!one.head) )
-    arrows.1 <- ram[one.head, c(2,3), drop=FALSE]
-    arrows.2 <- ram[!one.head, c(2,3), drop=FALSE]
-    arrows.2t <- ram[!one.head, c(3,2), drop=FALSE]
-    arrows.1.free <- ram[one.free,c(2,3), drop=FALSE]
-    arrows.2.free <- ram[two.free,c(2,3), drop=FALSE]
-    sel.free.1 <- sel.free[one.free]
-    sel.free.2 <- sel.free[two.free]
-    unique.free.1 <- unique(sel.free.1)
-    unique.free.2 <- unique(sel.free.2)
-    objective.1 <- function(par){
-        A <- P <- matrix(0, m, m)
-        val <- ifelse (fixed, ram[,5], par[sel.free])
-        A[arrows.1] <- val[one.head]
-        P[arrows.2t] <- P[arrows.2] <- val[!one.head]
-        I.Ainv <- solve(diag(m) - A)
-        C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
-        Cinv <- solve(C)
-        f <- sum(diag(S %*% Cinv)) + log(det(C))
-        attributes(f) <- list(C=C, A=A, P=P)
-        f
-        }
-    objective.2 <- function(par){
-        A <- P <- matrix(0, m, m)
-        val <- ifelse (fixed, ram[,5], par[sel.free])
-        A[arrows.1] <- val[one.head]
-        P[arrows.2t] <- P[arrows.2] <- val[!one.head]
-        I.Ainv <- solve(diag(m) - A)
-        C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
-        Cinv <- solve(C)
-        f <- sum(diag(S %*% Cinv)) + log(det(C))
-        grad.P <- correct * t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
-        grad.A <- grad.P %*% P %*% t(I.Ainv)        
-        gradient <- rep(0, t)
-        gradient[unique.free.1] <- tapply(grad.A[arrows.1.free],ram[ram[,1]==1 & ram[,4]!=0, 4], sum)
-        gradient[unique.free.2] <- tapply(grad.P[arrows.2.free],ram[ram[,1]==2 & ram[,4]!=0, 4], sum)
-        attributes(f) <- list(C=C, A=A, P=P, gradient=gradient)
-        f
-        }
-    result <- list()
-    result$var.names <- var.names
-    result$ram <- ram
-    rownames(S) <- colnames(S) <- var.names[observed]
-    result$S <- S
-    result$J <- J
-    result$n.fix <- n.fix
-    result$n <- n
-    result$N <- N
-    result$m <- m
-    result$t <- t
-    result$raw <- raw
-    if (length(param.names)== 0){
-        warning("there are no free parameters in the model")
-        obj <- objective.1(NULL)
-        }
-    else {
-        start <- if (any(is.na(ram[,5][par.posn])))
-            startvalues(S, ram, debug=debug, tol=start.tol)
-            else ram[,5][par.posn]
-        if (!warn){
-            save.warn <- options(warn=-1)
-            on.exit(options(save.warn))
-            }
-        typsize <- if (par.size == 'startvalues') abs(start) else rep(1,t)
-        res <- nlm(if (analytic.gradient) objective.2 else objective.1,
-            start, hessian=TRUE, iterlim=maxiter, print.level=if(debug) 2 else 0,
-            typsize=typsize, ...)
-        convergence <- res$code
-        if (!warn) options(save.warn)
-        par <- res$estimate
-        names(par) <- param.names
-        obj <- objective.2(par)
-        ram[par.posn, 5] <- start
-        par.code <- paste(var.names[ram[,2]], c('<---', '<-->')[ram[,1]],
-        var.names[ram[,3]])
-        result$coeff <- par
-        result$par.posn <- par.posn
-        result$convergence <- convergence
-        result$iterations <- res$iterations
-        result$raw <- raw
-        if (convergence > 2)
-            warning(paste('Optimization may not have converged; nlm return code = ',
-                res$code, '. Consult ?nlm.\n', sep=""))
-        qr.hess <- try(qr(res$hessian), silent=TRUE)
-        if (class(qr.hess) == "try-error"){
-            warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
-			cov <- matrix(NA, t, t)
-			colnames(cov) <- rownames(cov) <- param.names
-			result$cov <- cov
+	if ((!is.matrix(ram)) | ncol(ram) != 5 | (!is.numeric(ram)))
+		stop ("ram argument must be a 5-column numeric matrix")
+	par.size <- if (missing(par.size)) {
+				range <- range(diag(S))
+				if (range[2]/range[1] > 100) "startvalues" else "ones"
 			}
-        else if (qr.hess$rank < t){
-            warning(' singular Hessian: model is probably underidentified.\n')
-            cov <- matrix(NA, t, t)
-            colnames(cov) <- rownames(cov) <- param.names
-            result$cov <- cov
-            which.aliased <- qr.hess$pivot[-(1:qr.hess$rank)]
-            aliased <- param.names[which.aliased]
-            position.aliased <- is.element(ram[,4], which.aliased)
-            if (refit){
-                warning(' refitting without aliased parameters.\n')
-                ram.refit <- ram[!position.aliased,]
-                par.refit <- ram.refit[,4]
-                par.refit[par.refit != 0] <- ord(par.refit[par.refit != 0])
-                ram.refit[,4] <- par.refit
-                iterations <- result$iterations
-                result <- Recall(ram.refit, S, N,
-                    param.names=param.names[-which.aliased], var.names=var.names,
-                    debug=debug, analytic.gradient=analytic.gradient,
-                    warn=warn, maxiter=maxiter, par.size=par.size, refit=TRUE, ...)
-                result$iterations <- iterations + result$iterations
-                aliased <- c(aliased, result$aliased)
-                }
-            result$aliased <- aliased
-            }
-        else {
-            cov <- (2/(N - (!raw))) * solve(res$hessian)
-            colnames(cov) <- rownames(cov) <- param.names
-            result$cov <- cov
-            if (any(diag(cov) < 0)) {
-                result$aliased <- c(param.names[diag(cov) < 0], result$aliased)
-                warning("Negative parameter variances.\nModel is probably underidentified.\n")
-                }
-            }
-        }
-    result$criterion <-  c(obj) - n - log(det(S))
-    C <- attr(obj, "C")
-    rownames(C) <- colnames(C) <- var.names[observed]
-    result$C <- C
-    A <- attr(obj, "A")
-    rownames(A) <- colnames(A) <- var.names
-    result$A <- A
-    P <- attr(obj, "P")
-    rownames(P) <- colnames(P) <- var.names
-    result$P <- P
-    if (!raw) {
-        CC <- diag(diag(S))
-        result$chisqNull <- (N - 1) * 
-            (sum(diag(S %*% solve(CC))) + log(det(CC)) -log(det(S)) - n)
-        }
-    class(result) <- "sem"
-    result
-    }
-	
-vcov.sem <- function(object, ...) {
-	object$cov
+			else match.arg(par.size)
+	n <- nrow(S)
+	observed <- 1:n
+	n.fix <- length(fixed.x)
+	if (!is.null(fixed.x)){
+		for (i in 1:n.fix){
+			for (j in 1:i){
+				ram <- rbind(ram, c(2, fixed.x[i], fixed.x[j], 
+								0, S[fixed.x[i], fixed.x[j]]))
+			}
+		}
+	}
+	m <- max(ram[,c(2,3)])
+	missing.variances <- setdiff(1:m, ram[,2][ram[,2] == ram[,3]])
+	if (length(missing.variances) > 0) warning(paste("The following variables have no variance or error-variance parameter (double-headed arrow):\n",
+						paste(var.names[missing.variances], collapse=", "), 
+						"\nThe model is almost surely misspecified; check also for missing covariances.\n"))
+	t <- max(ram[,4])
+	df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
+	if (df < 0) stop(paste("The model has negative degrees of freedom =", df))
+	J <- matrix(0, n, m)
+	correct <- matrix(2, m, m)
+	diag(correct) <- 1
+	J[cbind(1:n, observed)]<-1
+	par.posn <-  sapply(1:t, function(i) which(ram[,4] == i)[1])
+	colnames(ram)<-c("heads", "to", "from", "parameter", "start value")
+	rownames(ram)<-rep("",nrow(ram))
+	if (length(param.names) > 0) rownames(ram)[par.posn]<-param.names
+	fixed <- ram[,4] == 0
+	sel.free <- ram[,4]
+	sel.free[fixed] <- 1
+	one.head <- ram[,1] == 1
+	one.free <- which( (!fixed) & one.head )
+	two.free <- which( (!fixed) & (!one.head) )
+	arrows.1 <- ram[one.head, c(2,3), drop=FALSE]
+	arrows.2 <- ram[!one.head, c(2,3), drop=FALSE]
+	arrows.2t <- ram[!one.head, c(3,2), drop=FALSE]
+	arrows.1.free <- ram[one.free,c(2,3), drop=FALSE]
+	arrows.2.free <- ram[two.free,c(2,3), drop=FALSE]
+	sel.free.1 <- sel.free[one.free]
+	sel.free.2 <- sel.free[two.free]
+	unique.free.1 <- unique(sel.free.1)
+	unique.free.2 <- unique(sel.free.2)
+	rownames(S) <- colnames(S) <- var.names[observed]
+	result <- list(var.names=var.names, ram=ram, S=S, J=J, n.fix=n.fix, n=n, N=N, m=m, t=t, raw=raw,
+		data=data, semmod=semmod, optimizer=optimizer, objective=objective,
+		# remaining values to be supplied after optimization
+		coeff=NULL, vcov=NULL, par.posn=NULL, convergence=NULL, iterations=NULL, criterion=NULL, C=NULL, A=NULL, P=NULL,
+		adj.obj=NULL, robust.vcov=NULL)
+	if (length(param.names)== 0){
+		warning("there are no free parameters in the model")
+	}
+	else {
+		start <- if (any(is.na(ram[,5][par.posn])))
+					startvalues(S, ram, debug=debug, tol=start.tol)
+				else ram[,5][par.posn]
+		typsize <- if (par.size == "startvalues") abs(start) else rep(1,t)
+		model.description <- list(S=S, logdetS=log(det(S)), invS=solve(S), N=N, m=m, n=n, t=t, 
+				fixed=fixed, ram=ram, sel.free=sel.free, arrows.1=arrows.1, arrows.1.free=arrows.1.free,
+				one.head=one.head, arrows.2t=arrows.2t, arrows.2=arrows.2, arrows.2.free=arrows.2.free, 
+				unique.free.1=unique.free.1, unique.free.2=unique.free.2,
+				J=J, correct=correct, param.names=param.names, var.names=var.names, observed=observed, raw=raw)
+		res <- optimizer(start=start, 
+				objective=objective, gradient=analytic.gradient, maxiter=maxiter, debug=debug, par.size=par.size, 
+				model.description=model.description, warn=warn, ...)
+		ram[par.posn, 5] <- start
+		par.code <- paste(var.names[ram[,2]], c("<---", "<-->")[ram[,1]],
+				var.names[ram[,3]])
+		result$coeff <- res$par
+		result$vcov <- res$vcov
+		result$par.posn <- par.posn
+		result$convergence <- res$convergence
+		result$iterations <- res$iterations
+		result$criterion <-  res$criterion
+		result$C <- res$C
+		result$A <- res$A
+		result$P <- res$P
+	}
+	cls <- gsub("\\.", "", deparse(substitute(objective)))
+	class(result) <- c(cls, "sem")
+	if (robust && !is.null(data) && inherits(result, "objectiveML")){
+		result$adj.obj <- sbchisq(result, data)
+		result$robust.vcov <- robustVcov(result, adj.obj=result$adj.obj)
+	}
+	result
 }
 
-coef.sem <- function(object, ...){
-	object$coeff
+vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveML"), ...) {
+	if (robust) return(object$robust.vcov)
+	if (!analytic) return(object$vcov)
+	if (!inherits(object, "objectiveML")) stop("analytic coefficient covariance matrix unavailable")
+	hessian <- function(model){
+		accumulate <- function(A, B, C, D, d) {
+			sub <- function(i, j) (j - 1)*d + i
+			res <- matrix(0, d^2, d^2)    
+			for (g in 1:d){
+				for (h in 1:d){
+					for (i in 1:d){
+						for (j in 1:d){
+							res[sub(g, h), sub(i, j)] <- A[g, i] * B[h, j] + C[g, j] * D[h, i]
+						}
+					}
+				}
+			}
+			res
+		}    
+		A <- model$A
+		P <- model$P
+		S <- model$S
+		C <- model$C
+		J <- model$J
+		m <- model$m
+		t <- model$t
+		I.Ainv <- solve(diag(m) - A) 
+		Cinv <- solve(C)    
+		AA <- t(I.Ainv) %*% t(J)
+		BB <- J %*% I.Ainv %*% P %*% t(I.Ainv)
+		CC <- t(I.Ainv) %*% t(J)
+		DD <- J %*% I.Ainv
+		dF.dBdB <- accumulate(AA %*% Cinv %*% t(AA), t(BB) %*% Cinv %*% BB,
+				AA %*% Cinv %*% BB, t(BB) %*% Cinv %*% t(AA), m)                
+		dF.dPdP <- accumulate(CC %*% Cinv %*% t(CC), t(DD) %*% Cinv %*% DD,
+				CC %*% Cinv %*% DD, t(DD) %*% Cinv %*% t(CC), m)                
+		dF.dBdP <- accumulate(AA %*% Cinv %*% t(CC), t(BB) %*% Cinv %*% DD,
+				AA %*% Cinv %*% DD, t(BB) %*% Cinv %*% t(CC), m)               
+		ram <- model$ram    
+		fixed <- ram[, 4] == 0
+		sel.free <- ram[, 4]
+		sel.free[fixed] <- 0
+		one.head <- ram[, 1] == 1
+		one.free <- which( (!fixed) & one.head )
+		two.free <- which( (!fixed) & (!one.head) )
+		two.free.cov <- which((!fixed) & (!one.head) & (ram[, 2] != ram[, 3]))
+		arrows.1 <- ram[one.head, c(2, 3)]
+		arrows.2 <- ram[!one.head, c(2, 3)]
+		arrows.2t <- ram[!one.head, c(3, 2)]
+		arrows.1.free <- ram[one.free, c(2, 3)]
+		arrows.2.free <- ram[two.free, c(2, 3)]
+		sel.free.1 <- sel.free[one.free]
+		sel.free.2 <- sel.free[two.free]
+		unique.free.1 <- unique(sel.free.1)
+		unique.free.2 <- unique(sel.free.2)    
+		posn.matrix <- matrix(1:(m^2), m, m)    
+		posn.free <- c(posn.matrix[arrows.1.free], 
+				(m^2) + posn.matrix[arrows.2.free])        
+		DBB <- dF.dBdB[posn.matrix[arrows.1.free], 
+				posn.matrix[arrows.1.free]]
+		DPP <- dF.dPdP[posn.matrix[arrows.2.free], 
+				posn.matrix[arrows.2.free]]
+		DBP <- dF.dBdP[posn.matrix[arrows.1.free],
+				posn.matrix[arrows.2.free]]
+		hessian <- rbind( cbind(DBB,    DBP),
+				cbind(t(DBP), DPP))    
+		n1 <- length(one.free)
+		n2 <- length(two.free)
+		nn <- rep(c(sqrt(2), sqrt(2)/2), c(n1, n2))
+		nn[c(one.free, two.free) %in% two.free.cov] <- sqrt(2)
+		hessian <- hessian * outer(nn, nn)
+		pars <- ram[, 4][!fixed]
+		Z <- outer(1:t, pars, function(x, y) as.numeric(x == y))
+		hessian <- Z %*% hessian %*% t(Z)
+		par.names <- c(names(one.free), names(two.free))
+		par.names <- par.names[par.names != ""]
+		rownames(hessian) <- colnames(hessian) <- par.names
+		nms <- names(coef(object))
+		hessian[nms, nms]
+	}
+	h <- hessian(object)
+	t <- object$t
+	N <- object$N
+	raw <- object$raw
+	param.names <- object$param.names
+	vcov <- matrix(NA, t, t)
+	qr.hess <- try(qr(h), silent=TRUE)
+	if (class(qr.hess) == "try-error"){
+		warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
+	}
+	else if (qr.hess$rank < t){
+		warning(" singular Hessian: model is probably underidentified.\n")
+		which.aliased <- qr.hess$pivot[-(1:qr.hess$rank)]
+		attr(vcov, "aliased") <- param.names[which.aliased]
+	}
+	else {
+		vcov <- (2/(N - (!raw))) * solve(h)
+		if (any(diag(vcov) < 0)) {
+			attr(vcov, "aliased") <- param.names[diag(vcov) < 0]
+			warning("Negative parameter variances.\nModel may be underidentified.\n")
+		}
+	}
+	colnames(vcov) <- rownames(vcov) <- param.names
+	vcov
+}
+
+coef.sem <- function(object, standardized=FALSE, ...){
+	if (!standardized) return(object$coeff)
+	sc <- stdCoef(object, ...)
+	names <- as.character(sc[, 1])
+	which <- names != " "
+	coef <- sc[which, 2]
+	names(coef) <- names[which]
+	coef
 }
