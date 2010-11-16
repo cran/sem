@@ -1,6 +1,6 @@
-af190337fd3f5053b49d5fdb38b624f3 *DESCRIPTION
-d658475289d9ec54374c0b71260d92a3 *NAMESPACE
-8ecd421cc65fe8287cb6dd98b97efde3 *NEWS
+aa3c7dd73081bfa05a52003513d7762f *DESCRIPTION
+1b1fede3e5fee98e6f80ebf7cf5c4aec *NAMESPACE
+f7c524b62f0f8283fcaa606bc5b8b025 *NEWS
 99f1e5d79e4e2cdcc4f2b5ec72b5a3ec *R/anova.objectiveML.R
 aeb3b286745531d1d0d07927678834c3 *R/bootSem.R
 2498e7096d81fc8d04d7a1f3cc25de12 *R/chisqNull.R
@@ -20,11 +20,11 @@ eb57b1e2469b0e6a5b4794e16bd7f2ce *R/rawMoments.R
 1ac6ff913a5ba78a7f5b454d0d6eb4cf *R/readMoments.R
 f6c99509287da072a47f5b324b98a4a2 *R/residuals.R
 21e3ea96ca1744be1decb58d6ad10256 *R/robust.R
-73605f00134fbbc6e0ec204d180b33a0 *R/sem.R
-c085fbed664545f5969790fbcf865416 *R/specifyModel.R
+07373a372fa4ffaf17cf114424212c88 *R/sem.R
+0d347a39ec1ea3338335a0e4a93632a7 *R/specifyModel.R
 dae8e406dec4edc7da0b700e98e4be5c *R/standardizedCoefficients.R
 5094a7ee4e1160fcbcdc81cccf0bf60e *R/startvalues.R
-6ebe352ea6a6f369f7decbe65937ceec *R/summary.methods.R
+05f56a45ec730d9135ab928f89c91831 *R/summary.methods.R
 0d8c099607175f1ff30512e8964fe441 *R/tsls.R
 15d729b9315110ecbb9bd0beaf759f8b *R/update.R
 bfc725769f5b05189560e98bd385aac3 *data/Bollen.rda
@@ -50,7 +50,7 @@ a19b4cf4b68944fd2c98f3ab0342e4c2 *inst/etc/model-McArdle.txt
 3bb3d66e58652dde182ed40d56fca6e2 *man/CNES.Rd
 6ae8eb1d60e0ce2be07ddbf466246a61 *man/Klein.Rd
 518bbcccc0fe1dc3264bcdd2f1f8ed65 *man/Kmenta.Rd
-c1f97748bdc6376e4089df9c9b463aa1 *man/ML.methods.Rd
+40b53dd3134739b8090851d0eed64100 *man/ML.methods.Rd
 a396d84503d03ebd44ccd8b35a9b5680 *man/bootSem.Rd
 db3bb40665ce443e7f8c48f207fab08e *man/effects.Rd
 755677f98f92e4f08d9ce5090080aa1c *man/fscores.Rd
@@ -64,7 +64,7 @@ c60f9556597268e50e597c40e4eb8c91 *man/information.criteria.Rd
 d2695fee4aa8e2d26206a3acb68174d6 *man/readMoments.Rd
 0e07b723530315584c0af13fa9dc5da8 *man/residuals.Rd
 67a9be4cc7e4463aa0f0f949e811ac9a *man/sem-deprecated.Rd
-9d065e3f6810e671cfea2b6806ff279c *man/sem.Rd
-c4775ac826e1102d6822f747e247d6fd *man/specifyModel.Rd
+cf4b1dba09bbe2fa6e86f372e5d193cb *man/sem.Rd
+51294e7b3b2c856cda791aa2b1d9f6ef *man/specifyModel.Rd
 df6ad44781454a9ef8fbd6dca0b9c164 *man/standardizedCoefficients.Rd
 4e8772bd3423b89c1e263ddb3c5ebcb1 *man/tsls.Rd

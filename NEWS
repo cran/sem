@@ -1,3 +1,11 @@
 Changes to Version 2.0-0
 
     o Completely reworked version of the sem package. See CHANGES file for changes to older versions.
+    
+Changes to Version 2.1-0
+
+	o Added equation-style model specification, via specifyEquations()
+	
+	o Fixed bug in classifyVariables() when <- (rather than ->) used in the model.
+	
+	o Fixed bug in vcov.sem() when the model has just one structural parameter or just one variance/covariance parameter.

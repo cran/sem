@@ -1,11 +1,11 @@
-# last modified 2011-11-04 by J. Fox
+# last modified 2011-11-09 by J. Fox
 
 import(stats)
 
 export(ram, standardizedResiduals, normalizedResiduals, readMoments, 
     startvalues,
     standardizedCoefficients, stdCoef, tsls, sem, modIndices, pathDiagram,
-    specifyModel, bootSem, rawMoments, cov2raw, fscores,
+    specifyModel, specifyEquations, bootSem, rawMoments, cov2raw, fscores,
     AICc, CAIC,
     classifyVariables, combineModels, removeRedundantPaths,
     optimizerNlm, optimizerOptim, optimizerNlminb,

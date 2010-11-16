@@ -32,7 +32,8 @@
 startvalues(S, ram, debug=FALSE, tol=1E-6)
 
 \method{coef}{sem}(object, standardized=FALSE, ...)
-\method{vcov}{sem}(object, robust=FALSE, analytic=inherits(object, "objectiveML"), ...)
+\method{vcov}{sem}(object, robust=FALSE, 
+	analytic=inherits(object, "objectiveML") && object$t <= 100, ...)
 \method{df.residual}{sem}(object, ...)
 }
 
@@ -122,14 +123,17 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   \item{object}{an object of class \code{"sem"}, returned by \code{sem}.}
   \item{standardized}{if \code{TRUE}, return standardized coefficients.}
   \item{analytic}{return an analytic (as opposed to numeric) estimate of the coefficient covariance matrix;
-  	at present only available for the \code{\link{objectiveML}} objective function.}
+  	at present only available for the \code{\link{objectiveML}} objective function. The default is \code{FALSE}
+  	for this objective function if there are no more than 100 parameters and \code{FALSE} otherwise.}
 } 
 
 \details{
-  The model is set up using RAM (\dQuote{reticular action model} -- don't ask!) 
+  The model is set up using either RAM (\dQuote{reticular action model} -- don't ask!) 
   notation -- a simple format
   for specifying general structural equation models by coding the
-  \dQuote{arrows} in the path diagram for the model (see, e.g., McArdle and McDonald, 1984).
+  \dQuote{arrows} in the path diagram for the model (see, e.g., McArdle and McDonald, 1984) --
+  typically using the \code{specifyModel} function, or in equation format using the
+  \code{specifyEquations} function. In either case, the model is represented internally in RAM format.
   
   The variables in the \eqn{v} vector in the model (typically, the observed and
   unobserved variables, but not error variables) are numbered from 1 to \eqn{m}.  
@@ -186,6 +190,28 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
         }
         
   The numeric \code{ram} matrix is normally generated automatically, not specified directly by the user.
+  
+  For \code{specifyEquations}, each input line is either a regression equation or the specification
+  of a variance or covariance. Regression equations are of the form
+  
+  \code{y = par1*x1 + par2*x2 + ... + park*xk}
+  
+  where \code{y} and the \code{x}s are variables in the model (either observed or latent),
+  and the \code{par}s are parameters. If a parameter is given as a numeric value (e.g.,
+  \code{1}) then it is treated as fixed. Note that no \dQuote{error} variable is included in
+  the equation; \dQuote{error variances} are specified via either the \code{covs} argument,
+  via \code{V(y) = par} (see immediately below), or are added automatically to the model
+  when, as by default, \code{endog.variances=TRUE}.
+  
+  Variances are specified in the form \code{V(var) = par} and covariances in the form
+  \code{C(var1, var2) = par}, where the \code{var}s are variables (observed or unobserved) in
+  the model. The symbols \code{V} and \code{C} may be in either lower- or upper-case. If \code{par}
+  is a numeric value (e.g., \code{1}) then it is treated as fixed. In conformity with the RAM model,
+  a variance or covariance for an endogenous variable in the model is an \dQuote{error} variance or
+  covariance.
+  
+  To set a start value for a free parameter, enclose the numeric start value in parentheses after the
+  parameter name, as \code{parameter(value)}.
         
   \code{sem} fits the model by calling the optimizer specified in the \code{optimizer} argument
   to minimize the objective function specified in the \code{objective} argument.
@@ -406,6 +432,16 @@ RGenAsp  -> ROccAsp,  NA,     1
 RGenAsp  -> REdAsp,  lam21
 FGenAsp  -> FOccAsp,  NA,     1
 FGenAsp  -> FEdAsp,  lam42
+
+# Yet another equivalent specification using specifyEquations():
+
+model.dhp.1 <- specifyEquations(covs="RGenAsp, FGenAsp")
+RGenAsp = gam11*RParAsp + gam12*RIQ + gam13*RSES + gam14*FSES + beta12*FGenAsp
+FGenAsp = gam23*RSES + gam24*FSES + gam25*FIQ + gam26*FParAsp + beta21*RGenAsp
+ROccAsp = 1*RGenAsp
+REdAsp = lam21(1)*RGenAsp  # to illustrate setting start values
+FOccAsp = 1*FGenAsp
+FEdAsp = lam42(1)*FGenAsp
  
 sem.dhp.1 <- sem(model.dhp, R.DHP, 329,
     fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))
@@ -492,6 +528,25 @@ model.wh.1 <- specifyModel()
 sem.wh.1 <- sem(model.wh.1, S.wh, 932)
 summary(sem.wh.1)
 
+# The same model in equation format:
+
+model.wh.1 <- specifyEquations()
+Anomia67 = 1*Alienation67
+Powerless67 = 0.833*Alienation67
+Anomia71 = 1*Alienation71
+Powerless71 = 0.833*Alienation71
+Education = 1*SES
+SEI = lamb*SES
+Alienation67 = gam1*SES
+Alienation71 = gam2*SES + beta*Alienation67
+V(Anomia67) = the1
+V(Anomia71) = the1
+V(Powerless67) = the2
+V(Powerless71) = the2
+V(SES) = phi
+C(Anomia67, Anomia71) = the5
+C(Powerless67, Powerless71) = the5
+
 # The same model, but treating one loading for each latent variable as free
 # (and equal to each other).
 
@@ -520,6 +575,26 @@ model.wh.2 <- specifyModel()
 
 sem.wh.2 <- sem(model.wh.2, S.wh, 932)
 summary(sem.wh.2)
+
+# And again, in equation format:
+
+model.wh <- specifyEquations()
+Anomia67 = 1*Alienation67
+Powerless67 = lamby*Alienation67
+Anomia71 = 1*Alienation71
+Powerless71 = lamby*Alienation71
+Education = 1*SES
+SEI = lambx*SES
+Alienation67 = gam1*SES
+Alienation71 = gam2*SES + beta*Alienation67
+V(Anomia67) = the1
+V(Anomia71) = the1
+V(Powerless67) = the2
+V(Powerless71) = the2
+V(SES) = phi
+C(Anomia67, Anomia71) = the5
+C(Powerless67, Powerless71) = the5
+
 
 # Compare the two models by a likelihood-ratio test:
 
@@ -562,6 +637,27 @@ model.thur <- specifyModel()
 sem.thur <- sem(model.thur, R.thur, 213)
 summary(sem.thur)
 
+# The model in equation format:
+
+model.thur <- specifyEquations()
+Sentences = lam11*F1
+Vocabulary = lam21*F1
+Sent.Completion = lam31*F1
+First.Letters = lam42*F2
+4.Letter.Words = lam52*F2
+Suffixes = lam62*F2
+Letter.Series = lam73*F3
+Pedigrees = lam83*F3
+Letter.Group = lam93*F3
+F1 = gam1*F4
+F2 = gam2*F4
+F3 = gam3*F4
+V(F1) = 1
+V(F2) = 1
+V(F3) = 1
+V(F4) = 1
+
+
 #------------------------- Kerchoff/Kenney path analysis ---------------------
 # An observed-variable recursive SEM from the LISREL manual
 
@@ -595,6 +691,13 @@ sem.kerch <- sem(model.kerch, R.kerch, 737, fixed.x=c('Intelligence','Siblings',
     'FatherEd','FatherOcc'))
 summary(sem.kerch)
 
+# The model in equation format:
+
+model.kerch <- specifyEquations()
+Grades = gam51*Intelligence + gam52*Siblings + gam53*FatherEd + gam54*FatherOcc
+EducExp = gam61*Intelligence + gam62*Siblings + gam63*FatherEd + gam64*FatherOcc + beta65*Grades
+OccupAsp = gam71*Intelligence + gam72*Siblings + gam73*FatherEd + gam74*FatherOcc + beta75*Grades + beta76*EducExp
+
 
 #------------------- McArdle/Epstein latent-growth-curve model -----------------
 # This model, from McArdle and Epstein (1987, p.118), illustrates the use of a 
@@ -622,6 +725,21 @@ mod.McArdle <- specifyModel()
 
 sem.McArdle <- sem(mod.McArdle, M.McArdle, 204, fixed.x="UNIT", raw=TRUE)
 summary(sem.McArdle)
+
+# The model in equation format:
+
+mod.McArdle <- specifyEquations()
+WISC1 = 6.07*C
+WISC2 = B2*C
+WISC3 = B3*C
+WISC4 = b4*C
+C = Mc*UNIT
+v(C) = Vc
+v(WISC1) = Vd
+v(WISC2) = Vd
+v(WISC3) = Vd
+v(WISC4) = Vd
+
     
 #------------ Bollen industrialization and democracy example -----------------
 # This model, from Bollen (1989, Ch. 8), illustrates the use in sem() of a
@@ -657,6 +775,30 @@ summary(sem.bollen, analytic.se=FALSE) # uses numeric rather than analytic Hessi
 
 sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) # GLS rather than ML estimator
 summary(sem.bollen.gls)
+
+# The model in equation format:
+
+model.bollen <- specifyEquations()
+y1 = 1*Demo60
+y2 = lam2*Demo60
+y3 = lam3*Demo60
+y4 = lam4*Demo60
+y5 = 1*Demo65
+y6 = lam2*Demo65
+y7 = lam3*Demo65
+y8 = lam4*Demo65
+x1 = 1*Indust
+x2 = lam6*Indust
+x3 = lam7*Indust
+c(y1, y5) = theta15
+c(y2, y4) = theta24
+c(y2, y6) = theta26
+c(y3, y7) = theta37
+c(y4, y8) = theta48
+c(y6, y8) = theta68
+Demo60 = gamma11*Indust
+Demo65 = gamma21*Indust + beta21*Demo60
+v(Indust) = phi
 	}
 
 ## ===============================================================================

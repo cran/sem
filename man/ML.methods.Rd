@@ -35,7 +35,7 @@ and \code{\link{objectiveGLS}} (generalized least squares) objective functions.
 
 \method{print}{objectiveML}(x, ...)
 \method{print}{objectiveGLS}(x, ...)
-\method{summary}{objectiveML}(object, digits=5, conf.level=.90, robust=FALSE, analytic.se=TRUE, ...)
+\method{summary}{objectiveML}(object, digits=5, conf.level=.90, robust=FALSE, analytic.se=object$t <= 100, ...)
 \method{summary}{objectiveGLS}(object, ...)
 }
 
@@ -45,7 +45,8 @@ and \code{\link{objectiveGLS}} (generalized least squares) objective functions.
   \item{k, \ldots}{ignored.}
   \item{digits}{digits to be printed.}
   \item{conf.level}{level for confidence interval for the RMSEA index (default is .9).}
-  \item{analytic.se}{use analytic (as opposed to numeric) coefficient standard errors.}
+  \item{analytic.se}{use analytic (as opposed to numeric) coefficient standard errors; default is \code{TRUE} is there are no more than
+    100 parameters in the model and \code{FALSE} otherwise.}
 }
 
 \author{John Fox \email{jfox@mcmaster.ca} and Jarrett Byrnes}

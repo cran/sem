@@ -1,4 +1,4 @@
-# last modified 2011-10-30 by J. Fox
+# last modified 2011-11-14 by J. Fox
 
 sem <- function(model, ...){
 	if (is.character(model)) class(model) <- "semmod"
@@ -196,7 +196,7 @@ sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names,
 	result
 }
 
-vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveML"), ...) {
+vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveML") && object$t <= 100, ...) {
 	if (robust) return(object$robust.vcov)
 	if (!analytic) return(object$vcov)
 	if (!inherits(object, "objectiveML")) stop("analytic coefficient covariance matrix unavailable")
@@ -242,11 +242,11 @@ vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveM
 		one.free <- which( (!fixed) & one.head )
 		two.free <- which( (!fixed) & (!one.head) )
 		two.free.cov <- which((!fixed) & (!one.head) & (ram[, 2] != ram[, 3]))
-		arrows.1 <- ram[one.head, c(2, 3)]
-		arrows.2 <- ram[!one.head, c(2, 3)]
-		arrows.2t <- ram[!one.head, c(3, 2)]
-		arrows.1.free <- ram[one.free, c(2, 3)]
-		arrows.2.free <- ram[two.free, c(2, 3)]
+		arrows.1 <- ram[one.head, c(2, 3), drop=FALSE]
+		arrows.2 <- ram[!one.head, c(2, 3), drop=FALSE]
+		arrows.2t <- ram[!one.head, c(3, 2), drop=FALSE]
+		arrows.1.free <- ram[one.free, c(2, 3), drop=FALSE]
+		arrows.2.free <- ram[two.free, c(2, 3), drop=FALSE]
 		sel.free.1 <- sel.free[one.free]
 		sel.free.2 <- sel.free[two.free]
 		unique.free.1 <- unique(sel.free.1)
@@ -255,17 +255,19 @@ vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveM
 		posn.free <- c(posn.matrix[arrows.1.free], 
 				(m^2) + posn.matrix[arrows.2.free])        
 		DBB <- dF.dBdB[posn.matrix[arrows.1.free], 
-				posn.matrix[arrows.1.free]]
+				posn.matrix[arrows.1.free], drop=FALSE]
 		DPP <- dF.dPdP[posn.matrix[arrows.2.free], 
-				posn.matrix[arrows.2.free]]
+				posn.matrix[arrows.2.free], drop=FALSE]
 		DBP <- dF.dBdP[posn.matrix[arrows.1.free],
-				posn.matrix[arrows.2.free]]
+				posn.matrix[arrows.2.free], drop=FALSE]
+#    browser()
 		hessian <- rbind( cbind(DBB,    DBP),
 				cbind(t(DBP), DPP))    
 		n1 <- length(one.free)
 		n2 <- length(two.free)
 		nn <- rep(c(sqrt(2), sqrt(2)/2), c(n1, n2))
 		nn[c(one.free, two.free) %in% two.free.cov] <- sqrt(2)
+#    browser()
 		hessian <- hessian * outer(nn, nn)
 		pars <- ram[, 4][!fixed]
 		Z <- outer(1:t, pars, function(x, y) as.numeric(x == y))
@@ -280,7 +282,7 @@ vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveM
 	t <- object$t
 	N <- object$N
 	raw <- object$raw
-	param.names <- object$param.names
+	param.names <- rownames(h)
 	vcov <- matrix(NA, t, t)
 	qr.hess <- try(qr(h), silent=TRUE)
 	if (class(qr.hess) == "try-error"){
@@ -298,7 +300,6 @@ vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveM
 			warning("Negative parameter variances.\nModel may be underidentified.\n")
 		}
 	}
-	colnames(vcov) <- rownames(vcov) <- param.names
 	vcov
 }
 

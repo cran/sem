@@ -1,5 +1,6 @@
 \name{specifyModel}
 \alias{specifyModel}
+\alias{specifyEquations}
 \alias{print.semmod}
 \alias{classifyVariables}
 \alias{removeRedundantPaths}
@@ -12,7 +13,9 @@
   Create the RAM specification of a structural equation model.
 }
 \usage{
-specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs)
+specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs, quiet=FALSE)
+
+specifyEquations(file="", ...)
 
 classifyVariables(model)
 
@@ -35,15 +38,22 @@ removeRedundantPaths(model, warn=TRUE)
   \item{covs}{optional: a character vector of one or more elements, with each element
   	giving a string of variable names, separated by commas. Variances and covariances
   	among all variables in each such string are added to the model.}
+  \item{quiet}{if \code{FALSE}, the default, then the number of input lines is reported.}
   \item{x, model, object}{An object of class \code{semmod}, as produced by
     \code{specifyModel}.}
   \item{warn}{print a warning if redundant paths are detected.}
-  \item{...}{\code{sem} objects; ignored in the \code{update} and \code{print} methods.}
+  \item{...}{for \code{specifyEquations}, arguments such as \code{covs} to be 
+     passed to \code{specifyModel}; for \code{combineModels}, \code{sem} objects; 
+     ignored in the \code{update} and \code{print} methods.}
 }
 
 \details{
-  The principal function for model specification is \code{specifyModel}.
-  Each line of the RAM specification consists of three (unquoted) entries, 
+  The principal functions for model specification are \code{specifyModel},
+  to specify a model in RAM (path) format via single- and double-headed arrows; and
+  \code{specifyEquations}, to specify a model in equation format, which is then
+  translated by the function into RAM format.
+  
+  Each line of the RAM specification for \code{specifyModel} consists of three (unquoted) entries, 
   separated by commas:
   
     \describe{
@@ -67,7 +77,29 @@ removeRedundantPaths(model, warn=TRUE)
       }
       
   Lines may end in a comment following \code{\#}.
-      
+
+  For \code{specifyEquations}, each input line is either a regression equation or the specification
+  of a variance or covariance. Regression equations are of the form
+  
+  \code{y = par1*x1 + par2*x2 + ... + park*xk}
+  
+  where \code{y} and the \code{x}s are variables in the model (either observed or latent),
+  and the \code{par}s are parameters. If a parameter is given as a numeric value (e.g.,
+  \code{1}) then it is treated as fixed. Note that no \dQuote{error} variable is included in
+  the equation; \dQuote{error variances} are specified via either the \code{covs} argument,
+  via \code{V(y) = par} (see immediately below), or are added automatically to the model
+  when, as by default, \code{endog.variances=TRUE}.
+  
+  Variances are specified in the form \code{V(var) = par} and covariances in the form
+  \code{C(var1, var2) = par}, where the \code{var}s are variables (observed or unobserved) in
+  the model. The symbols \code{V} and \code{C} may be in either lower- or upper-case. If \code{par}
+  is a numeric value (e.g., \code{1}) then it is treated as fixed. In conformity with the RAM model,
+  a variance or covariance for an endogenous variable in the model is an \dQuote{error} variance or
+  covariance.
+  
+  To set a start value for a free parameter, enclose the numeric start value in parentheses after the
+  parameter name, as \code{parameter(value)}.
+  
   See \code{\link{sem}} for further details on model specification.
   
   \code{classifyVariables} classifies the variables in a model as endogenous or exogenous.
@@ -177,6 +209,18 @@ RGenAsp  -> ROccAsp,  NA,     1
 RGenAsp  -> REdAsp,  lam21
 FGenAsp  -> FOccAsp,  NA,     1
 FGenAsp  -> FEdAsp,  lam42
+
+model.dhp
+
+# The same model in equation format:
+
+model.dhp.1 <- specifyEquations(covs="RGenAsp, FGenAsp")
+RGenAsp = gam11*RParAsp + gam12*RIQ + gam13*RSES + gam14*FSES + beta12*FGenAsp
+FGenAsp = gam23*RSES + gam24*FSES + gam25*FIQ + gam26*FParAsp + beta21*RGenAsp
+ROccAsp = 1*RGenAsp
+REdAsp = lam21(1)*RGenAsp  # to illustrate setting start values
+FOccAsp = 1*FGenAsp
+FEdAsp = lam42(1)*FGenAsp
 
 model.dhp
 
