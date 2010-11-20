@@ -1,6 +1,6 @@
 Package: sem
-Version: 2.1-0
-Date: 2010/11/16
+Version: 2.1-1
+Date: 2010/11/20
 Title: Structural Equation Models
 Author: John Fox <jfox@mcmaster.ca> and Jarrett Byrnes <byrnes@nceas.ucsb.edu>, with contributions from Michael Culbertson, Michael Friendly, Adam Kramer, and Georges Monette.
 Maintainer: John Fox <jfox@mcmaster.ca>
@@ -16,6 +16,6 @@ License: GPL (>= 2)
 URL: http://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/
 Repository: CRAN
 Repository/R-Forge/Project: sem
-Repository/R-Forge/Revision: 78
-Date/Publication: 2011-11-18 07:10:58
-Packaged: 2011-11-16 22:25:34 UTC; rforge
+Repository/R-Forge/Revision: 80
+Date/Publication: 2011-11-23 16:04:51
+Packaged: 2011-11-21 22:35:40 UTC; rforge

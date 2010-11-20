@@ -40,7 +40,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
 \arguments{
   \item{model}{RAM specification, which is a simple encoding of the path
     diagram for the model. The model may be given either in symbolic 
-    form (as a \code{semmod} object, as returned by the \code{\link{specifyModel}} function,
+    form (as a \code{semmod} object, as returned by the \code{\link{specifyModel}},  
+    \code{\link{specifyEquations}}, or \code{\link{cfa}} function,
     or as a character matrix), invoking \code{sem.semmod}, which calls \code{sem.default} 
     after setting up the model,
     or (less conveniently) in numeric form, invoking \code{sem.default} directly, which is
@@ -132,8 +133,9 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   notation -- a simple format
   for specifying general structural equation models by coding the
   \dQuote{arrows} in the path diagram for the model (see, e.g., McArdle and McDonald, 1984) --
-  typically using the \code{specifyModel} function, or in equation format using the
-  \code{specifyEquations} function. In either case, the model is represented internally in RAM format.
+  typically using the \code{\link{specifyModel}} function; in equation format using the
+  \code{\link{specifyEquations}} function; or, for a simple confirmatory factor analysis model,
+  via the \code{\link{cfa}} function. In any case, the model is represented internally in RAM format.
   
   The variables in the \eqn{v} vector in the model (typically, the observed and
   unobserved variables, but not error variables) are numbered from 1 to \eqn{m}.  
@@ -162,10 +164,11 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
         If given as \code{NA}, \code{sem} will compute the start value.}
       }
       
-  It is simplest to construct the RAM matrix with the \code{\link{specifyModel}} function,
-  which returns an object of class \code{semmod}, and also incorporates some model-specification
+  It is simplest to construct the RAM matrix with the \code{\link{specifyModel}}, \code{\link{specifyEquations}},
+  or \code{\link{cfa}} function,
+  all of which return an object of class \code{semmod}, and also incorporate some model-specification
   convenience shortcuts. This process is illustrated in the examples below. 
-  
+    
   A numeric \code{ram} matrix consists of five columns, as follows:
     
     \describe{
@@ -190,7 +193,7 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
         }
         
   The numeric \code{ram} matrix is normally generated automatically, not specified directly by the user.
-  
+    
   For \code{specifyEquations}, each input line is either a regression equation or the specification
   of a variance or covariance. Regression equations are of the form
   
@@ -338,7 +341,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
 \seealso{\code{\link{rawMoments}}, \code{\link{startvalues}}, 
 	\code{\link{objectiveML}}, \code{\link{objectiveGLS}},  
 	\code{\link{optimizerNlm}}, \code{\link{optimizerOptim}}, \code{\link{optimizerNlminb}},
-	\code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, \code{\link[stats]{nlminb}}
+	\code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, \code{\link[stats]{nlminb}},
+	\code{\link{specifyModel}}, \code{\link{specifyEquations}}, \code{\link{cfa}}
 }
 
 \examples{
@@ -799,6 +803,69 @@ c(y6, y8) = theta68
 Demo60 = gamma11*Indust
 Demo65 = gamma21*Indust + beta21*Demo60
 v(Indust) = phi
+
+
+# -------------- A simple CFA model for the Thurstone mental tests data --------------
+
+R.thur <- readMoments(diag=FALSE, names=c('Sentences','Vocabulary',
+                                          'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
+                                          'Letter.Series','Pedigrees', 'Letter.Group'))
+.828                                              
+.776   .779                                        
+.439   .493    .46                                 
+.432   .464    .425   .674                           
+.447   .489    .443   .59    .541                    
+.447   .432    .401   .381    .402   .288              
+.541   .537    .534   .35    .367   .32   .555        
+.38   .358    .359   .424    .446   .325   .598   .452
+
+	#  (1) in CFA format:
+
+mod.cfa.thur.c <- cfa()
+FA: Sentences, Vocabulary, Sent.Completion
+FB: First.Letters, 4.Letter.Words, Suffixes
+FC: Letter.Series, Pedigrees, Letter.Group
+
+cfa.thur.c <- sem(mod.cfa.thur.c, R.thur, 213)
+summary(cfa.thur.c)
+
+	#  (2) in equation format:
+
+mod.cfa.thur.e <- specifyEquations(covs="F1, F2, F3")
+Sentences = lam11*F1
+Vocabulary = lam21*F1
+Sent.Completion = lam31*F1
+First.Letters = lam42*F2
+4.Letter.Words = lam52*F2
+Suffixes = lam62*F2
+Letter.Series = lam73*F3
+Pedigrees = lam83*F3
+Letter.Group = lam93*F3
+V(F1) = 1
+V(F2) = 1
+V(F3) = 1
+
+cfa.thur.e <- sem(mod.cfa.thur.e, R.thur, 213)
+summary(cfa.thur.e)
+
+	#  (3) in path format:
+
+mod.cfa.thur.p <- specifyModel(covs="F1, F2, F3")
+F1 -> Sentences,                      lam11
+F1 -> Vocabulary,                     lam21
+F1 -> Sent.Completion,                lam31
+F2 -> First.Letters,                  lam41
+F2 -> 4.Letter.Words,                 lam52
+F2 -> Suffixes,                       lam62
+F3 -> Letter.Series,                  lam73
+F3 -> Pedigrees,                      lam83
+F3 -> Letter.Group,                   lam93
+F1 <-> F1,                            NA,     1
+F2 <-> F2,                            NA,     1
+F3 <-> F3,                            NA,     1
+
+cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
+summary(cfa.thur.p)
 	}
 
 ## ===============================================================================

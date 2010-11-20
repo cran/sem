@@ -1,4 +1,4 @@
-# last modified 2011-11-12
+# last modified 2011-11-20 by J. Fox
 
 specify.model <- function(...){
 	.Deprecated("specifyModel", package="sem")
@@ -134,11 +134,6 @@ removeRedundantPaths <- function(model, warn=TRUE){
 }
 
 specifyEquations <- function(file="", ...){
-	not.number <- function(constant){
-		save <- options(warn = -1)
-		on.exit(save)
-		is.na(as.numeric(constant))
-	}
 	par.start <- function(coef, eq){
 		if (length(grep("\\(", coef)) == 0){
 			return(c(coef, "NA"))
@@ -223,4 +218,68 @@ specifyEquations <- function(file="", ...){
 	equations <- scan(file=file, what="", sep=";", strip.white=TRUE, comment.char="#")
 	ram <- unlist(lapply(equations, parseEquation))
 	specifyModel(file=textConnection(ram), ..., quiet=TRUE)
+}
+
+cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, ...){
+	Lines <- scan(file=file, what="", sep=";", strip.white=TRUE, comment.char="#")
+	lines <- character(0)
+	current.line <- ""
+	for (line in Lines){
+		if (current.line != "") line <- paste(current.line, line)
+		if (length(grep(",$", line)) > 0){
+			current.line <- line
+			next
+		}
+		current.line <- ""
+		lines <- c(lines, line)
+	}
+	nfactor <- length(lines)
+	factors <- rep("", nfactor)
+	ram <- character(0)
+	for (i in 1:nfactor){
+		Line <- line <- lines[[i]]
+		line <- gsub(" ", "", line)
+		line <- strsplit(line, ":")[[1]]
+		if (length(line) == 1){
+			factors[i] <- paste("Factor.", i, sep="")
+			variables <- strsplit(line, ",")[[1]]
+		}
+		else if (length(line) == 2){
+			factors[i] <- line[1]
+			variables <- strsplit(line[2], ",")[[1]]
+		}
+		else stop("Parse error in ", Line)
+		if (reference.indicators){
+			ram <- c(ram, paste(factors[i], " -> ", variables[1], ", NA, 1", sep=""))
+			variables <- variables[-1]
+		}
+		for (variable in variables){
+			if (length(grep("\\(", variable)) > 0){
+				if (length(grep("\\)", variable)) == 0) stop ("Parse error in ", Line)
+				variable <- sub("\\)", "", variable)   
+				var.start <- strsplit(variable, "\\(")[[1]]
+				if (length(var.start) != 2) stop("Parse error in ", Line)
+				variable <- var.start[1]
+				start <- var.start[2]
+				if (not.number(start)) stop ("Bad start value ", start, " in ", Line)
+			}
+			else start <- "NA"
+			ram <- c(ram, paste(factors[i], " -> ", variable, ", lam[", variable, ":", factors[i], "], ", start, sep=""))
+		}
+	}
+	ram <- if (reference.indicators) {
+				c(ram, sapply(factors, function(factor) paste(factor, " <-> ", factor, ", ", paste("V[", factor, "]", sep="") , ", NA", sep="")))
+			}
+			else{
+				c(ram, sapply(factors, function(factor) paste(factor, " <-> ", factor, ", NA, 1", sep="")))
+			}
+	specifyModel(file=textConnection(ram), covs=covs, ..., quiet=TRUE)
+}
+
+# the following function (not exported) checks whether a text string can be converted into a number
+
+not.number <- function(constant){
+	save <- options(warn = -1)
+	on.exit(save)
+	is.na(as.numeric(constant))
 }

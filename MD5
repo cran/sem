@@ -1,6 +1,6 @@
-aa3c7dd73081bfa05a52003513d7762f *DESCRIPTION
-1b1fede3e5fee98e6f80ebf7cf5c4aec *NAMESPACE
-f7c524b62f0f8283fcaa606bc5b8b025 *NEWS
+ad34fbffa3409407d3ccfdaceaba8338 *DESCRIPTION
+db66189de5f511ca1052d352c77b98bf *NAMESPACE
+7a22f4fa3f377a19e4f13f1fd7acaf9a *NEWS
 99f1e5d79e4e2cdcc4f2b5ec72b5a3ec *R/anova.objectiveML.R
 aeb3b286745531d1d0d07927678834c3 *R/bootSem.R
 2498e7096d81fc8d04d7a1f3cc25de12 *R/chisqNull.R
@@ -21,7 +21,7 @@ eb57b1e2469b0e6a5b4794e16bd7f2ce *R/rawMoments.R
 f6c99509287da072a47f5b324b98a4a2 *R/residuals.R
 21e3ea96ca1744be1decb58d6ad10256 *R/robust.R
 07373a372fa4ffaf17cf114424212c88 *R/sem.R
-0d347a39ec1ea3338335a0e4a93632a7 *R/specifyModel.R
+17d97d8db4a6bf56cbe414af9c07609d *R/specifyModel.R
 dae8e406dec4edc7da0b700e98e4be5c *R/standardizedCoefficients.R
 5094a7ee4e1160fcbcdc81cccf0bf60e *R/startvalues.R
 05f56a45ec730d9135ab928f89c91831 *R/summary.methods.R
@@ -64,7 +64,7 @@ c60f9556597268e50e597c40e4eb8c91 *man/information.criteria.Rd
 d2695fee4aa8e2d26206a3acb68174d6 *man/readMoments.Rd
 0e07b723530315584c0af13fa9dc5da8 *man/residuals.Rd
 67a9be4cc7e4463aa0f0f949e811ac9a *man/sem-deprecated.Rd
-cf4b1dba09bbe2fa6e86f372e5d193cb *man/sem.Rd
-51294e7b3b2c856cda791aa2b1d9f6ef *man/specifyModel.Rd
+bd3be3a6b7591f65ef508fd69cd497cd *man/sem.Rd
+e8a56dae92f0a2751f2087a35f75b6d9 *man/specifyModel.Rd
 df6ad44781454a9ef8fbd6dca0b9c164 *man/standardizedCoefficients.Rd
 4e8772bd3423b89c1e263ddb3c5ebcb1 *man/tsls.Rd
