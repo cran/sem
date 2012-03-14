@@ -1,8 +1,11 @@
 \name{modIndices}
 \alias{modIndices}
 \alias{modIndices.objectiveML}
+\alias{modIndices.msemObjectiveML}
 \alias{print.modIndices}
+\alias{print.msemModIndices}
 \alias{summary.modIndices}
+\alias{summary.msemModIndices}
 
 \title{Modification Indices for Structural Equation Models}
 \description{
@@ -12,17 +15,21 @@
 }
 
 \usage{
-\method{modIndices}{objectiveML}(model, ...)
+\method{modIndices}{objectiveML}(model, duplicated, deviance=NULL, ...)
+\method{modIndices}{msemObjectiveML}(model, ...)
 
 \method{print}{modIndices}(x, n.largest=5, ...)
+\method{print}{msemModIndices}(x, ...)
 
 \method{summary}{modIndices}(object, round=2, 
     print.matrices=c("both", "par.change", "mod.indices"), ...)
+\method{summary}{msemModIndices}(object, ...)
 }
     
 \arguments{
-  \item{model}{an object of class \code{sem}, produced by the \code{\link{sem}} function.}
-  \item{object, x}{an object of class \code{modIndices}, produced by the 
+  \item{model}{an object of class \code{objectiveML} or \code{msemObjectiveML},
+    produced by the \code{\link{sem}} function.}
+  \item{object, x}{an object of class \code{modIndices} or \code{msemModIndices}, produced by the 
     \code{modIndices} function.}
   \item{n.largest}{number of modification indices to print in each of the \eqn{A} and
     \eqn{P} matrices of the RAM model.}
@@ -30,6 +37,7 @@
     modification indices.}
   \item{print.matrices}{which matrices to print: estimated changes in the fixed parameters,
     modification indices, or both (the default).}
+  \item{duplicated, deviance}{for internal use.}
   \item{\dots}{arguments to be passed down.}
 }
 

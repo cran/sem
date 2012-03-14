@@ -1,4 +1,7 @@
-# last modified 2011-11-19 by J. Fox
+# last modified 2012-03-14 by J. Fox
+
+useDynLib(sem)
+useDynLib(sem, csemSolve)
 
 import(stats)
 
@@ -9,7 +12,15 @@ export(ram, standardizedResiduals, normalizedResiduals, readMoments,
     AICc, CAIC,
     classifyVariables, combineModels, removeRedundantPaths,
     optimizerNlm, optimizerOptim, optimizerNlminb,
-    objectiveML, objectiveGLS,
+    objectiveML2, objectiveGLS2, 
+	#it may not be necessay to export csem. We have two wrappers of csem to CompiledSolve and CompiledObjective. 
+	# csem, cmsem,  
+	# CompiledSolve, 
+	# msemCompiledObjective,msemCompiledSolve,  
+	optimizerSem,  
+	objectiveML, objectiveGLS,   
+	multigroupModel, msemObjectiveML, msemObjectiveGLS, msemOptimizerNlm,
+	msemObjectiveML2, optimizerMsem,  
     # deprecated:
     standardized.residuals, normalized.residuals, read.moments,
     standardized.coefficients, std.coef, mod.indices, path.diagram,
@@ -19,6 +30,7 @@ export(ram, standardizedResiduals, normalizedResiduals, readMoments,
 S3method(effects, sem)
 S3method(logLik, objectiveML)
 S3method(residuals, sem)
+S3method(standardizedCoefficients, sem)
 S3method(standardizedResiduals, sem)
 S3method(normalizedResiduals, objectiveML)
 S3method(normalizedResiduals, objectiveGLS)
@@ -40,8 +52,11 @@ S3method(summary, objectiveML)
 S3method(summary, objectiveGLS)
 S3method(print, summary.objectiveML)
 S3method(summary, modIndices)
+S3method(summary, msemModIndices)
 S3method(print, modIndices)
+S3method(print, msemModIndices)
 S3method(modIndices, objectiveML)
+S3method(modIndices, msemObjectiveML)
 S3method(pathDiagram, sem)
 S3method(print, semeffects)     
 S3method(print, semmod)
@@ -64,3 +79,28 @@ S3method(CAIC, objectiveML)
 S3method(BIC, objectiveML)
 S3method(combineModels, semmod)
 S3method(update, semmod)
+S3method(edit, semmod)
+S3method(print, semmodList)
+S3method(sem, semmodList)
+S3method(sem, msemmod)
+S3method(print, msemObjectiveML)
+S3method(summary, msemObjectiveML)
+S3method(print, msemObjectiveGLS)
+S3method(summary, msemObjectiveGLS)
+S3method(deviance, msemObjectiveML)
+S3method(AIC, msemObjectiveML)
+S3method(AICc, msemObjectiveML)
+S3method(BIC, msemObjectiveML)
+S3method(residuals, msem)
+S3method(coef, msem)
+S3method(vcov, msem)
+S3method(df.residual, msem)
+S3method(anova, msemObjectiveML)
+S3method(logLik, msemObjectiveML)
+S3method(effects, msem)
+S3method(print, semeffectsList)
+S3method(standardizedCoefficients, msem)
+S3method(standardizedResiduals, msem)
+S3method(normalizedResiduals, msemObjectiveML)
+S3method(fscores, msem)
+S3method(vcov, msem)

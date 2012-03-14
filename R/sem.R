@@ -1,4 +1,4 @@
-# last modified 2011-11-14 by J. Fox
+# last modified 2012-01-14 by J. Fox
 
 sem <- function(model, ...){
 	if (is.character(model)) class(model) <- "semmod"
@@ -89,8 +89,8 @@ sem.semmod <- function(model, S, N, data, raw=FALSE, obs.variables=rownames(S),
 
 sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names, 
 		var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
-		analytic.gradient=TRUE, warn=FALSE, maxiter=500, par.size=c("ones", "startvalues"), 
-		start.tol=1E-6, optimizer=optimizerNlm, objective=objectiveML, ...){
+		analytic.gradient=TRUE, warn=FALSE, maxiter=1000, par.size=c("ones", "startvalues"), 
+		start.tol=1E-6, optimizer=optimizerSem, objective=objectiveML, ...){
 	ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
 	is.triangular <- function(X) {
 		is.matrix(X) && (nrow(X) == ncol(X)) && 
@@ -186,8 +186,14 @@ sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names,
 		result$C <- res$C
 		result$A <- res$A
 		result$P <- res$P
+		if (!is.na(result$iterations)) if(result$iterations >= maxiter) warning("maximum iterations exceeded")
 	}
 	cls <- gsub("\\.", "", deparse(substitute(objective)))
+	cls <- gsub("2", "", cls)
+#	if(cls == "objectiveCompiledGLS") 
+#			cls <- c(cls, "objectiveGLS")
+#	else if(cls == "objectiveCompiledML") 
+#			cls <- c(cls, "objectiveML")
 	class(result) <- c(cls, "sem")
 	if (robust && !is.null(data) && inherits(result, "objectiveML")){
 		result$adj.obj <- sbchisq(result, data)
@@ -196,25 +202,15 @@ sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names,
 	result
 }
 
-vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveML") && object$t <= 100, ...) {
+vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveML") && object$t <= 500, ...) {
 	if (robust) return(object$robust.vcov)
 	if (!analytic) return(object$vcov)
 	if (!inherits(object, "objectiveML")) stop("analytic coefficient covariance matrix unavailable")
 	hessian <- function(model){
-		accumulate <- function(A, B, C, D, d) {
-			sub <- function(i, j) (j - 1)*d + i
-			res <- matrix(0, d^2, d^2)    
-			for (g in 1:d){
-				for (h in 1:d){
-					for (i in 1:d){
-						for (j in 1:d){
-							res[sub(g, h), sub(i, j)] <- A[g, i] * B[h, j] + C[g, j] * D[h, i]
-						}
-					}
-				}
-			}
-			res
-		}    
+#		accumulate <- function(A, B, C, D, d) {
+#				res <- matrix(0, d^2, d^2)
+#			B[1:d, 1:d] %x% A[1:d, 1:d] + matrix(rep(rep(t(C[1:d, 1:d]), 1, each=d), d), d^2, d^2, byrow=TRUE) * matrix(rep(rep((D[1:d, 1:d]), 1, each=d), d), d^2, d^2)
+#		}    
 		A <- model$A
 		P <- model$P
 		S <- model$S
@@ -312,3 +308,9 @@ coef.sem <- function(object, standardized=FALSE, ...){
 	names(coef) <- names[which]
 	coef
 }
+
+# the following auxiliary function is for computing Hessians
+
+accumulate <- function(A, B, C, D, d) {
+	B[1:d, 1:d] %x% A[1:d, 1:d] + matrix(rep(rep(t(C[1:d, 1:d]), 1, each=d), d), d^2, d^2, byrow=TRUE) * matrix(rep(rep((D[1:d, 1:d]), 1, each=d), d), d^2, d^2)
+}    

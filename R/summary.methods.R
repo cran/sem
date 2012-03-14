@@ -1,7 +1,7 @@
-# last modified 2011-11-04 by J. Fox
+# last modified 2012-02-11 by J. Fox
 
 
-summary.objectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, analytic.se=object$t <= 100, ...) {
+summary.objectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, analytic.se=object$t <= 500, ...) {
 	vcov <- vcov(object, robust=robust, analytic=analytic.se)
 	if (any(is.na(vcov))) stop("coefficient covariances cannot be computed")
 	norm.res <- normalizedResiduals(object)
@@ -21,13 +21,7 @@ summary.objectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, 
 	CS <- invC %*% S
 	CS <- CS %*% CS
 	chisqNull <- chisqNull(object)
-	if(!robust) {
-		chisq <- object$criterion * (N - (!object$raw))
-	}
-	else { 
-		chisq <- object$adj.obj$chisq.scaled
-		chisqNull <- chisqNull/object$adj.obj$c 
-	}	
+	chisq <- object$criterion * (N - (!object$raw))
 	GFI <- if (!object$raw) 1 - sum(diag(CSC))/sum(diag(CS)) else NA
 	if ((!object$raw) && df > 0){
 		AGFI <- 1 - (n*(n + 1)/(2*df))*(1 - GFI)
@@ -64,8 +58,9 @@ summary.objectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, 
 		lam.L <- if (max <= 1) NA else res$minimum
 		RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
 		RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
+		Rsq <- Rsq(object)
 	}
-	else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- NA
+	else Rsq <- RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- NA
 	RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
 	if (!is.null(object$coeff)){
 		var.names <- rownames(object$A)
@@ -83,9 +78,23 @@ summary.objectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, 
 	CAIC <- CAIC(object)
 	SRMR <- sqrt(sum(standardizedResiduals(object)^2 * 
 							upper.tri(diag(n), diag=TRUE))/(n*(n + 1)/2))
+	if (robust) { 
+		chisq.adjusted <- object$adj.obj$chisq.scaled
+		chisqNull.adjusted <- chisqNull/object$adj.obj$c 
+		NFI.adjusted <- (chisqNull.adjusted - chisq)/chisqNull.adjusted
+		NNFI.adjusted <- (chisqNull.adjusted/dfNull - chisq.adjusted/df)/(chisqNull.adjusted/dfNull - 1)
+		L1 <- max(chisq.adjusted - df, 0)
+		L0 <- max(L1, chisqNull.adjusted - dfNull)
+		CFI.adjusted <- 1 - L1/L0
+	}
+	else{
+		chisq.adjusted <- chisqNull.adjusted <- NFI.adjusted <- NNFI.adjusted <- CFI.adjusted <- NULL
+	}
 	ans <- list(chisq=chisq, df=df, chisqNull=chisqNull, dfNull=dfNull,
 			GFI=GFI, AGFI=AGFI, RMSEA=RMSEA, NFI=NFI, NNFI=NNFI, CFI=CFI, BIC=BIC, SRMR=SRMR, 
-			AIC=AIC, AICc=AICc, CAIC=CAIC, Rsq=Rsq(object),
+			AIC=AIC, AICc=AICc, CAIC=CAIC, Rsq=Rsq,
+			chisq.adjusted=chisq.adjusted, chisqNull.adjusted=chisqNull.adjusted, NFI.adjusted=NFI.adjusted,
+			NNFI.adjusted=NNFI.adjusted, CFI.adjusted=CFI.adjusted,
 			norm.res=norm.res, coeff=coeff, digits=digits, 
 			iterations=object$iterations, aliased=object$aliased, raw=object$raw,
 			robust=robust, robust.vcov=object$robust.vcov, adj.obj=object$adj.obj)
@@ -98,23 +107,27 @@ print.summary.objectiveML <- function(x, ...){
 	on.exit(options(old.digits))
 	if (x$raw) cat("\nModel fit to raw moment matrix.\n")	
 	if (x$robust && !is.null(x$robust.vcov)){
-		cat("\n\nSatorra-Bentler Corrected Fit Statistics and Standard Errors:\n")
-		cat("\n Adjusted Model Chisquare = ", x$adj.obj$chisq.scaled, "  Df = ", x$df, 
-				"Pr(>Chisq) =", if (x$df > 0) pchisq(x$adj.obj$chisq.scaled, x$df, lower.tail=FALSE)
-						else NA)		
-		#use the scaled chisq for all other indices
-		x$chisq<-x$adj.obj$chisq.scaled
-		x$coeff <- x$coef
+		cat("\nSatorra-Bentler Corrected Fit Statistics:\n")
+		cat("\n Corrected Model Chisquare = ", x$chisq.adjusted, "  Df = ", x$df, 
+				"Pr(>Chisq) =", if (x$df > 0) pchisq(x$chisq.adjusted, x$df, lower.tail=FALSE)
+						else NA)
+		if (!x$raw) {		
+			cat("\n Corrected Chisquare (null model) = ", x$chisqNull.adjusted,  "  Df = ", x$dfNull)
+		}
+		if (x$df > 0 && !x$raw){
+			cat("\n Corrected Bentler-Bonnett NFI = ", x$NFI.adjusted)
+			cat("\n Corrected Tucker-Lewis NNFI = ", x$NNFI.adjusted)
+			cat("\n Corrected Bentler CFI = ", x$CFI.adjusted)
+		}
+		cat("\n\nUncorrected Fit Statistics:\n")
 		x$coeff[,2] <- sqrt(diag(x$robust.vcov))
 		x$coeff[,3] <- x$coeff[,1]/x$coeff[,2]
 		x$coeff[,4] <- 2*pnorm(abs(x$coeff[,3]), lower.tail=FALSE)
 		colnames(x$coeff)[2] <- "Corrected SE"
 	}
-	else{
-		cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 
-				"Pr(>Chisq) =", if (x$df > 0) pchisq(x$chisq, x$df, lower.tail=FALSE)
-						else NA)
-	}	
+	cat("\n Model Chisquare = ", x$chisq, "  Df = ", x$df, 
+			"Pr(>Chisq) =", if (x$df > 0) pchisq(x$chisq, x$df, lower.tail=FALSE)
+					else NA)
 	if (!x$raw) {		
 		cat("\n Chisquare (null model) = ", x$chisqNull,  "  Df = ", x$dfNull)
 		cat("\n Goodness-of-fit index = ", x$GFI)
@@ -131,13 +144,15 @@ print.summary.objectiveML <- function(x, ...){
 	if (!is.null(x$AIC)) cat("\n AIC = ", x$AIC)
 	if (!is.null(x$AICc)) cat("\n AICc = ", x$AICc)
 	if (!is.null(x$BIC)) cat("\n BIC = ", x$BIC)
-	if (!is.null(x$CAIC)) cat("\n CAIC = ", x$CAIC, "\n")
-	cat("\n Normalized Residuals\n")
+	if (!is.null(x$CAIC)) cat("\n CAIC = ", x$CAIC)
+	cat("\n\n Normalized Residuals\n")
 	print(summary(as.vector(x$norm.res)))
-	cat("\n R-square for Endogenous Variables\n")
-	print(round(x$Rsq, 4))
+	if (!is.na(x$Rsq[1])){
+		cat("\n R-square for Endogenous Variables\n")
+		print(round(x$Rsq, 4))
+	}
 	if (!is.null(x$coeff)){
-		cat("\n Parameter Estimates\n")
+		if (x$robust && !is.null(x$robust.vcov)) cat("\n Parameter Estimates (with Robust Standard Errors)\n") else cat("\n Parameter Estimates\n")
 		print(x$coeff, right=FALSE)
 		if (!is.na(x$iterations)) cat("\n Iterations = ", x$iterations, "\n")
 		if (!is.null(x$aliased)) cat("\n Aliased parameters:", x$aliased, "\n")
@@ -145,9 +160,8 @@ print.summary.objectiveML <- function(x, ...){
 	invisible(x)
 }
 
-summary.objectiveGLS <- function(object, ...){
-	summary <- summary.objectiveML(object, ..., analytic.se=FALSE)
-#	summary$chisqNull <- chisqNull(object) # object$chisqNull
+summary.objectiveGLS <- function(object, digits=5, conf.level=.90, robust=FALSE, ...){
+	summary <- summary.objectiveML(object, digits=digits, conf.level=conf.level, robust=robust, analytic.se=FALSE, ...)
 	S <- object$S
 	Sinv <- solve(S)
 	C <- object$C
@@ -162,18 +176,19 @@ summary.objectiveGLS <- function(object, ...){
 deviance.objectiveML <- function(object, ...) object$criterion * (object$N - (!object$raw))
 
 df.residual.sem <- function(object, ...) {
-	n.fix <- object$n.fix
-	n <- object$n
-	t <- object$t
-	n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
+n.fix <- object$n.fix
+n <- object$n
+t <- object$t
+n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
 }
 
 Rsq <- function(model){
-	A <- model$A
-	P <- model$P
-	IAinv <- solve(diag(nrow(A)) - A)
-	C <- IAinv %*% P %*% t(IAinv)
-	R2 <- 1 - diag(P)/diag(C)
-	R2 <- R2[classifyVariables(model$semmod)$endogenous]
-	R2
+A <- model$A
+P <- model$P
+IAinv <- solve(diag(nrow(A)) - A)
+C <- IAinv %*% P %*% t(IAinv)
+R2 <- 1 - diag(P)/diag(C)
+R2 <- R2[classifyVariables(model$semmod)$endogenous]
+R2
 }
+

@@ -1,10 +1,13 @@
 \name{residuals.sem}
 \alias{residuals.sem}
+\alias{residuals.msem}
 \alias{standardizedResiduals}
 \alias{standardizedResiduals.sem}
+\alias{standardizedResiduals.msem}
 \alias{normalizedResiduals}
 \alias{normalizedResiduals.objectiveML}
 \alias{normalizedResiduals.objectiveGLS}
+\alias{normalizedResiduals.msemObjectiveML}
 
 \title{Residual Covariances for a Structural Equation Model}
 \description{
@@ -15,16 +18,18 @@
 }
 \usage{
 \method{residuals}{sem}(object, ...)
+\method{residuals}{msem}(object, ...)
 
 \method{standardizedResiduals}{sem}(object, ...)
+\method{standardizedResiduals}{msem}(object, ...)
 
 \method{normalizedResiduals}{objectiveML}(object, ...)
-
 \method{normalizedResiduals}{objectiveGLS}(object, ...)
+\method{normalizedResiduals}{msemObjectiveML}(object, ...)
 }
 
 \arguments{
-  \item{object}{an object inheriting from class \code{sem} returned by the \code{\link{sem}} function.}
+  \item{object}{an object inheriting from class \code{sem} or \code{msem} returned by the \code{\link{sem}} function.}
   \item{...}{not for the user.}
 }
 

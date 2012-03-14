@@ -1,0 +1,13 @@
+# In order to test snomadr,  the source code of NOMAD is copied into the package snomadr, 
+# this is only for test.
+OBJECTS             = csemnlm.o  uncmin.o csem.o 
+
+#DEBUGING_FLAGS=-DDEBUGSEM                     # DEBUGSEM gives details
+
+
+PKG_LIBS=  -g -O2 -lm $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) 
+PKG_FLAGS = -arch x86_64 $(DEBUGING_FLAGS)
+PKG_CPPFLAGS = $(DEBUGING_FLAGS)
+
+
+

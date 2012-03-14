@@ -1,6 +1,7 @@
 \name{fscores}
 \alias{fscores}
 \alias{fscores.sem}
+\alias{fscores.msem}
 
 \title{Factor Scores for Latent Variables}
 \description{
@@ -9,10 +10,11 @@
 }
 \usage{
 \method{fscores}{sem}(model, data=model$data, center=TRUE, scale=FALSE, ...)
+\method{fscores}{msem}(model, data=model$data, center=TRUE, scale=FALSE, ...)
 }
 
 \arguments{
-  \item{model}{an object of class \code{"sem"}, produced by the \code{\link{sem}}
+  \item{model}{an object of class \code{"sem"} or \code{"msem"}, produced by the \code{\link{sem}}
     function.}
   \item{data}{an optional numeric data frame or matrix containing the observed variables
     in the model; if not \code{NULL}, the estimated factor scores are returned; if \code{NULL}, the
@@ -37,7 +39,8 @@
 }
 \value{
   Either a matrix of estimated factor scores (if the \code{data} argument is
-  supplied) or a matrix of factor-score coefficients (otherwise).
+  supplied) or a matrix of factor-score coefficients (otherwise). In the case of an \code{"msem"}
+  argument, a list of matrices is returned.
 }
 
 \references{

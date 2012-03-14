@@ -1,6 +1,8 @@
 \name{effects.sem}
 \alias{effects.sem}
+\alias{effects.msem}
 \alias{print.semeffects}
+\alias{print.semeffectsList}
 
 \title{
 Total, Direct, and Indirect Effects for Structural Equation Models
@@ -13,13 +15,15 @@ and indirect effects for a fitted structural equation model according to the met
 
 \usage{
 \method{effects}{sem}(object, ...)
+\method{effects}{msem}(object, ...)
 
 \method{print}{semeffects}(x, digits = getOption("digits"), ...)
+\method{print}{semeffectsList}(x, digits = getOption("digits"), ...)
 }
 
 \arguments{
   \item{object}{a fitted structural-equation model object produced by the \code{\link{sem}} function.}
-  \item{x}{an object of class \code{semeffects}, produced by \code{effect.sem}.}
+  \item{x}{an object of class \code{semeffects} or \code{semeffectsList}, produced by \code{effects}.}
   \item{digits}{digits to print.}
   \item{\dots}{not used.}
 }

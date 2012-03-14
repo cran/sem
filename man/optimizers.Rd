@@ -1,20 +1,32 @@
 \name{optimizers}
 
 \alias{optimizers}
+\alias{optimizerSem}
 \alias{optimizerNlm}
 \alias{optimizerOptim}
 \alias{optimizerNlminb}
+\alias{optimizerMsem}
+\alias{msemOptimizerNlm}
 
 \title{sem Optimizers}
 
 \description{
-These functions call optimizers (\code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, or \code{\link[stats]{nlminb}}), 
+The default optimizer used by \code{\link{sem}} is \code{optimizerSem}, which employs compiled code and is integrated with
+the \code{\link{objectiveML}} and \code{\link{objectiveGLS}} objective functions; \code{optimizerSem} is a modified
+version of the standard R \code{nlm} optimizer.
+The other functions call optimizers (\code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, or \code{\link[stats]{nlminb}}), 
 to fit structural equation models, and are called by the \code{\link{sem}} function. 
 The user would not normally call these functions directly, but rather supply one of them in the \code{optimizer} argument to
-\code{sem}. Users may also write them own optimizer functions.
+\code{sem}. Users may also write them own optimizer functions. \code{msemOptimizerNlm} is for fitting multigroup models.
 }
 
 \usage{
+optimizerSem(start, objective=objectiveML,  
+	gradient=TRUE, maxiter, debug, par.size, model.description, warn, ...)
+	
+optimizerMsem(start, objective=msemObjectiveML, gradient=TRUE,
+	maxiter, debug, par.size, model.description, warn=FALSE, ...)
+	
 optimizerNlm(start, objective=objectiveML, gradient=TRUE, 
 	maxiter, debug, par.size, model.description, warn, ...)
 	
@@ -22,7 +34,10 @@ optimizerOptim(start, objective=objectiveML, gradient=TRUE,
 	maxiter, debug, par.size, model.description, warn, method="CG", ...)
 
 optimizerNlminb(start, objective=objectiveML, gradient=TRUE, maxiter, 
-debug, par.size, model.description, warn, ...)
+	debug, par.size, model.description, warn, ...)
+
+msemOptimizerNlm(start, objective=msemObjectiveML, gradient=TRUE,
+		maxiter, debug, par.size, model.description, warn=FALSE, ...)
 }
 
 \arguments{

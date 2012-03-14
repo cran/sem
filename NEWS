@@ -1,7 +1,25 @@
-Changes to Version 2.0-0
+Changes to Version 3.0-0
 
-    o Completely reworked version of the sem package. See CHANGES file for changes to older versions.
+	o Compiled code for optimization.
+	
+	o Added multi-group models.
+	
+	o Modification indices for equality-constrained parameters.
+	
+	o weights argument added to tsls().
+	
+	o raw argument added to cfa().
+
+Changes to Version 2.1-2
+
+    o Suppress R^2s when raw moments used (they were not computed correctly).
     
+    o Enhancements to update.semmod() and new edit.semmod() (suggestions of Michael Friendly).
+
+Changes to Version 2.1-1
+
+    o Added cfa() for compact specification of confirmatory factor analysis models.
+
 Changes to Version 2.1-0
 
 	o Added equation-style model specification, via specifyEquations()
@@ -9,7 +27,8 @@ Changes to Version 2.1-0
 	o Fixed bug in classifyVariables() when <- (rather than ->) used in the model.
 	
 	o Fixed bug in vcov.sem() when the model has just one structural parameter or just one variance/covariance parameter.
-	
-Changes to Version 2.1-1
 
-    o Added cfa() for compact specification of confirmatory factor analysis models.
+Changes to Version 2.0-0
+
+    o Completely reworked version of the sem package. See CHANGES file for changes to older versions.
+

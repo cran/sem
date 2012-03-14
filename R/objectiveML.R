@@ -1,47 +1,58 @@
-# last modified 2011-07-30 by J. Fox
+# last modified 2012-01-06 by J. Fox
+# Modified for Compiled code in C/C++ by Zhenghua Nie.
 
-objectiveML <- function(gradient=TRUE){
+objectiveML <- function(gradient=TRUE, hessian=FALSE){
 	result <- list(
 		objective = function(par, model.description){
 			with(model.description, {
-					A <- P <- matrix(0, m, m)
-					val <- ifelse (fixed, ram[,5], par[sel.free])
-					A[arrows.1] <- val[one.head]
-					P[arrows.2t] <- P[arrows.2] <- val[!one.head]
-					I.Ainv <- solve(diag(m) - A)
-					C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
-					Cinv <- solve(C)
-					f <- sum(diag(S %*% Cinv)) + log(det(C)) - n - logdetS
+
+					res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveML",hessian=hessian) 
+
+					f <- res$f
+					C <- res$C
+					A <- res$A
+					P <- res$P
+
 					grad <- NULL
-					if (gradient){
-						grad.P <- correct * t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
-						grad.A <- grad.P %*% P %*% t(I.Ainv)        
-						grad <- rep(0, t)
-						grad[unique.free.1] <- tapply(grad.A[arrows.1.free],ram[ram[,1]==1 & ram[,4]!=0, 4], sum)
-						grad[unique.free.2] <- tapply(grad.P[arrows.2.free],ram[ram[,1]==2 & ram[,4]!=0, 4], sum)
-					}
-					attributes(f) <- list(C=C, A=A, P=P, gradient=grad)
+					if(gradient)
+							grad <- res$gradient
+					hess <- NULL
+					if(hessian) 
+							hess <- res$hessian
+					attributes(f) <- list(C=C, A=A, P=P, gradient=grad, hessian=hess)
 					f
+}
+)
+		}
+)
+if (gradient)
+		result$gradient <- function(par, model.description){
+				with(model.description, {
+
+					res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveML",hessian=hessian) 
+
+				  A <- res$A
+					P <- res$P
+					C <- res$C
+					grad <- res$gradient
+
+					attributes(grad) <- list(C=C, A=A, P=P, gradient=grad)
+					grad
 				}
 			)
 		}
-	)
-	if (gradient)
-		result$gradient <- function(par, model.description){
-			with(model.description, {
-					A <- P <- matrix(0, m, m)
-					val <- ifelse (fixed, ram[,5], par[sel.free])
-					A[arrows.1] <- val[one.head]
-					P[arrows.2t] <- P[arrows.2] <- val[!one.head]
-					I.Ainv <- solve(diag(m) - A)
-					C <- J %*% I.Ainv %*% P %*% t(I.Ainv) %*% t(J)
-					Cinv <- solve(C)
-					grad.P <- correct * t(I.Ainv) %*% t(J) %*% Cinv %*% (C - S) %*% Cinv %*% J %*% I.Ainv
-					grad.A <- grad.P %*% P %*% t(I.Ainv)        
-					grad <- rep(0, t)
-					grad[unique.free.1] <- tapply(grad.A[arrows.1.free],ram[ram[,1]==1 & ram[,4]!=0, 4], sum)
-					grad[unique.free.2] <- tapply(grad.P[arrows.2.free],ram[ram[,1]==2 & ram[,4]!=0, 4], sum)
-					attributes(grad) <- list(C=C, A=A, P=P, gradient=grad)
+if (hessian)
+		result$hessian <- function(par, model.description){
+				with(model.description, {
+
+					res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveML",hessian=hessian) 
+
+				  A <- res$A
+					P <- res$P
+					C <- res$C
+					hess <- res$hessian
+
+					attributes(grad) <- list(C=C, A=A, P=P, hessian=hess)
 					grad
 				}
 			)

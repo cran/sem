@@ -1,5 +1,7 @@
 \name{standardizedCoefficients}
 \alias{standardizedCoefficients}
+\alias{standardizedCoefficients.sem}
+\alias{standardizedCoefficients.msem}
 \alias{stdCoef}
 
 \title{Standardized Coefficients for Structural Equation Models}
@@ -10,24 +12,27 @@
 }
 
 \usage{
-standardizedCoefficients(object, digits = 5, oneheaded=TRUE, twoheaded=TRUE)
+standardizedCoefficients(object, ...)
+\method{standardizedCoefficients}{sem}(object, digits = 5, oneheaded = TRUE, twoheaded = TRUE, ...)
+\method{standardizedCoefficients}{msem}(object, ...)
 
 stdCoef(...)
 }
 
 \arguments{
-  \item{object}{an object of class \code{sem} returned by the 
+  \item{object}{an object of class \code{sem} or \code{msem} returned by the 
     \code{\link{sem}} function.}
   \item{digits}{number of digits for printed output.}
   \item{oneheaded}{standardize path coefficients? Default is \code{TRUE}.}
   \item{twoheaded}{standardize variances and covariances? Default is \code{TRUE}.}
-  \item{...}{arguments to pass to \code{standardized.coefficients}.}
+  \item{...}{arguments to pass down.}
 }
 
 \value{
   Returns a data frame with the coefficients, labelled 
   both by parameter names and by arrows in the path diagram for the
-  model.
+  model. The \code{msem} (multigroup) method computes and prints the
+  standardized coefficients for each group; it does not return a useful result.
 }
 
 \references{

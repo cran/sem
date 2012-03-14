@@ -17,8 +17,9 @@
   instruments is equal to the number of predictors.
 }
 \usage{
-\method{tsls}{formula}(formula, instruments, data, subset, na.action, contrasts=NULL, ...)
-\method{tsls}{default}(y, X, Z, names=NULL, ...)
+\method{tsls}{formula}(formula, instruments, data, subset, weights, 
+	na.action, contrasts=NULL, ...)
+\method{tsls}{default}(y, X, Z, w, names=NULL, ...)
 
 \method{print}{tsls}(x, ...)
 \method{summary}{tsls}(object, digits=4, ...)
@@ -39,6 +40,9 @@
     called.}
   \item{subset}{an optional vector specifying a subset of observations to be used in 
     fitting the model.}
+  \item{weights, w}{an optional vector of weights to be used in the fitting process; 
+    if specified should be a non-negative numeric vector with one entry for each
+    observation, to be used to compute weighted 2SLS estimates.}
   \item{na.action}{a function that indicates what should happen when the 
     data contain \code{NA}s. 
     The default is set by the \code{na.action} option.}

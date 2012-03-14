@@ -6,8 +6,11 @@ standardized.coefficients <- function(...){
 	standardizedCoefficients(...)
 }
 
-standardizedCoefficients <- function (object, digits = 5, oneheaded=TRUE, twoheaded=TRUE)
-{
+standardizedCoefficients <- function(object, ...){
+	UseMethod("standardizedCoefficients")
+}
+
+standardizedCoefficients.sem <- function (object, digits = 5, oneheaded = TRUE, twoheaded = TRUE, ...) {
 	if (!oneheaded && !twoheaded) {
 		stop("No coefficients requested.")
 	}
@@ -30,27 +33,29 @@ standardizedCoefficients <- function (object, digits = 5, oneheaded=TRUE, twohea
 	coeff <- ram[, 5]
 	if (oneheaded) {
 		one.head <- ram[, 1] == 1
-		coeff[one.head] <- coeff[one.head] * sqrt(diag(C[ram[one.head, 3], ram[one.head,
-						3], drop=FALSE])/diag(C[ram[one.head, 2], ram[one.head, 2], drop=FALSE]))
+		coeff[one.head] <- coeff[one.head] * sqrt(diag(C[ram[one.head, 
+												3], ram[one.head, 3], drop = FALSE])/diag(C[ram[one.head, 
+												2], ram[one.head, 2], drop = FALSE]))
 	}
 	if (twoheaded) {
 		two.head <- ram[, 1] == 2
-		coeff[two.head] <- coeff[two.head] / sqrt(diag(C[ram[two.head, 3], ram[two.head,
-						3], drop=FALSE])*diag(C[ram[two.head, 2], ram[two.head, 2], drop=FALSE]))
+		coeff[two.head] <- coeff[two.head]/sqrt(diag(C[ram[two.head, 
+												3], ram[two.head, 3], drop = FALSE]) * diag(C[ram[two.head, 
+												2], ram[two.head, 2], drop = FALSE]))
 	}
 	var.names <- rownames(A)
-	par.code <- paste(var.names[ram[, 2]], c("<---",
-			"<-->")[ram[, 1]], var.names[ram[, 3]])
+	par.code <- paste(var.names[ram[, 2]], c("<---", "<-->")[ram[, 
+							1]], var.names[ram[, 3]])
 	coeff <- data.frame(par.names, coeff, par.code)
 	colnames(coeff) <- c(" ", "Std. Estimate", " ")
 	if (oneheaded && twoheaded) {
 		coeff
 	}
 	else if (oneheaded) {
-		coeff[one.head,]
+		coeff[one.head, ]
 	}
 	else {
-		coeff[two.head,]
+		coeff[two.head, ]
 	}
 }
 

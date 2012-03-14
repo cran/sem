@@ -1,105 +1,115 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 28 March 2009 by J. Fox
+# last modified 2012-02-26 by J. Fox
 
-tsls <- function(y, ...){
-    UseMethod("tsls")
-    }
+tsls <- function (y, ...) {
+	UseMethod("tsls")
+}
 
-tsls.default <- function (y, X, Z, names=NULL, ...) {
-    n <- length(y)
-    p <- ncol(X)
-    invZtZ <- solve(crossprod(Z))
-    XtZ <- crossprod(X, Z)
-#    V <- solve(XtZ %*% invZtZ %*% t(XtZ))
+tsls.default <- function (y, X, Z, w, names = NULL, ...) {
+	if (is.null(w)) w <- 1
+	if (any(w < 0 | is.na(w))) 
+		stop("missing or negative weights not allowed")
+	n <- length(y)
+	p <- ncol(X)
+	sqrt.w <- sqrt(w)
+	invZtZ <- solve(crossprod(Z*sqrt.w))
+	XtZ <- crossprod(X*w, Z)
 	V <- chol2inv(chol(XtZ %*% invZtZ %*% t(XtZ)))
-    b <- V %*% XtZ %*% invZtZ %*% crossprod(Z, y)
-    residuals <- y - X %*% b
-    s2 <- sum(residuals^2)/(n - p)
-    V <- s2*V
-    result<-list()
-    result$n <- n
-    result$p <- p
-    b <- as.vector(b)
-    names(b) <- names
-    result$coefficients <- b
-    rownames(V) <- colnames(V) <- names
-    result$V <- V
-    result$s <- sqrt(s2)
-    result$residuals <- as.vector(residuals)
-    result$response <- y
-    result$model.matrix <- X
-    result$instruments <- Z
-    result
-    }
-   
-tsls.formula <- function (formula, instruments, data, subset, na.action, contrasts = NULL, ...) {
-    if (missing(na.action))
-        na.action <- options()$na.action
-    m <- match.call(expand.dots = FALSE)
-    if (is.matrix(eval(m$data, sys.frame(sys.parent()))))
-        m$data <- as.data.frame(data)
-    response.name <- deparse(formula[[2]])
-    form <- as.formula(paste(
-        paste(response.name, collapse=""),
-        "~",
-        paste(deparse(formula[[3]]), collapse=""),
-        "+",
-        paste(deparse(instruments[[2]]), collapse="")))
-    m$formula <- form
-    m$instruments <- m$contrasts <- NULL
-    m[[1]] <- as.name("model.frame")
-    mf <- eval(m, sys.frame(sys.parent()))
-    na.act <- attr(mf, "na.action")
-    Z <- model.matrix(instruments, data = mf, contrasts)
-    y <- mf[, response.name]
-    X <- model.matrix(formula, data = mf, contrasts)
-    result <- tsls(y, X, Z, colnames(X))
-    result$response.name <- response.name
-    result$formula <- formula
-    result$instruments <- instruments
-    if (!is.null(na.act))
-        result$na.action <- na.act
-    class(result) <- "tsls"
-    result
-    }
+	b <- V %*% XtZ %*% invZtZ %*% crossprod(Z*w, y)
+	residuals <- (y - X %*% b)*sqrt.w
+	s2 <- sum(residuals^2)/(n - p)
+	V <- s2 * V
+	result <- list()
+	result$n <- n
+	result$p <- p
+	b <- as.vector(b)
+	names(b) <- names
+	result$coefficients <- b
+	rownames(V) <- colnames(V) <- names
+	result$V <- V
+	result$s <- sqrt(s2)
+	result$residuals <- as.vector(residuals)
+	result$response <- y
+	result$model.matrix <- X
+	result$instruments <- Z
+	result$weights <- w
+	result
+}
 
-print.tsls <- function(x, ...){
-    cat("\nModel Formula: ")
-    print(x$formula)
-    cat("\nInstruments: ")
-    print(x$instruments)
-    cat("\nCoefficients:\n")
-    print(x$coefficients)
-    cat("\n")
-    invisible(x)
-    }
-    
-    
-summary.tsls <- function(object, digits=4, ...){
-    save.digits <- unlist(options(digits=digits))
-    on.exit(options(digits=save.digits))
-    cat("\n 2SLS Estimates\n")
-    cat("\nModel Formula: ")
-    print(object$formula)
-    cat("\nInstruments: ")
-    print(object$instruments)
-    cat("\nResiduals:\n")
-    print(summary(residuals(object)))
-    cat("\n")
-    df <- object$n - object$p
-    std.errors <- sqrt(diag(object$V))
-    b <- object$coefficients
-    t <- b/std.errors
-    p <- 2*(1 - pt(abs(t), df))
-    table <- cbind(b, std.errors, t, p)
-    rownames(table) <- names(b)
-    colnames(table) <- c("Estimate","Std. Error","t value","Pr(>|t|)")
-    print(table)
-    cat(paste("\nResidual standard error:", round(object$s, digits),
-        "on", df, "degrees of freedom\n\n"))
-    }
+tsls.formula <- function (formula, instruments, data, subset, weights, na.action, contrasts = NULL, ...) {
+	if (missing(na.action)) 
+		na.action <- options()$na.action
+	m <- match.call(expand.dots = FALSE)
+	if (is.matrix(eval(m$data, sys.frame(sys.parent())))) 
+		m$data <- as.data.frame(data)
+	response.name <- deparse(formula[[2]])
+	form <- as.formula(paste(paste(response.name, collapse = ""), 
+					"~", paste(deparse(formula[[3]]), collapse = ""), "+", 
+					paste(deparse(instruments[[2]]), collapse = "")))
+	m$formula <- form
+	m$instruments <- m$contrasts <- NULL
+	m[[1]] <- as.name("model.frame")
+	mf <- eval(m, sys.frame(sys.parent()))
+	na.act <- attr(mf, "na.action")
+	w <- as.vector(model.weights(mf))
+	wt.var <- if(!is.null(w)) deparse(substitute(weights)) else NULL
+	Z <- model.matrix(instruments, data = mf, contrasts)
+	y <- mf[, response.name]
+	X <- model.matrix(formula, data = mf, contrasts)
+	result <- tsls(y, X, Z, w, colnames(X))
+	result$response.name <- response.name
+	result$formula <- formula
+	result$instruments <- instruments
+	result$wt.var <- wt.var
+	if (!is.null(na.act)) 
+		result$na.action <- na.act
+	class(result) <- "tsls"
+	result
+}
+
+print.tsls <- function (x, ...) {
+	cat("\nModel Formula: ")
+	print(x$formula)
+	cat("\nInstruments: ")
+	print(x$instruments)
+	if (!is.null(x$wt.var)){
+		cat("\nWeights: ", x$wt.var, "\n")
+	}
+	cat("\nCoefficients:\n")
+	print(x$coefficients)
+	cat("\n")
+	invisible(x)
+}
+
+summary.tsls <- function (object, digits = 4, ...) {
+	save.digits <- unlist(options(digits = digits))
+	on.exit(options(digits = save.digits))
+	cat("\n 2SLS Estimates\n")
+	cat("\nModel Formula: ")
+	print(object$formula)
+	cat("\nInstruments: ")
+	print(object$instruments)
+	if (!is.null(object$wt.var)){
+		cat("\nWeights: ", object$wt.var, "\n")
+	}
+	cat("\nResiduals:\n")
+	print(summary(residuals(object)))
+	cat("\n")
+	df <- object$n - object$p
+	std.errors <- sqrt(diag(object$V))
+	b <- object$coefficients
+	t <- b/std.errors
+	p <- 2 * (1 - pt(abs(t), df))
+	table <- cbind(b, std.errors, t, p)
+	rownames(table) <- names(b)
+	colnames(table) <- c("Estimate", "Std. Error", "t value", 
+			"Pr(>|t|)")
+	printCoefmat(table)
+	cat(paste("\nResidual standard error:", round(object$s, digits), 
+					"on", df, "degrees of freedom\n\n"))
+}
     
 residuals.tsls <- function(object, ...){
     res <- object$residuals

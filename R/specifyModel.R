@@ -1,11 +1,11 @@
-# last modified 2011-11-20 by J. Fox
+# last modified 2012-03-14 by J. Fox
 
 specify.model <- function(...){
 	.Deprecated("specifyModel", package="sem")
 	specifyModel(...)
 }
 
-specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, covs, quiet=FALSE){
+specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, covs, suffix="", quiet=FALSE){
 	add.variances <- function () {
 		variables <- need.variance()
 		nvars <- length(variables)
@@ -18,7 +18,7 @@ specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, co
 			par.names[i] <- paste("V[", variables[i], "]", sep = "")
 		}
 		model.2 <- cbind(c(model[, 1], paths), c(model[, 2], par.names), 
-			c(model[, 3], rep(NA, length(paths))))
+				c(model[, 3], rep(NA, length(paths))))
 		class(model.2) <- "semmod"
 		model.2
 	}
@@ -45,11 +45,11 @@ specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, co
 		if (!endog.variances && length(end.vars) > 0) variables[end.vars] <- FALSE
 		names(variables)[variables]
 	}
-    model <- scan(file=file, what=list(path="", par="", start=1, dump=""), sep=",", 
-        strip.white=TRUE, comment.char="#", fill=TRUE, quiet=quiet) 
-            # dump permits comma at line end
+	model <- scan(file=file, what=list(path="", par="", start=1, dump=""), sep=",", 
+			strip.white=TRUE, comment.char="#", fill=TRUE, quiet=quiet) 
+	# dump permits comma at line end
 	model$par[model$par == ""] <- NA
-    model <- cbind(model$path, model$par, model$start)
+	model <- cbind(model$path, model$par, model$start)
 	if (!(missing(covs))){
 		for (cov in covs){
 			vars <- strsplit(cov, "[ ,]+")[[1]]
@@ -57,8 +57,8 @@ specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, co
 			for (i in 1:nvar){
 				for (j in i:nvar){
 					row <- c(paste(vars[i], "<->", vars[j]), 
-						if (i == j) paste("V[", vars[i], "]", sep="") else paste("C[", vars[i], ",", vars[j], "]", sep=""),
-						NA)
+							if (i == j) paste("V[", vars[i], "]", sep="") else paste("C[", vars[i], ",", vars[j], "]", sep=""),
+							NA)
 					if (row[2] %in% model[,2]) next
 					model <- rbind(model, row)
 				}
@@ -66,8 +66,11 @@ specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, co
 		}
 	}
 	model <- removeRedundantPaths(model, warn=FALSE)
-	add.variances()
-    }
+	result <- add.variances()
+	which.pars <- !is.na(result[, 2])
+	result[which.pars, 2] <- paste(result[which.pars, 2], suffix, sep="")
+	result
+}
     
 print.semmod <- function(x, ...){
     path <- x[,1]
@@ -220,7 +223,7 @@ specifyEquations <- function(file="", ...){
 	specifyModel(file=textConnection(ram), ..., quiet=TRUE)
 }
 
-cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, ...){
+cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, raw=FALSE, ...){
 	Lines <- scan(file=file, what="", sep=";", strip.white=TRUE, comment.char="#")
 	lines <- character(0)
 	current.line <- ""
@@ -235,7 +238,7 @@ cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators
 	}
 	nfactor <- length(lines)
 	factors <- rep("", nfactor)
-	ram <- character(0)
+	all.obs.vars <- ram <- character(0)
 	for (i in 1:nfactor){
 		Line <- line <- lines[[i]]
 		line <- gsub(" ", "", line)
@@ -243,10 +246,12 @@ cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators
 		if (length(line) == 1){
 			factors[i] <- paste("Factor.", i, sep="")
 			variables <- strsplit(line, ",")[[1]]
+			all.obs.vars <- c(all.obs.vars, variables)
 		}
 		else if (length(line) == 2){
 			factors[i] <- line[1]
 			variables <- strsplit(line[2], ",")[[1]]
+			all.obs.vars <- c(all.obs.vars, variables)
 		}
 		else stop("Parse error in ", Line)
 		if (reference.indicators){
@@ -273,6 +278,11 @@ cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators
 			else{
 				c(ram, sapply(factors, function(factor) paste(factor, " <-> ", factor, ", NA, 1", sep="")))
 			}
+	if (raw){
+		all.obs.vars <- unique(all.obs.vars)
+		ram <- c(ram, sapply(all.obs.vars, function(var) paste("(Intercept) -> ", var, ", Intercept(", var, "), NA", sep="")))
+		ram <- c(ram, "(Intercept) <-> (Intercept), NA, 1")
+	}
 	specifyModel(file=textConnection(ram), covs=covs, ..., quiet=TRUE)
 }
 

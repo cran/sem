@@ -2,31 +2,40 @@
 \alias{specifyModel}
 \alias{specifyEquations}
 \alias{cfa}
+\alias{multigroupModel}
 \alias{print.semmod}
+\alias{print.semmodList}
 \alias{classifyVariables}
 \alias{removeRedundantPaths}
 \alias{combineModels}
 \alias{combineModels.semmod}
 \alias{update.semmod}
+\alias{edit.semmod}
 
 \title{Specify a Structural Equation Model}
 \description{
   Create the RAM specification of a structural equation model.
 }
 \usage{
-specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs, quiet=FALSE)
+specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs, 
+	suffix="", quiet=FALSE)
 
 specifyEquations(file="", ...)
 
-cfa(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, ...)
+cfa(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, 
+     raw=FALSE, ...)
+
+multigroupModel(..., groups=names(models), allEqual=FALSE)
 
 classifyVariables(model)
 
 removeRedundantPaths(model, warn=TRUE)
 \method{combineModels}{semmod}(..., warn=TRUE)
 \method{update}{semmod}(object, file = "", ...)
+\method{edit}{semmod}(name, ...)
 
 \method{print}{semmod}(x, ...)
+\method{print}{semmodList}(x, ...)
 }
 
 \arguments{
@@ -43,18 +52,35 @@ removeRedundantPaths(model, warn=TRUE)
   	among all variables in each such string are added to the model. For confirmatory
   	factor analysis models specified via \code{cfa}, \code{covs} defaults to all of
   	the factors in the model, thus specifying all covariances among these factors.}
+  \item{suffix}{a character string (defaulting to an empty string) to be 
+    appended to each parameter name; this can be convenient for specifying multiple-group models.}
   \item{reference.indicators}{if \code{FALSE}, the default, variances of factors are
     set to 1 by \code{cfa}; if \code{TRUE}, variances of factors are free parameters
     to estimate from the data, and instead the first factor loading for each factor is set
     to 1 to identify the model.}
+  \item{raw}{if \code{TRUE} (the default is \code{FALSE}), a path from \code{(Intercept)} to each
+    observed variable is added to the model, and the raw second moment for \code{(Intercept)} is
+    fixed to \code{1}. The \code{sem} function should then be called with \code{raw=TRUE}, and either
+    supplied with a data set (via the \code{data} argument) or a raw-moment matrix (via the \code{S}
+    argument).}
   \item{quiet}{if \code{FALSE}, the default, then the number of input lines is reported.}
-  \item{x, model, object}{An object of class \code{semmod}, as produced by
-    \code{specifyModel}.}
+  \item{x, model, object, name}{An object of class \code{semmod} or \code{semmodList}, as produced by
+    \code{specifyModel} or \code{multigroupModel}.}
   \item{warn}{print a warning if redundant paths are detected.}
-  \item{...}{for \code{specifyEquations} and \code{cfa}, arguments (such as \code{covs},
+  \item{...}{For \code{multigroupModel}, one or more optionally named arguments each of
+     which is a \code{semmod} object produced, e.g., by \code{specifyModel}, \code{specifyEquations},
+     or \code{cfa}; if only one such model is given, then it will be used for all groups defined by
+     the \code{groups} argument. If parameters have the same name in different groups, then they will
+     be constrained to be equal.
+     For \code{specifyEquations} and \code{cfa}, arguments (such as \code{covs},
   	 in the case of \code{specifyEquations}) to be 
      passed to \code{specifyModel}; for \code{combineModels}, \code{sem} objects; 
      ignored in the \code{update} and \code{print} methods.}
+  \item{groups}{a character vector of names for the groups in a multigroup model; taken by default from
+  	 the names of the \code{...} arguments.}
+  \item{allEqual}{if \code{FALSE} (the default), then if only one model object is given for
+  	 a multigroup model, all corresponding parameters in the groups will be distinct; if \code{TRUE},
+  	 all corresponding parameters will be constrained to be equal.}
 }
 
 \details{
@@ -140,26 +166,34 @@ removeRedundantPaths(model, warn=TRUE)
   \code{combineModels} and \code{removeRedundantPaths} take \code{semmod} objects as arguments and do what their names imply.
   
   The \code{file} input argument to the \code{update} method for \code{semmod} objects, which by default comes from
-  standard input, is a set of update directives, one per line. There are three kinds of directives. In each case
+  standard input, is a set of update directives, one per line. There are five kinds of directives. In each case
   the directive begins with the directive name, followed by one or more fields separated by commas.
   
   \describe{
   
   	\item{1. delete:}{Remove a path from the model. Example: \code{delete, RSES -> FGenAsp}}
   	
-  	\item{2. add:}{Add a path to the model. Example: \code{add, RSES -> FGenAsp, gam14,  NA}}
+  	\item{2. add:}{Add a path to the model. Example (the \code{NA} for the start value is optional): \code{add, RSES -> FGenAsp, gam14,  NA}}
   	
   	\item{3. replace:}{Replace every occurrence of the first string with the second in the variables and
   		parameters of the model. This directive may be used, for example, to change one variable to
   		another or to rename a parameter. Example: \code{replace, gam, gamma}, substitutes the string \code{"gamma"}
   		for \code{"gam"} wherever the latter appears, presumably in parameter names.}
+  		
+  	\item{4. fix:}{Fix a parameter that was formerly free. Example: \code{fix, RGenAsp  -> REdAsp, 1}}
+  	
+  	\item{5. free:}{Free a parameter that was formerly fixed. Example (the \code{NA} for the start value is optional): 
+  	\code{free, RGenAsp  -> ROccAsp, lam11, NA}}
   }
   
+  The \code{edit} method for \code{semmod} objects opens the model in the R editor.
 }
 
 \value{
   \code{specifyModel}, \code{specifyEquations}, \code{cfa}, \code{removeRedundantPaths}, \code{combineModels}, 
-  and \code{update} return an object of class \code{semmod}, suitable as input for \code{\link{sem}}.
+  \code{update}, and \code{edit} return an object of class \code{semmod}, suitable as input for \code{\link{sem}}.
+  
+  \code{multigroupModel} returns an object of class \code{semmodList}, also suitable as input for \code{\link{sem}}.
   
   \code{classifyVariables} returns a list with two character vectors: \code{endogenous}, containing the names of endogenous
   variables in the model; and \code{exogenous}, containing the names of exogenous variables.
@@ -350,6 +384,40 @@ F3 <-> F3,                            NA,     1
 
 cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
 summary(cfa.thur.p)
+
+# a multigroup CFA model fit to the Holzinger-Swineford
+#   mental-tests data (from the MBESS package)
+
+library(MBESS)
+data(HS.data)
+
+mod.hs <- cfa()
+spatial: visual, cubes, paper, flags
+verbal: general, paragrap, sentence, wordc, wordm
+memory: wordr, numberr, figurer, object, numberf, figurew
+math: deduct, numeric, problemr, series, arithmet
+
+mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
+
+sem.mg <- sem(mod.mg, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+              general + paragrap + sentence + wordc + wordm +
+              wordr + numberr + figurer + object + numberf + figurew +
+              deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg)
+
+	# with cross-group equality constraints:
+	
+mod.mg.eq <- multigroupModel(mod.hs, groups=c("Female", "Male"), allEqual=TRUE)
+
+sem.mg.eq <- sem(mod.mg.eq, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+                general + paragrap + sentence + wordc + wordm +
+                wordr + numberr + figurer + object + numberf + figurew +
+                deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg.eq)
     }
 }
 

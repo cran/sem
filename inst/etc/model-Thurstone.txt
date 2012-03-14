@@ -2,7 +2,7 @@
     F1 -> Sentences,                      lam11
     F1 -> Vocabulary,                     lam21
     F1 -> Sent.Completion,                lam31
-    F2 -> First.Letters,                  lam41
+    F2 -> First.Letters,                  lam42
     F2 -> 4.Letter.Words,                 lam52
     F2 -> Suffixes,                       lam62
     F3 -> Letter.Series,                  lam73

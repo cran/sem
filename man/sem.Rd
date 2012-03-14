@@ -3,10 +3,15 @@
 \alias{sem}
 \alias{sem.semmod}
 \alias{sem.default}
+\alias{sem.semmodList}
+\alias{sem.msemmod}
 \alias{startvalues}
 \alias{coef.sem}
 \alias{vcov.sem}
 \alias{df.residual.sem}
+\alias{coef.msem}
+\alias{vcov.msem}
+\alias{df.residual.msem}
 
 \title{General Structural Equation Models}
 \description{
@@ -14,9 +19,13 @@
   unobserved variables). Observed variables are also called \emph{indicators} or 
   \emph{manifest variables}; unobserved variables are also called \emph{factors}
   or \emph{latent variables}. Normally, the generic function (\code{sem}) is
-  called directly with a \code{semmod} first argument, invoking the \code{sem.semmod}
+  called directly with a \code{semmod} first argument produced by \code{\link{specifyModel}},
+  \code{\link{specifyEquations}}, or \code{\link{cfa}}, invoking the \code{sem.semmod}
   method, which in turn sets up a call to the \code{sem.default} method; thus, the user
   may wish to specify arguments accepted by the \code{semmod} and \code{default} methods.
+  Similarly, for a multigroup model, \code{sem} would normally be called with a
+  \code{semmodList} object produced by \code{\link{multigroupModel}} as its first argument,
+  and would then generate a call to the code \code{msemmod} method.
 }
 
 \usage{
@@ -25,16 +34,28 @@
     
 \method{sem}{default}(model, S, N, data=NULL, raw=FALSE, param.names, 
 		var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
-		analytic.gradient=TRUE, warn=FALSE, maxiter=500, 
+		analytic.gradient=TRUE, warn=FALSE, maxiter=1000, 
 		par.size=c("ones", "startvalues"), start.tol=1E-6, 
-		optimizer=optimizerNlm, objective=objectiveML, ...) 
+		optimizer=optimizerSem, objective=objectiveML, ...) 
+		
+\method{sem}{semmodList}(model, S, N, data, raw=FALSE, fixed.x=NULL, 
+		robust=!missing(data), formula, group="Group", debug=FALSE, ...)
+		
+\method{sem}{msemmod}(model, S, N, group="Group", groups=names(model), raw=FALSE, fixed.x, 
+		param.names, var.names, debug=FALSE, analytic.gradient=TRUE, warn=FALSE,
+		maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, 
+		startvalues=c("initial.fit", "startvalues"), initial.maxiter=1000,
+		optimizer = optimizerMsem, objective = msemObjectiveML, ...)
     
 startvalues(S, ram, debug=FALSE, tol=1E-6)
 
 \method{coef}{sem}(object, standardized=FALSE, ...)
+\method{coef}{msem}(object, ...)
 \method{vcov}{sem}(object, robust=FALSE, 
-	analytic=inherits(object, "objectiveML") && object$t <= 100, ...)
+	analytic=inherits(object, "objectiveML") && object$t <= 500, ...)
+\method{vcov}{msem}(object, robust=FALSE, analytic=inherits(object, "msemObjectiveML") && object$t <= 500, ...)
 \method{df.residual}{sem}(object, ...)
+\method{df.residual}{msem}(object, ...)
 }
 
 \arguments{
@@ -45,7 +66,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
     or as a character matrix), invoking \code{sem.semmod}, which calls \code{sem.default} 
     after setting up the model,
     or (less conveniently) in numeric form, invoking \code{sem.default} directly, which is
-    not recommended (see \bold{Details} below).}
+    not recommended (see \bold{Details} below). The \code{model} argument may also be a
+    multigroup-model specification, as produced by \code{\link{multigroupModel}}.}
   \item{S}{covariance matrix among observed variables; may be input as a symmetric matrix,
     or as a lower- or upper-triangular matrix. \code{S} may also be a raw (i.e., \dQuote{uncorrected})
     moment matrix --- that is, a sum-of-squares-and-products matrix divided by \code{N}. This
@@ -54,11 +76,16 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
     of course, the raw mean square for the unit variable is 1. Raw-moment matrices may be computed
     by \code{\link{rawMoments}}. If the \code{ram} argument is given in symbolic form, then
     the observed-variable covariance or raw-moment matrix may contain variables that do not appear in the model,
-    in which case a warning is printed. As an alternative to specifying \code{S} the user may
+    in which case a warning is printed. \code{S} may also be a list of covariance or moment matrices for each
+    group in a multigroup model.
+    As an alternative to specifying \code{S} the user may
     supply a data frame containing the data for the model (see the argument \code{data}).}
-  \item{N}{number of observations on which the covariance matrix is based.}
+  \item{N}{number of observations on which the covariance matrix is based; for a multigroup model, a vector
+    of group \eqn{N}s.}
   \item{data}{As a generally preferable alternative to specifying \code{S} and 
- 	\code{N}, the user may supply a data frame containing the data to which the model is to be fit.}
+ 	\code{N}, the user may supply a data frame containing the data to which the model is to be fit.
+ 	In a multigroup model, the \code{data} argument may be a list of data frames or a single data frame;
+ 	in the later event, the factor given as the \code{group} argument is used to split the data into groups.}
   \item{raw}{\code{TRUE} if \code{S} is a raw moment matrix or if a raw moment matrix ---  as
     opposed to a covariance matrix --- is to be
   	computed from \code{data}; the default is \code{FALSE}.}
@@ -72,7 +99,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   \item{formula}{a one-sided formula, to be applied to \code{data} to generate the variables for
   	which covariances or raw moments are computed. The default formula is \code{~.}, i.e., all of the
   	variables in the data, including an implied intercept; if a covariance matrix is to be computed,
-  	the constant is suppressed.}
+  	the constant is suppressed. In a multigroup model, alternatively a list one one-sided formulas as be
+  	given, to be applied individually to the groups.}
   \item{robust}{In \code{sem}: if \code{TRUE}, then quantities are calculated that can be used to compute robust
   	estimates of coefficient standard errors and robust tests when the model is fit by multinormal maximum likelihood;
   	the default is \code{TRUE} when the \code{data} argument is \code{TRUE}, and this option is only
@@ -110,22 +138,38 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
     used depends upon the optimizer employed.}
   \item{start.tol, tol}{if the magnitude of an automatic start value is less than \code{start.tol}, then
     it is set to \code{start.tol}; defaults to 1E-6.}
-  \item{optimizer}{a function to be used to minimize the objective function; the default is 
-  	\code{\link{optimizerNlm}}, which employs the standard R \code{\link[stats]{nlm}} optimizer.
-  	Alternatives are \code{\link{optimizerOptim}}, which employs \code{\link[stats]{optim}},
+  \item{optimizer}{a function to be used to minimize the objective function; the default for single-group models is 
+  	\code{\link{optimizerSem}}.
+  	Alternatives are \code{\link[stats]{nlm}}, which employs the standard R optimizer \code{\link[stats]{nlm}};
+  	\code{\link{optimizerOptim}}, which employs \code{\link[stats]{optim}};
   	and \code{\link{optimizerNlminb}}, which uses \code{\link[stats]{nlminb}} --- or
-  	the user can supply an optimizer.}
+  	the user can supply an optimizer. For multigroup model, the default is \code{\link{optimizerMsem}}, and
+  	\code{\link{msemOptimizerNlm}}, based on \code{nlm}, is provided as an alternative.}
   \item{objective}{An objective function to be minimized, sometimes called a \dQuote{fit} function 
-  	in the SEM literature. The default is \code{\link{objectiveML}},
+  	in the SEM literature. The default for single-group models is \code{\link{objectiveML}},
   	which produces maximum-likelihood estimates assuming multinormality. An alternative is 
   	\code{\link{objectiveGLS}}, which produced generalized least squares estimates --- or the user
-  	can supply an objective function to be minimzed.}
+  	can supply an objective function to be minimzed. For multigroup models, the default is
+  	available is \code{\link{msemObjectiveML}} for ML estimates and an alternative is \code{\link{msemObjectiveGLS}}
+  	for GLS estiamtes.}
   \item{ram}{numeric RAM matrix.}
-  \item{object}{an object of class \code{"sem"}, returned by \code{sem}.}
+  \item{object}{an object of class \code{"sem"} or \code{"msem"}, returned by \code{sem}.}
   \item{standardized}{if \code{TRUE}, return standardized coefficients.}
   \item{analytic}{return an analytic (as opposed to numeric) estimate of the coefficient covariance matrix;
   	at present only available for the \code{\link{objectiveML}} objective function. The default is \code{FALSE}
   	for this objective function if there are no more than 100 parameters and \code{FALSE} otherwise.}
+  \item{group}{for a multigroup model, the quoted name of the group variable; if the \code{data} argument is given,
+    snd is a single data frame, then this should be a factor in the data set or a variable coercible to a factor,
+    to be used to split the data into groups; otherwise, the name is arbitrary.}
+  \item{groups}{a character vector giving the names of the groups; will be ignored if \code{group} is a factor
+    in \code{data}.}
+  \item{startvalues}{if \code{"initial.fit"} (the default), start values 
+    for a multi-group model are computed by first fitting the intra-group models separately by group;
+    if \code{"startvalues"}, then start values are computed as for a single-group model.
+    In some cases, the intra-group models may not be identified even if the multi-group model is, and
+    then \code{startvalues="initial.fit"} should be used.}
+  \item{initial.maxiter}{if \code{startvalues="initial.fit"} for a multi-group model, then
+    \code{initial.maxiter} gives the maximum number of iterations for each initial intra-group fit.}
 } 
 
 \details{
@@ -265,6 +309,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   	\code{robust} is \code{FALSE}.}
   \item{robust.vcov}{robust estimated coefficient covariance matrix; \code{NULL} if
   	\code{robust} is \code{FALSE}.}
+  	
+  For multigroup models, \code{sem} returns an object of class \code{c("msemObjectiveML", "msem")}.
 }
 
 \section{Warning}{
@@ -624,7 +670,7 @@ model.thur <- specifyModel()
     F1 -> Sentences,                      lam11
     F1 -> Vocabulary,                     lam21
     F1 -> Sent.Completion,                lam31
-    F2 -> First.Letters,                  lam41
+    F2 -> First.Letters,                  lam42
     F2 -> 4.Letter.Words,                 lam52
     F2 -> Suffixes,                       lam62
     F3 -> Letter.Series,                  lam73
@@ -866,6 +912,42 @@ F3 <-> F3,                            NA,     1
 
 cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
 summary(cfa.thur.p)
+
+
+# -------  a multigroup CFA model fit to the Holzinger-Swineford mental-tests data  ---------
+
+library(MBESS) # for data
+data(HS.data)
+
+mod.hs <- cfa()
+spatial: visual, cubes, paper, flags
+verbal: general, paragrap, sentence, wordc, wordm
+memory: wordr, numberr, figurer, object, numberf, figurew
+math: deduct, numeric, problemr, series, arithmet
+
+mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
+
+sem.mg <- sem(mod.mg, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+              general + paragrap + sentence + wordc + wordm +
+              wordr + numberr + figurer + object + numberf + figurew +
+              deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg)
+
+	# with cross-group equality constraints:
+	
+mod.mg.eq <- multigroupModel(mod.hs, groups=c("Female", "Male"), allEqual=TRUE)
+
+sem.mg.eq <- sem(mod.mg.eq, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+                general + paragrap + sentence + wordc + wordm +
+                wordr + numberr + figurer + object + numberf + figurew +
+                deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg.eq)
+
+anova(sem.mg, sem.mg.eq) # test equality constraints
 	}
 
 ## ===============================================================================
@@ -964,6 +1046,38 @@ summary(sem.bollen, analytic.se=FALSE) # uses numeric rather than analytic Hessi
 
 sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) # GLS rather than ML estimator
 summary(sem.bollen.gls)
+
+#------------ Holzinger and Swineford muiltigroup CFA example ----------------
+
+if (require(MBESS)){ # for data
+	data(HS.data)
+	
+	mod.hs <- cfa(file=file.path(etc, "model-HS.txt"))
+	
+	mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
+	
+	sem.mg <- sem(mod.mg, data=HS.data, group="Gender",
+	              formula = ~ visual + cubes + paper + flags +
+	              general + paragrap + sentence + wordc + wordm +
+	              wordr + numberr + figurer + object + numberf + figurew +
+	              deduct + numeric + problemr + series + arithmet
+	              )
+	summary(sem.mg)
+	
+		# with cross-group equality constraints:
+		
+	mod.mg.eq <- multigroupModel(mod.hs, groups=c("Female", "Male"), allEqual=TRUE)
+	
+	sem.mg.eq <- sem(mod.mg.eq, data=HS.data, group="Gender",
+	              formula = ~ visual + cubes + paper + flags +
+	                general + paragrap + sentence + wordc + wordm +
+	                wordr + numberr + figurer + object + numberf + figurew +
+	                deduct + numeric + problemr + series + arithmet
+	              )
+	summary(sem.mg.eq)
+	
+	anova(sem.mg, sem.mg.eq) # test equality constraints
+	}
 }   
 
 \keyword{models}
