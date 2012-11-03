@@ -6,6 +6,7 @@
 \alias{sem.semmodList}
 \alias{sem.msemmod}
 \alias{startvalues}
+\alias{startvalues2}
 \alias{coef.sem}
 \alias{vcov.sem}
 \alias{df.residual.sem}
@@ -29,25 +30,31 @@
 }
 
 \usage{
-\method{sem}{semmod}(model, S, N, data, raw=FALSE, obs.variables=rownames(S), 
-		fixed.x=NULL, formula= ~ ., robust=!missing(data), debug=FALSE, ...)
+\method{sem}{semmod}(model, S, N, data, 
+    raw=identical(na.action, na.pass), obs.variables=rownames(S), 
+  	fixed.x=NULL, formula= ~ ., na.action=na.omit, robust=!missing(data), debug=FALSE, 
+    optimizer=optimizerSem, objective=objectiveML, ...)
     
-\method{sem}{default}(model, S, N, data=NULL, raw=FALSE, param.names, 
-		var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
-		analytic.gradient=TRUE, warn=FALSE, maxiter=1000, 
-		par.size=c("ones", "startvalues"), start.tol=1E-6, 
-		optimizer=optimizerSem, objective=objectiveML, ...) 
+\method{sem}{default}(model, S, N, raw=FALSE, data=NULL, start.fn=startvalues,
+    pattern.number=NULL, valid.data.patterns=NULL,
+    use.means=TRUE, param.names, 
+  	var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
+		analytic.gradient=!identical(objective, objectiveFIML), 
+        warn=FALSE, maxiter=1000, par.size=c("ones", "startvalues"), 
+		start.tol=1E-6, optimizer=optimizerSem, objective=objectiveML, cls, ...)
 		
 \method{sem}{semmodList}(model, S, N, data, raw=FALSE, fixed.x=NULL, 
 		robust=!missing(data), formula, group="Group", debug=FALSE, ...)
 		
-\method{sem}{msemmod}(model, S, N, group="Group", groups=names(model), raw=FALSE, fixed.x, 
+\method{sem}{msemmod}(model, S, N, start.fn=startvalues,
+        group="Group", groups=names(model), raw=FALSE, fixed.x, 
 		param.names, var.names, debug=FALSE, analytic.gradient=TRUE, warn=FALSE,
 		maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, 
-		startvalues=c("initial.fit", "startvalues"), initial.maxiter=1000,
+		start=c("initial.fit", "startvalues"), initial.maxiter=1000,
 		optimizer = optimizerMsem, objective = msemObjectiveML, ...)
     
 startvalues(S, ram, debug=FALSE, tol=1E-6)
+startvalues2(S, ram, debug=FALSE, tol=1E-6)
 
 \method{coef}{sem}(object, standardized=FALSE, ...)
 \method{coef}{msem}(object, ...)
@@ -83,12 +90,24 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   \item{N}{number of observations on which the covariance matrix is based; for a multigroup model, a vector
     of group \eqn{N}s.}
   \item{data}{As a generally preferable alternative to specifying \code{S} and 
- 	\code{N}, the user may supply a data frame containing the data to which the model is to be fit.
- 	In a multigroup model, the \code{data} argument may be a list of data frames or a single data frame;
- 	in the later event, the factor given as the \code{group} argument is used to split the data into groups.}
+ 	  \code{N}, the user may supply a data frame containing the data to which the model is to be fit.
+ 	  In a multigroup model, the \code{data} argument may be a list of data frames or a single data frame;
+ 	  in the later event, the factor given as the \code{group} argument is used to split the data into groups.}
+  \item{start.fn}{a function to compute startvalues for the free parameters of the model;
+  two functions are supplied, \code{startvalues} and a older version, \code{startvalues2},
+  the first of which is the default.}
+  \item{na.action}{a function to process missing data, if raw data are supplied in the \code{data} argument.
+    The default is \code{na.omit}, which returns only complete cases; specify \code{na.action=na.pass} to
+    get FIML estimates in the presence of missing data from the \code{objectiveFIML} 
+    and \code{objectiveFIML2} objective functions.}
   \item{raw}{\code{TRUE} if \code{S} is a raw moment matrix or if a raw moment matrix ---  as
     opposed to a covariance matrix --- is to be
-  	computed from \code{data}; the default is \code{FALSE}.}
+  	computed from \code{data}; the default is \code{FALSE} unless the \code{na.action} argument
+    is set to \code{na.pass}.}
+  \item{pattern.number, valid.data.patterns}{these arguments pass information about valid (i.e.,
+    non-missing) data patterns and normally would not be specified directly by the user.}
+  \item{use.means}{When raw data are supplied and intercepts are included in the model, use the
+    observed-variable means as start values for the intercepts; the default is \code{TRUE}.}
   \item{obs.variables}{names of observed variables, by default taken from the row names of
     the covariance or moment matrix \code{S}, which may be given directly or generated according to the
     \code{data} and \code{formula} arguments.}
@@ -122,7 +141,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
     (typically the observed and latent variables --- see below), given in their
     numerical order; default names are \code{Var1}, \ldots, \code{Var}\emph{m}.
     Note: Should not be specified when the model is given in symbolic form.}
-  \item{analytic.gradient}{if \code{TRUE} (the default), then analytic first derivatives are
+  \item{analytic.gradient}{if \code{TRUE} (the default, except for the \code{objectiveFIML} objective function,
+    where, at present, an analytic gradient slows down the computation), then analytic first derivatives are
     used in the maximization of the likelihood if the optimzer employed will accept them; 
     otherwise numeric derivatives are used, again if the optimizer will compute them.}
   \item{warn}{if \code{TRUE}, warnings produced by the optimization function will be printed.
@@ -152,6 +172,8 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   	can supply an objective function to be minimzed. For multigroup models, the default is
   	available is \code{\link{msemObjectiveML}} for ML estimates and an alternative is \code{\link{msemObjectiveGLS}}
   	for GLS estiamtes.}
+  \item{cls}{primary class to be assigned to the result; normally this is not specified directly, but
+    raither is inferred from the objective function.}
   \item{ram}{numeric RAM matrix.}
   \item{object}{an object of class \code{"sem"} or \code{"msem"}, returned by \code{sem}.}
   \item{standardized}{if \code{TRUE}, return standardized coefficients.}
@@ -163,12 +185,12 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
     to be used to split the data into groups; otherwise, the name is arbitrary.}
   \item{groups}{a character vector giving the names of the groups; will be ignored if \code{group} is a factor
     in \code{data}.}
-  \item{startvalues}{if \code{"initial.fit"} (the default), start values 
+  \item{start}{if \code{"initial.fit"} (the default), start values 
     for a multi-group model are computed by first fitting the intra-group models separately by group;
     if \code{"startvalues"}, then start values are computed as for a single-group model.
     In some cases, the intra-group models may not be identified even if the multi-group model is, and
-    then \code{startvalues="initial.fit"} should be used.}
-  \item{initial.maxiter}{if \code{startvalues="initial.fit"} for a multi-group model, then
+    then \code{start="initial.fit"} should not be used.}
+  \item{initial.maxiter}{if \code{start="initial.fit"} for a multi-group model, then
     \code{initial.maxiter} gives the maximum number of iterations for each initial intra-group fit.}
 } 
 
@@ -274,7 +296,7 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
   means). Usually \eqn{v} contains endogenous and exogenous observed and unobserved variables, but not
   error variables (see the examples below).
   
-  The \code{startvalues} function may be called directly, but is usually called by \code{sem.default}.
+  The \code{startvalues} function may be called directly, but is usually called by \code{sem.default}; \code{startvalues2} is an older version of this function that may be used alternatively; see the \code{startvalues} argument to \code{sem}.
 }
 
 \value{
@@ -382,7 +404,7 @@ startvalues(S, ram, debug=FALSE, tol=1E-6)
 	\emph{Innovations in Multivariate Statistical Analysis. A Festschrift for Heinz Neudecker }, Kluwer. 
 }
 
-\author{John Fox \email{jfox@mcmaster.ca} and Jarrett Byrnes}
+\author{John Fox \email{jfox@mcmaster.ca}, Zhenghua Nie, and Jarrett Byrnes}
 
 \seealso{\code{\link{rawMoments}}, \code{\link{startvalues}}, 
 	\code{\link{objectiveML}}, \code{\link{objectiveGLS}},  
@@ -867,7 +889,7 @@ R.thur <- readMoments(diag=FALSE, names=c('Sentences','Vocabulary',
 
 	#  (1) in CFA format:
 
-mod.cfa.thur.c <- cfa()
+mod.cfa.thur.c <- cfa(reference.indicators=FALSE)
 FA: Sentences, Vocabulary, Sent.Completion
 FB: First.Letters, 4.Letter.Words, Suffixes
 FC: Letter.Series, Pedigrees, Letter.Group
@@ -913,6 +935,17 @@ F3 <-> F3,                            NA,     1
 cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
 summary(cfa.thur.p)
 
+# -------  a CFA model fit by FIML to the mental-tests dataset with missing data -------
+
+mod.cfa.tests <- cfa(raw=TRUE)
+verbal: x1, x2, x3
+math: y1, y2, y3
+
+cfa.tests <- sem(mod.cfa.tests, data=Tests, na.action=na.pass, 
+                objective=objectiveFIML, fixed.x="Intercept")
+summary(cfa.tests)
+summary(cfa.tests, saturated=TRUE) # takes time to fit saturated model for comparison
+
 
 # -------  a multigroup CFA model fit to the Holzinger-Swineford mental-tests data  ---------
 
@@ -955,6 +988,10 @@ anova(sem.mg, sem.mg.eq) # test equality constraints
 # The following examples use file input and may be executed via example():
 
 etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
+
+#   to get all fit indices (not recommended, but for illustration):
+
+opt <- options(fit.indices = c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC", "CAIC"))
 
 # ------------- Duncan, Haller and Portes peer-influences model ----------------------
 # A nonrecursive SEM with unobserved endogenous variables and fixed exogenous variables
@@ -1047,6 +1084,13 @@ summary(sem.bollen, analytic.se=FALSE) # uses numeric rather than analytic Hessi
 sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) # GLS rather than ML estimator
 summary(sem.bollen.gls)
 
+# -------  a CFA model fit by FIML to the mental-tests dataset with missing data -------
+
+(mod.cfa.tests <- cfa(file=file.path(etc, "model-Tests.txt"), raw=TRUE))
+cfa.tests <- sem(mod.cfa.tests, data=Tests, na.action=na.pass, 
+                optimizer=optimizerNlm, objective=objectiveFIML, fixed.x="Intercept")
+summary(cfa.tests)
+
 #------------ Holzinger and Swineford muiltigroup CFA example ----------------
 
 if (require(MBESS)){ # for data
@@ -1077,6 +1121,8 @@ if (require(MBESS)){ # for data
 	summary(sem.mg.eq)
 	
 	anova(sem.mg, sem.mg.eq) # test equality constraints
+    
+    options(opt) # restore fit.indices option
 	}
 }   
 

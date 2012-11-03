@@ -1,4 +1,4 @@
-# last modified 2012-03-14 by J. Fox
+# last modified 2012-07-27 by J. Fox
 
 specify.model <- function(...){
 	.Deprecated("specifyModel", package="sem")
@@ -71,20 +71,20 @@ specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, co
 	result[which.pars, 2] <- paste(result[which.pars, 2], suffix, sep="")
 	result
 }
-    
+
 print.semmod <- function(x, ...){
-    path <- x[,1]
-    parameter <- x[,2]
-    parameter[is.na(parameter)] <- "<fixed>"
-    startvalue <- as.numeric(x[,3])
-    startvalue[is.na(startvalue)] <- " "
-    if (all(startvalue == " "))  print(data.frame(Path=path, Parameter=parameter),
-        right=FALSE)
-    else print(data.frame(Path=path, Parameter=parameter, StartValue=startvalue),
-        right=FALSE)
-    invisible(x)
-    }
-	
+	path <- x[,1]
+	parameter <- x[,2]
+	parameter[is.na(parameter)] <- "<fixed>"
+	startvalue <- as.numeric(x[,3])
+	startvalue[is.na(startvalue)] <- " "
+	if (all(startvalue == " "))  print(data.frame(Path=path, Parameter=parameter),
+				right=FALSE)
+	else print(data.frame(Path=path, Parameter=parameter, StartValue=startvalue),
+				right=FALSE)
+	invisible(x)
+}
+
 classifyVariables <- function(model) {
 	variables <- logical(0)
 	for (paths in model[, 1]) {
@@ -223,7 +223,7 @@ specifyEquations <- function(file="", ...){
 	specifyModel(file=textConnection(ram), ..., quiet=TRUE)
 }
 
-cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, raw=FALSE, ...){
+cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators=TRUE, raw=FALSE, ...){
 	Lines <- scan(file=file, what="", sep=";", strip.white=TRUE, comment.char="#")
 	lines <- character(0)
 	current.line <- ""
@@ -280,8 +280,9 @@ cfa <- function(file="", covs=paste(factors, collapse=","), reference.indicators
 			}
 	if (raw){
 		all.obs.vars <- unique(all.obs.vars)
-		ram <- c(ram, sapply(all.obs.vars, function(var) paste("(Intercept) -> ", var, ", Intercept(", var, "), NA", sep="")))
-		ram <- c(ram, "(Intercept) <-> (Intercept), NA, 1")
+		ram <- c(ram, sapply(all.obs.vars, function(var) paste("Intercept -> ", var, ", intercept(", var, "), NA", sep="")))
+#		ram <- c(ram, "(Intercept) <-> (Intercept), NA, 1")
+		message('NOTE: specify fixed.x="Intercept" in call to sem')
 	}
 	specifyModel(file=textConnection(ram), covs=covs, ..., quiet=TRUE)
 }

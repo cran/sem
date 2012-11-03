@@ -1,5 +1,3 @@
-# In order to test snomadr,  the source code of NOMAD is copied into the package snomadr, 
-# this is only for test.
 OBJECTS             = csemnlm.o  uncmin.o csem.o 
 
 #DEBUGING_FLAGS=-DDEBUGSEM                     # DEBUGSEM gives details

@@ -22,7 +22,7 @@ specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs,
 
 specifyEquations(file="", ...)
 
-cfa(file="", covs=paste(factors, collapse=","), reference.indicators=FALSE, 
+cfa(file="", covs=paste(factors, collapse=","), reference.indicators=TRUE, 
      raw=FALSE, ...)
 
 multigroupModel(..., groups=names(models), allEqual=FALSE)
@@ -58,8 +58,8 @@ removeRedundantPaths(model, warn=TRUE)
     set to 1 by \code{cfa}; if \code{TRUE}, variances of factors are free parameters
     to estimate from the data, and instead the first factor loading for each factor is set
     to 1 to identify the model.}
-  \item{raw}{if \code{TRUE} (the default is \code{FALSE}), a path from \code{(Intercept)} to each
-    observed variable is added to the model, and the raw second moment for \code{(Intercept)} is
+  \item{raw}{if \code{TRUE} (the default is \code{FALSE}), a path from \code{Intercept} to each
+    observed variable is added to the model, and the raw second moment for \code{Intercept} is
     fixed to \code{1}. The \code{sem} function should then be called with \code{raw=TRUE}, and either
     supplied with a data set (via the \code{data} argument) or a raw-moment matrix (via the \code{S}
     argument).}
@@ -329,7 +329,7 @@ R.thur <- readMoments(diag=FALSE, names=c('Sentences','Vocabulary',
 
 	#  (1a) in CFA format:
 
-mod.cfa.thur.c <- cfa()
+mod.cfa.thur.c <- cfa(reference.indicators=FALSE)
 FA: Sentences, Vocabulary, Sent.Completion
 FB: First.Letters, 4.Letter.Words, Suffixes
 FC: Letter.Series, Pedigrees, Letter.Group
@@ -339,7 +339,7 @@ summary(cfa.thur.c)
 
 	#  (1b) in CFA format, using reference indicators:
 	
-mod.cfa.thur.r <- cfa(reference.indicators=TRUE)
+mod.cfa.thur.r <- cfa()
 FA: Sentences, Vocabulary, Sent.Completion
 FB: First.Letters, 4.Letter.Words, Suffixes
 FC: Letter.Series, Pedigrees, Letter.Group

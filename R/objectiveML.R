@@ -6,7 +6,7 @@ objectiveML <- function(gradient=TRUE, hessian=FALSE){
 		objective = function(par, model.description){
 			with(model.description, {
 
-					res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveML",hessian=hessian) 
+					res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveML",gradient=gradient, hessian=hessian) 
 
 					f <- res$f
 					C <- res$C

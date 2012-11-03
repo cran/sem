@@ -10,7 +10,7 @@ standardizedCoefficients <- function(object, ...){
 	UseMethod("standardizedCoefficients")
 }
 
-standardizedCoefficients.sem <- function (object, digits = 5, oneheaded = TRUE, twoheaded = TRUE, ...) {
+standardizedCoefficients.sem <- function (object, digits = getOption("digits"), oneheaded = TRUE, twoheaded = TRUE, ...) {
 	if (!oneheaded && !twoheaded) {
 		stop("No coefficients requested.")
 	}

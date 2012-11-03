@@ -1,4 +1,4 @@
-# last modified 2011-08-10 by J. Fox
+# last modified 2012-08-01 by J. Fox
 
 anova.objectiveML <- function(object, model.2, robust=FALSE, ...){
 	anovaAdjchisq <- function(adjobj0, adjobj1){
@@ -49,3 +49,26 @@ anova.objectiveML <- function(object, model.2, robust=FALSE, ...){
 	structure(table, heading = c("LR Test for Difference Between Models", ""),
 			class = c("anova", "data.frame"))
 }
+
+anova.objectiveFIML <- function(object, model.2, ...){
+    logLik.1 <- logLik(object)
+    df.1 <- df.residual(object)
+    logLik.2 <- logLik(model.2)
+    df.2 <- df.residual(model.2)
+    name.1 <- deparse(substitute(object))
+    name.2 <- deparse(substitute(model.2))
+    df <- abs(df.1 - df.2)
+    if (df == 0) stop("the models have the same Df")
+    if (object$N != model.2$N)
+        stop("the models are fit to different numbers of observations")
+    if ((nrow(object$S) != nrow(model.2$S)) || !all.equal(object$S, model.2$S))
+        stop("the models are fit to different data sets")
+    chisq <- 2*(abs(logLik.1 - logLik.2))
+    table <- data.frame(c(df.1, df.2), c(logLik.1, logLik.2), c(NA, df), c(NA, chisq),
+                        c(NA, pchisq(chisq, df, lower.tail=FALSE)))
+    names(table) <- c("Model Df", "Model Log-Likelihood", "Df", "LR Chisq", "Pr(>Chisq)")
+    rownames(table) <- c(name.1, name.2)
+    structure(table, heading = c("LR Test for Difference Between Models", ""),
+              class = c("anova", "data.frame"))
+}
+

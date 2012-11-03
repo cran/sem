@@ -6,7 +6,7 @@ objectiveGLS <- function (gradient = FALSE)
     result <- list(objective = function(par, model.description) {
         with(model.description, {
 						 
-						 res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveGLS") 
+						 res <- CompiledObjective(par=par, model.description=model.description, objective="objectiveGLS", gradient=gradient) 
 				
 						 f <- res$f
 				     C <- res$C

@@ -12,12 +12,13 @@
 
 \description{
 The default optimizer used by \code{\link{sem}} is \code{optimizerSem}, which employs compiled code and is integrated with
-the \code{\link{objectiveML}} and \code{\link{objectiveGLS}} objective functions; \code{optimizerSem} is a modified
-version of the standard R \code{nlm} optimizer.
+the \code{\link{objectiveML}} and \code{\link{objectiveGLS}} objective functions; 
+\code{optimizerSem}, written by Zhenghua Nie, is a modified
+version of the standard R \code{nlm} optimizer, which was written by Saikat DebRoy, R-core, and Richard H. Jones.
 The other functions call optimizers (\code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, or \code{\link[stats]{nlminb}}), 
 to fit structural equation models, and are called by the \code{\link{sem}} function. 
 The user would not normally call these functions directly, but rather supply one of them in the \code{optimizer} argument to
-\code{sem}. Users may also write them own optimizer functions. \code{msemOptimizerNlm} is for fitting multigroup models.
+\code{sem}. Users may also write them own optimizer functions. \code{msemOptimizerNlm} is for fitting multigroup models, and also adapts the \code{nlm} code.
 }
 
 \usage{
@@ -85,7 +86,8 @@ An object of class \code{"semResult"}, with elements:
 
 }
 
-\author{John Fox \email{jfox@mcmaster.ca}}
+\author{John Fox \email{jfox@mcmaster.ca}, and Zhenghua Nie, in part adapting work by
+Saikat DebRoy, R-core, and Richard H. Jones.}
 
 \seealso{\code{\link{sem}}, \code{\link{objective.functions}}, \code{\link[stats]{nlm}}, \code{\link[stats]{optim}}, \code{\link[stats]{nlminb}}}
 

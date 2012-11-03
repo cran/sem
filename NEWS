@@ -1,3 +1,23 @@
+Changes to Version 3.1-0
+
+    o Added FIML objective function for handling missing data. (Preliminary implementation for single-group models only.)
+
+    o Added miSem() for multiple imputation.
+
+    o Added bootSem.msem() method for multi-group models; bootSem() now generic.
+
+    o Redefinition of BIC (differs by constant from previous version, suggested by Ken Bollen).
+
+    o Default reference.indicators=TRUE in cfa() (suggestion of Ken Bollen).
+
+    o Added fit.indices argument to summary() methods, along with fit.indices global option. AIC and BIC provided by default; other fit indices (including addition of RNI and IFI, suggested by Ken Bollen) available optionally.
+
+    o New version of startvalues(); old version now named startvalues2().
+
+    o New pathDiagram.semmod() method.
+
+    o Small fixes and changes.
+
 Changes to Version 3.0-0
 
 	o Compiled code for optimization.

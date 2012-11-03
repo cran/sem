@@ -2,30 +2,35 @@
 
 \alias{pathDiagram}
 \alias{pathDiagram.sem}
+\alias{pathDiagram.semmod}
 
 \title{Draw Path Diagram}
 \description{
   \code{pathDiagram} creates a description of the path diagram
-  for a structural-equation-model object to be processed by the
+  for a structural-equation-model or SEM-specification object to be processed by the
   graph-drawing program \emph{dot}, which can be called
   automatically; see Koutsofios and North (2002)
   and \url{http://www.graphviz.org/}. To obtain graphics output
-  directly, the \emph{dot} program must be on the system search path.
+  directly, the \emph{dot} program must be on the system search path. The \code{semmod}
+  method sets up a call to the \code{sem} method.
 }
 
 \usage{
 \method{pathDiagram}{sem}(model, file, min.rank=NULL, max.rank=NULL,
-	same.rank=NULL, variables=model$var.names, parameters=rownames(model$ram),
+	same.rank=NULL, variables=model$var.names, parameters,
 	ignore.double=TRUE, edge.labels=c("names", "values", "both"), 
 	size=c(8, 8), node.font=c("Helvetica", 14),
 	edge.font=c("Helvetica", 10), rank.direction=c("LR", "TB"), 
 	digits=2, standardize=FALSE, output.type=c("graphics", "dot"),
 	graphics.fmt="pdf", dot.options=NULL, ...)
+
+\method{pathDiagram}{semmod}(model, obs.variables, ...)
 }
 
 \arguments{
-  \item{model}{a structural-equation-model object produced by \code{sem}.}
-  \item{\dots}{ignored.}
+  \item{model}{a structural-equation-model or SEM-specification object produced by \code{sem}, 
+    or, respectively, \code{specifyEquations}, \code{specifyModel}, or \code{cfa}.}
+  \item{\dots}{arguments passed down, e.g., from the \code{semmod} method to the \code{sem} method.}
   \item{file}{a file name, given \emph{without} an extension, to which to write the \emph{dot} description of the
     path diagram and, by default, to use that to draw a graph of the model; 
     if not specified, the \emph{dot} description is written to standard output (normally the R Console).
@@ -61,6 +66,7 @@
   \item{graphics.fmt}{a graphics format recognized by the \emph{dot} program; the default is \code{"pdf"};
   	\code{graphics.fmt} is also used for the extension of the graphics file that is created.}
   \item{dot.options}{options to be passed to the \emph{dot} program, given as a character string.}
+  \item{obs.variables}{a character vector with the names of the observed variables in the model.}
 }
 
 \value{
@@ -76,7 +82,7 @@
 
 \author{John Fox \email{jfox@mcmaster.ca}, Adam Kramer, and Michael Friendly}
 
-\seealso{\code{\link{sem}}}
+\seealso{\code{\link{sem}}, \code{\link{specifyEquations}}, \code{\link{specifyModel}}, \code{\link{cfa}}}
 
 \examples{
 	\dontrun{
@@ -122,7 +128,15 @@ sem.dhp <- sem(model.dhp, R.DHP, 329,
     
 pathDiagram(sem.dhp, min.rank='RIQ, RSES, RParAsp, FParAsp, FSES, FIQ', 
     max.rank='ROccAsp, REdAsp, FEdAsp, FOccAsp')
-	}
+    
+      # equivalent:    
+pathDiagram(model.dhp, 
+    obs.variables=c("RParAsp", "RIQ", "RSES", "FSES", "FIQ", 
+      "FParAsp", "ROccAsp", "REdAsp", "FOccAsp", "FEdAsp"),
+    min.rank='RIQ, RSES, RParAsp, FParAsp, FSES, FIQ', 
+    max.rank='ROccAsp, REdAsp, FEdAsp, FOccAsp',
+    same.rank='RGenAsp, FGenAsp') # note crowding of labels
+    }
 }
 
 \keyword{dplot}

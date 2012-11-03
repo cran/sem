@@ -1,9 +1,9 @@
 /* ********************
  * Please note that this function "csenlm" is modified from the R core program main/optimize.c
  * by Zhenghua Nie.
- * The major goal of this modification is that we want to call "nlm" in C when
- * the objetive function and gradients, or hessians are computed in C. This is for 
- * speed-up of the package "sem". In future,  if we find more efficient solver of 
+ * The major goal of this modification is that we want to call "nlm" in C/C++ when
+ * the objetive function and gradients, or hessians are computed in C/C++. This is for 
+ * speed-up of the package "sem". In future,  if we find a more efficient solver of 
  * non-linear optimization problems,  we may replace the solver.
  * ********************/
 /*
@@ -514,10 +514,12 @@ from above in some direction,\n"\
     //typsiz = fixparam(typsize, &n);
 SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian, 
 				double *typsiz, double fscale, int msg, int ndigit, double gradtl, 
-				double stepmx, double steptol, int itnlim, model_info *model, myfcn_p myobjfun, 
+				double stepmx, double steptol, int itnlim, void *model_input, myfcn_p myobjfun, 
 				int optimize)
 {
     SEXP value, names;
+
+		model_info *model = (model_info *)model_input;
 
 		if(SEM_DEBUG) Rprintf("Optimize: [%d]\n", optimize);
 

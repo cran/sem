@@ -19,11 +19,12 @@ optimizerSem <- function(start, objective=objectiveML,
 				
 			if(identical(objective, objectiveML)) objectiveCompiled <- "objectiveML"
 			else if (identical(objective, objectiveGLS)) objectiveCompiled <- "objectiveGLS"
-			else stop("optimizerSem requires the objectiveML or objectiveGLS objective function")
+			else if (identical(objective, objectiveFIML)) objectiveCompiled <- "objectiveFIML"
+			else stop("optimizerSem requires the objectiveML or objectiveGLS or objectiveFIML objective function")
 			
 			if (!warn) save.warn <- options(warn=-1)
 
-			res <- CompiledSolve(model.description=model.description, start=start, objective=objectiveCompiled, typsize=typsize, debug=debug, maxiter=maxiter)
+			res <- CompiledSolve(model.description=model.description, start=start, objective=objectiveCompiled, gradient=gradient, typsize=typsize, debug=debug, maxiter=maxiter)
 
 			if (!warn) options(save.warn)
 			result <- list()

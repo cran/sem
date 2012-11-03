@@ -1,12 +1,13 @@
-# last modified 2012-01-14 by J. Fox
+# last modified 2012-11-03 by J. Fox
 
 sem <- function(model, ...){
 	if (is.character(model)) class(model) <- "semmod"
 	UseMethod("sem", model)
 }
 
-sem.semmod <- function(model, S, N, data, raw=FALSE, obs.variables=rownames(S), 
-		fixed.x=NULL, formula= ~ ., robust=!missing(data), debug=FALSE, ...){
+sem.semmod <- function(model, S, N, data, raw=identical(na.action, na.pass), obs.variables=rownames(S), 
+		fixed.x=NULL, formula= ~ ., na.action=na.omit, robust=!missing(data), debug=FALSE, 
+		optimizer=optimizerSem, objective=objectiveML, ...){
 	parse.path <- function(path) {                                           
 		path.1 <- gsub("-", "", gsub(" ","", path))
 		direction <- if (regexpr("<>", path.1) > 0) 2 
@@ -16,17 +17,30 @@ sem.semmod <- function(model, S, N, data, raw=FALSE, obs.variables=rownames(S),
 		path.1 <- strsplit(path.1, "[<>]")[[1]]
 		list(first=path.1[1], second=path.1[length(path.1)], direction=direction)
 	}
+	any.NA <- FALSE
+	unique.patterns <- valid.pattern <- valid <- pattern.number <- valid.data.patterns <- NULL
 	if (missing(S)){
 		if (missing(data)) stop("S and data cannot both be missing")
 		N.all <- nrow(data)
+		data <- model.frame(formula, data=data, na.action=na.action)
 		data <- model.matrix(formula, data=data)
-		S <- if (raw) rawMoments(data) else {
-					data <-  data[, colnames(data) != "(Intercept)"]
-					cov(data)
+		colnames(data)[colnames(data) == "(Intercept)"] <- "Intercept"
+		S <- if (raw) rawMoments(data, na.rm=TRUE) else {
+					data <-  data[, colnames(data) != "Intercept"]
+					cov(data, use="complete.obs")
 				}
 		N <- nrow(data)
-		if (N < N.all) warning(N - N.all, " observations removed due to missingness")
-	}
+		if (N < N.all) warning(N - N.all, " observations removed due to missingness")        
+		if (identical(na.action, na.pass) && any(is.na(data))){
+				any.NA <- TRUE
+				valid <- !is.na(data)
+				colnames(valid) <- colnames(data)
+			}
+			else {
+					valid <- matrix(TRUE, nrow(data), ncol(data))
+					colnames(valid) <- colnames(data)
+			}
+		}
 	if ((!is.matrix(model)) | ncol(model) != 3) stop ("model argument must be a 3-column matrix")
 	startvalues <- as.numeric(model[,3])
 	par.names <- model[,2]
@@ -82,15 +96,47 @@ sem.semmod <- function(model, S, N, data, raw=FALSE, obs.variables=rownames(S),
 		cat("\n\n RAM:\n")
 		print(ram)
 	}
-	data <- if (missing(data)) NULL else data[, obs.variables]
-	sem(ram, S=S, N=N, raw=raw, data=data, param.names=pars, var.names=vars, fixed.x=fixed.x,
-			semmod=model, robust=robust, debug=debug, ...)
+	if (missing(data)) data <- NULL 
+	else {
+		data <- data[, obs.variables]
+		if (!is.null(valid)) {
+			valid <- valid[, obs.variables]
+			valid.pattern <- apply(valid, 1, function(row) paste(row, collapse="."))
+			unique.patterns <- unique(valid.pattern)
+			pattern.number <- apply(outer(valid.pattern, unique.patterns, `==`), 1, which)
+			valid.data.patterns <- t(sapply(strsplit(unique.patterns, "\\."), as.logical))
+		}
+	}
+	if (identical(objective, objectiveFIML2) || identical(objective, objectiveFIML)){
+		message("NOTE: start values computed from preliminary ML fit")
+        opt <- options(warn=-1)
+        on.exit(options(opt)) # in case of error
+		prelim.fit <- sem(ram, S=S, N=N, raw=raw, data=na.omit(data), valid=valid, param.names=pars, var.names=vars, fixed.x=fixed.x,
+				semmod=model, robust=robust, debug=debug, ...)
+        if (!prelim.fit$convergence) message("NOTE: preliminary ML fit may not have converged")
+        options(opt)
+		message("NOTE: preliminary iterations, ", prelim.fit$iterations)
+		message("NOTE: iterations reported for final fit are post preliminary fit")
+		coeff <- coef(prelim.fit)
+		rownames(ram) <- rownames(prelim.fit$ram)[1:nrow(ram)]
+		ram[names(coeff), 5] <- coeff
+	}
+	cls <- gsub("\\.", "", deparse(substitute(objective)))
+	cls <- gsub("2", "", cls)
+	result <- sem(ram, S=S, N=N, raw=raw, data=data, 
+			pattern.number=pattern.number, valid.data.patterns=valid.data.patterns,
+			param.names=pars, var.names=vars, fixed.x=fixed.x,
+			semmod=model, robust=robust, debug=debug, optimizer=optimizer, objective=objective, cls=cls, ...)
+	class(result) <- c(cls, "sem")
+	result
 }
 
-sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names, 
+sem.default <- function(model, S, N, raw=FALSE, data=NULL, start.fn=startvalues,
+		pattern.number=NULL, valid.data.patterns=NULL,
+		use.means=TRUE, param.names, 
 		var.names, fixed.x=NULL, robust=!is.null(data), semmod=NULL, debug=FALSE,
-		analytic.gradient=TRUE, warn=FALSE, maxiter=1000, par.size=c("ones", "startvalues"), 
-		start.tol=1E-6, optimizer=optimizerSem, objective=objectiveML, ...){
+		analytic.gradient=!identical(objective, objectiveFIML), warn=FALSE, maxiter=1000, par.size=c("ones", "startvalues"), 
+		start.tol=1E-6, optimizer=optimizerSem, objective=objectiveML, cls, ...){
 	ord <- function(x) 1 + apply(outer(unique(x), x, "<"), 2, sum)
 	is.triangular <- function(X) {
 		is.matrix(X) && (nrow(X) == ncol(X)) && 
@@ -154,19 +200,27 @@ sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names,
 	unique.free.2 <- unique(sel.free.2)
 	rownames(S) <- colnames(S) <- var.names[observed]
 	result <- list(var.names=var.names, ram=ram, S=S, J=J, n.fix=n.fix, n=n, N=N, m=m, t=t, raw=raw,
-		data=data, semmod=semmod, optimizer=optimizer, objective=objective,
-		# remaining values to be supplied after optimization
-		coeff=NULL, vcov=NULL, par.posn=NULL, convergence=NULL, iterations=NULL, criterion=NULL, C=NULL, A=NULL, P=NULL,
-		adj.obj=NULL, robust.vcov=NULL)
+			data=data, semmod=semmod, optimizer=optimizer, objective=objective,
+			# remaining values to be supplied after optimization
+			coeff=NULL, vcov=NULL, par.posn=NULL, convergence=NULL, iterations=NULL, criterion=NULL, C=NULL, A=NULL, P=NULL,
+			adj.obj=NULL, robust.vcov=NULL)
 	if (length(param.names)== 0){
 		warning("there are no free parameters in the model")
 	}
 	else {
+		if (!is.null(data) && raw && use.means){
+			to <- ram[, 2]
+			from <- ram[, 3]
+			rows <- (from == which(var.names == "Intercept")) & (ram[, 1] == 1) & (ram[, 4] != 0) & (to <= n) & is.na(ram[, 5])
+			ram[rows, 5] <- colMeans(data, na.rm=TRUE)[var.names[to[rows]]]
+		}
 		start <- if (any(is.na(ram[,5][par.posn])))
-					startvalues(S, ram, debug=debug, tol=start.tol)
+					start.fn(S, ram, debug=debug, tol=start.tol)
 				else ram[,5][par.posn]
 		typsize <- if (par.size == "startvalues") abs(start) else rep(1,t)
-		model.description <- list(S=S, logdetS=log(det(S)), invS=solve(S), N=N, m=m, n=n, t=t, 
+		model.description <- list(data=data, 
+				pattern.number=pattern.number, valid.data.patterns=valid.data.patterns,
+				S=S, logdetS=log(det(S)), invS=solve(S), N=N, m=m, n=n, t=t, 
 				fixed=fixed, ram=ram, sel.free=sel.free, arrows.1=arrows.1, arrows.1.free=arrows.1.free,
 				one.head=one.head, arrows.2t=arrows.2t, arrows.2=arrows.2, arrows.2.free=arrows.2.free, 
 				unique.free.1=unique.free.1, unique.free.2=unique.free.2,
@@ -188,15 +242,17 @@ sem.default <- function(model, S, N, data=NULL, raw=FALSE, param.names,
 		result$P <- res$P
 		if (!is.na(result$iterations)) if(result$iterations >= maxiter) warning("maximum iterations exceeded")
 	}
-	cls <- gsub("\\.", "", deparse(substitute(objective)))
-	cls <- gsub("2", "", cls)
+	if (missing(cls)){
+		cls <- gsub("\\.", "", deparse(substitute(objective)))
+		cls <- gsub("2", "", cls)
+	}
 #	if(cls == "objectiveCompiledGLS") 
 #			cls <- c(cls, "objectiveGLS")
 #	else if(cls == "objectiveCompiledML") 
 #			cls <- c(cls, "objectiveML")
 	class(result) <- c(cls, "sem")
 	if (robust && !is.null(data) && inherits(result, "objectiveML")){
-		result$adj.obj <- sbchisq(result, data)
+		result$adj.obj <- sbchisq(result, na.omit(data))
 		result$robust.vcov <- robustVcov(result, adj.obj=result$adj.obj)
 	}
 	result

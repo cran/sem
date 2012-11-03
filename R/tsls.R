@@ -83,7 +83,7 @@ print.tsls <- function (x, ...) {
 	invisible(x)
 }
 
-summary.tsls <- function (object, digits = 4, ...) {
+summary.tsls <- function (object, digits=getOption("digits"), ...) {
 	save.digits <- unlist(options(digits = digits))
 	on.exit(options(digits = save.digits))
 	cat("\n 2SLS Estimates\n")
@@ -106,7 +106,7 @@ summary.tsls <- function (object, digits = 4, ...) {
 	rownames(table) <- names(b)
 	colnames(table) <- c("Estimate", "Std. Error", "t value", 
 			"Pr(>|t|)")
-	printCoefmat(table)
+	printCoefmat(table, digits=digits)
 	cat(paste("\nResidual standard error:", round(object$s, digits), 
 					"on", df, "degrees of freedom\n\n"))
 }

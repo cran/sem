@@ -22,7 +22,7 @@
 \method{tsls}{default}(y, X, Z, w, names=NULL, ...)
 
 \method{print}{tsls}(x, ...)
-\method{summary}{tsls}(object, digits=4, ...)
+\method{summary}{tsls}(object, digits=getOption("digits"), ...)
 \method{anova}{tsls}(object, model.2, s2, dfe, ...)
 
 \method{fitted}{tsls}(object, ...)

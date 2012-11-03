@@ -8,7 +8,7 @@
 }
 
 \usage{
-ram(object, digits=5, startvalues=FALSE)
+ram(object, digits=getOption("digits"), startvalues=FALSE)
 }
 
 

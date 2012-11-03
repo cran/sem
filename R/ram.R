@@ -1,8 +1,6 @@
-# last modified 27 March 02 by J. Fox
+# last modified 2012-09-17 by J. Fox
 
-ram <- function(object, digits=5, startvalues=FALSE){
-    old.digits <- options(digits=digits)
-    on.exit(options(old.digits))
+ram <- function(object, digits=getOption("digits"), startvalues=FALSE){
     var.names <- rownames(object$A)
     ram <- object$ram
     if (!startvalues) colnames(ram) <- c(colnames(ram)[1:4], "estimate")
@@ -17,5 +15,5 @@ ram <- function(object, digits=5, startvalues=FALSE){
     par.code <- paste(var.names[ram[,2]], c('<---', '<-->')[ram[,1]],
                     var.names[ram[,3]])
     ram <- data.frame(ram, arrow = par.code)
-    print(ram, rowlab=par.names)
+    print(ram, rowlab=par.names, digits=digits)
     }

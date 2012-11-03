@@ -2,13 +2,7 @@
 # Author: Zhenghua Nie 
 # Date:   Mon 26 Dec 2011 23:54:22 EST
 #
-# We use ipoptr developed by Jelmer Ypma as the prototype of this package.
-# Some code is copied and edited from ipoptr. 
-# Please reference the license of ipoptr.
 #
-# Input: 
-#
-# Output: structure with inputs and
 #
 # Copyright (C) 2011 Zhenghua Nie. All Rights Reserved.
 # This code is published under GNU GENERAL PUBLIC LICENSE.
@@ -29,12 +23,12 @@
 # The following function is a wrapper to compute the objective function and its gradient.
 # If hessian=TRUE,  csem will return Hessian computed by the numerical method,  but
 # is flexible to return Hessian computed by the analytical solution.
-CompiledObjective <- function(par, model.description, hessian=FALSE, objective=c("objectiveML", "objectiveGLS"), ...)
+CompiledObjective <- function(par, model.description, gradient=TRUE, hessian=FALSE, objective=c("objectiveML", "objectiveGLS", "objectiveFIML", "objectivelogLik"), ...)
 {
 		if(missing(objective)) objective <- "objectiveML"
 		objective <- match.arg(objective)
 
-		res <- csem(model=model.description,  start=par, objective=objective,  opt.flag=0,   opts=list("hessian"=hessian, "check.analyticals"=FALSE), ...)
+		res <- csem(model=model.description,  start=par, objective=objective,  opt.flag=0,  gradient=gradient,  opts=list("hessian"=hessian, "check.analyticals"=FALSE), ...)
 		ret <- list();
 		ret$f <- res$minimum
 		ret$parameters <- res$estimate
@@ -47,12 +41,12 @@ CompiledObjective <- function(par, model.description, hessian=FALSE, objective=c
 		return(ret)
 }
 
-msemCompiledObjective <- function(par, model.description, hessian=FALSE, objective=c("objectiveML", "objectiveGLS"), ...)
+msemCompiledObjective <- function(par, model.description, gradient=TRUE, hessian=FALSE, objective=c("objectiveML", "objectiveGLS", "objectiveFIML"), ...)
 {
 		if(missing(objective)) objective <- "objectiveML"
 		objective <- match.arg(objective)
 
-		res <- cmsem(model=model.description,  start=par, objective=objective,  opt.flag=0,   opts=list("hessian"=hessian, "check.analyticals"=FALSE), ...)
+		res <- cmsem(model=model.description,  start=par, objective=objective,  opt.flag=0, gradient=gradient,   opts=list("hessian"=hessian, "check.analyticals"=FALSE), ...)
 		AA <- PP <- CC <- vector(model.description$G,  mode="list")
 		indAP <- 1
 		indC <- 1
@@ -82,7 +76,7 @@ msemCompiledObjective <- function(par, model.description, hessian=FALSE, objecti
 }
 
 # The wrapper function for solving optimization problems. Please note that the objective function is written in C/C++,  we need to know the name.
-CompiledSolve <- function(model.description, start, objective=c("objectiveML", "objectiveGLS"),  typsize=rep(1.0, length(start)), debug=FALSE, maxiter=100,...)
+CompiledSolve <- function(model.description, start, objective=c("objectiveML", "objectiveGLS", "objectiveFIML", "objectivelogLik"),  gradient=TRUE, typsize=rep(1.0, length(start)), debug=FALSE, maxiter=100,...)
 {
 		if(missing(objective)) objective <- "objectiveML"
 		objective <- match.arg(objective)
@@ -90,6 +84,7 @@ CompiledSolve <- function(model.description, start, objective=c("objectiveML", "
 		stepmax=max(1000.0 * sqrt(sum((start/typsize)^2)),  1000.0)
 
 		res <- csem(model=model.description, start, opt.flag=1, typsize=typsize,objective=objective,  
+								gradient=gradient, 
 								opts=list("iterlim"=maxiter, "print.level"=if(debug) 2 else 0,
 													"hessian"=TRUE, "check.analyticals"=FALSE, "stepmax"=stepmax), ...)
 
@@ -97,7 +92,8 @@ CompiledSolve <- function(model.description, start, objective=c("objectiveML", "
 }
 
 # The wrapper function for solving optimization problems. Please note that the objective function is written in C/C++,  we need to know the name.
-msemCompiledSolve <- function(model.description, start, objective=c("objectiveML", "objectiveGLS"),  
+msemCompiledSolve <- function(model.description, start, objective=c("objectiveML", "objectiveGLS", "objectiveFIML"),  
+															gradient=TRUE, 
 															typsize=rep(1.0, length(start)), debug=FALSE, maxiter=100,gradtol=1e-6, ...)
 {
 		if(missing(objective)) objective <- "objectiveML"
@@ -106,6 +102,7 @@ msemCompiledSolve <- function(model.description, start, objective=c("objectiveML
 		stepmax=max(1000.0 * sqrt(sum((start/typsize)^2)),  1000.0)
 
 		res <- cmsem(model=model.description, start, opt.flag=1, typsize=typsize,objective=objective,  
+								 gradient=gradient, 
 								opts=list("iterlim"=maxiter, "print.level"=if(debug) 2 else 0,"gradtol"=gradtol, 
 													"hessian"=TRUE, "check.analyticals"=FALSE, "stepmax"=stepmax), ...)
 
@@ -144,7 +141,8 @@ msemCompiledSolve <- function(model.description, start, objective=c("objectiveML
 
 #optimze:0 we only compute the objective function,  gradients or hessian and return them.
 # 
-csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), objective=c("objectiveML", "objectiveGLS", "test_objective"),  
+csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), objective=c("objectiveML", "objectiveGLS", "objectiveFIML", "objectivelogLik", "test_objective"),  
+								 gradient=TRUE, 
 								 opts=list("hessian"=1, "fscale"=1, "gradtol"=1e-6, "steptol"=1e-6, "stepmax"=max(1000 * sqrt(sum((start/typsize)^2)),  1000), "iterlim"=100, 
 													 "ndigit"=12,"print.level"=0, "check.analyticals"=1), 
 								 csem.environment = new.env(), ...){
@@ -162,9 +160,14 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 
 
     ## the following is for generating gradient.
-		arrows.1.seq <- model$ram[model$ram[, 1]==1 & model$ram[, 4]!=0,  4] 
-		arrows.2.seq <- model$ram[model$ram[, 1]==2 & model$ram[, 4]!=0,  4]
+		if(objective != "objectivelogLik")
+		{
+				arrows.1.seq <- model$ram[model$ram[, 1]==1 & model$ram[, 4]!=0,  4] 
+				arrows.2.seq <- model$ram[model$ram[, 1]==2 & model$ram[, 4]!=0,  4]
+		}
 
+		# this function is modfied from ipoptr developed by Jelmer Ypma (http://www.ucl.ac.uk/~uctpjyy/ipoptr.html).
+		# Please reference the license of ipoptr.
 		get.option.types <- function(opts) {
 				# define types of nlm options,  we should add all options here.
 				nlm.option.types <- list(
@@ -189,7 +192,7 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 				# loop runs from 1 to down 0 and we get errors
 				if ( length( opts ) > 0 ) {
 
-				# loop over all options and give them the correct type
+						# loop over all options and give them the correct type
 						for ( i in 1:length( opts ) ) {
 								tmp.type <- nlm.option.types[[match( names(opts)[i], names(nlm.option.types) )]]
 								if ( is.null( tmp.type ) ) {
@@ -216,45 +219,69 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 						}
 				}
 
-		return ( converted.opts )
-}
+				return ( converted.opts )
+		}
 
-		ret <- list( 
-		"objective" = objective, 
-		"opt.flg" = as.integer(opt.flag), 
-		"start" = start, 
-		"options" = get.option.types(opts), 
-		"S" = model$S, 
-		"logdetS" = as.numeric(model$logdetS), 
-		"invS" = model$invS, 
-		"N" = as.integer(model$N), 
-		"m" = as.integer(model$m), 
-		"n" = as.integer(model$n), 
-		"t" = as.integer(model$t), 
-		"fixed" = model$fixed, 
-		"ram" = model$ram, 
-		"sel.free" = model$sel.free, 
-		"arrows.1" = model$arrows.1, 
-		"arrows.1.free" = model$arrows.1.free, 
-		"one.head" = model$one.head, 
-		"arrows.2t" = model$arrows.2t, 
-		"arrows.2" = model$arrows.2, 
-		"arrows.2.free" = model$arrows.2.free, 
-		"unique.free.1" = model$unique.free.1, 
-		"unique.free.2" = model$unique.free.2, 
-		"J" = model$J, 
-		"correct" = model$correct, 
-		"param.names" = model$param.names, 
-		"var.names" = model$var.names, 
-		"one.free" = model$one.free, 
-		"two.free" = model$two.free, 
-		"raw" = as.integer(model$raw), 
-		"arrows.1.seq" = arrows.1.seq, 
-		"arrows.2.seq" = arrows.2.seq, 
-		"typsize" = typsize, 
-		"csem.environment"=csem.environment)
-		attr(ret, "class") <- "csem"
-
+		if(objective != "objectivelogLik")
+		{
+				ret <- list( 
+										"objective" = objective, 
+										"gradient" = as.integer(gradient), 
+										"opt.flg" = as.integer(opt.flag), 
+										"start" = start, 
+										"options" = get.option.types(opts), 
+										"data" = model$data, 
+										"pattern.number" = model$pattern.number, 
+										"valid.data.patterns" = model$valid.data.patterns, 
+										"S" = model$S, 
+										"logdetS" = as.numeric(model$logdetS), 
+										"invS" = model$invS, 
+										"N" = as.integer(model$N), 
+										"m" = as.integer(model$m), 
+										"n" = as.integer(model$n), 
+										"t" = as.integer(model$t), 
+										"fixed" = model$fixed, 
+										"ram" = model$ram, 
+										"sel.free" = model$sel.free, 
+										"arrows.1" = model$arrows.1, 
+										"arrows.1.free" = model$arrows.1.free, 
+										"one.head" = model$one.head, 
+										"arrows.2t" = model$arrows.2t, 
+										"arrows.2" = model$arrows.2, 
+										"arrows.2.free" = model$arrows.2.free, 
+										"unique.free.1" = model$unique.free.1, 
+										"unique.free.2" = model$unique.free.2, 
+										"J" = model$J, 
+										"correct" = model$correct, 
+										"param.names" = model$param.names, 
+										"var.names" = model$var.names, 
+										"one.free" = model$one.free, 
+										"two.free" = model$two.free, 
+										"raw" = as.integer(model$raw), 
+										"arrows.1.seq" = arrows.1.seq, 
+										"arrows.2.seq" = arrows.2.seq, 
+										"typsize" = typsize, 
+										"csem.environment"=csem.environment)
+				attr(ret, "class") <- "csem"
+		}
+		else
+		{
+				ret <- list(
+										"objective" = objective, 
+										"gradient" = as.integer(gradient), 
+										"opt.flg" = as.integer(opt.flag), 
+										"start" = start, 
+										"t" = length(start), 
+										"options" = get.option.types(opts), 
+										"data" = model$data, 
+										"pattern.number" = model$pattern.number, 
+										"valid.data.patterns" = model$valid.data.patterns, 
+										"tri" = model$tri, 
+										"posn.intercept" = model$posn.intercept, 
+										"typsize" = typsize, 
+										"csem.environment"=csem.environment
+										)
+		}
 		# add the current call to the list
 		# ret$call <- match.call()
 
@@ -270,10 +297,11 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 		return(ret)
 }
 
-cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), objective=c("objectiveML", "objectiveGLS", "test_objective"),  
-								 opts=list("hessian"=1, "fscale"=1, "gradtol"=1e-6, "steptol"=1e-6, "stepmax"=max(1000 * sqrt(sum((start/typsize)^2)),  1000), "iterlim"=100, 
-													 "ndigit"=12,"print.level"=0, "check.analyticals"=1), 
-								 csem.environment = new.env(), ...){
+cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), objective=c("objectiveML", "objectiveGLS", "objectiveFIML", "test_objective"),  
+									gradient=TRUE, 
+									opts=list("hessian"=1, "fscale"=1, "gradtol"=1e-6, "steptol"=1e-6, "stepmax"=max(1000 * sqrt(sum((start/typsize)^2)),  1000), "iterlim"=100, 
+														"ndigit"=12,"print.level"=0, "check.analyticals"=1), 
+									csem.environment = new.env(), ...){
 
 		if(missing(model)) stop("Must provide the model.")
 		if(missing(objective)) objective <- "objectiveML"
@@ -287,7 +315,7 @@ cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), o
 		if(print.level < 0 || print.level > 2) stop("'print.level' must be in {0, 1, 2}")
 
 
-    ## the following is for generating gradient.
+		## the following is for generating gradient.
 		G <- model$G
 		arrows.1.seq <- arrows.2.seq <- vector(G, mode="list")
 		for(g in 1:G)
@@ -352,10 +380,14 @@ cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), o
 
 		ret <- list( 
 								"objective" = objective, 
+								"gradient" = as.integer(gradient), 
 								"opt.flg" = as.integer(opt.flag), 
 								"start" = start, 
 								"options" = get.option.types(opts), 
 								"G" = as.integer(model$G), 
+								"data" = model$data, 
+								"pattern.number" = model$pattern.number, 
+								"valid.data.patterns" = model$valid.data.patterns, 
 								"S" = model$S, 
 								"logdetS" = model$logdetS, 
 								"invS" = model$invS, 

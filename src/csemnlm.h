@@ -55,7 +55,21 @@
 #define SEM_DEBUG 0
 #endif 
 
+// the structure for the solution of sem  (object returned by sem)
+// currently,  we onlu use it for calculating logLik for missing data (solved by objectiveFIML)
+typedef struct sem_solution_Info {
+	SEXP data;
+	SEXP pattern_number; 
+	SEXP valid_data_patterns;
+	SEXP tri;
+	int posn_intercept;
+	int t;
+} sem_object;
+
 /* 
+    "data" = model$data, 
+		"pattern.number" = model$model.number, 
+		"valid.data.patterns"= model$valid.data.patterns, 
 		"S" = model$S, 
 		"logdetS" = model$logdetS, 
 		"invS" = model$invS, 
@@ -83,6 +97,9 @@
 		"raw" = model$raw)
  * */
 typedef struct model_Info {
+	SEXP data;
+	SEXP pattern_number; 
+	SEXP valid_data_patterns;
   SEXP S; //n-by-n
 	double logdetS;
 	SEXP invS; //n-by-n
@@ -110,10 +127,14 @@ typedef struct model_Info {
 	int raw;
 	int *arrows_1_seq;
 	int *arrows_2_seq;
+	sem_object *semObject;
 } model_info;
 
 typedef struct msem_model_Info {
 	int G;  //number of groups
+	SEXP data;
+	SEXP pattern_number; 
+	SEXP valid_data_patterns;
   SEXP S; //n-by-n
 	SEXP logdetS;
 	SEXP invS; //n-by-n
@@ -185,7 +206,7 @@ typedef struct {
 			 function values */
   int FT_last;	      /* Newest entry in the table */
   ftable *Ftable;
-	model_info *model;
+	model_info *model;   /*including sem_object*/
 } function_info;
 
 typedef struct {
@@ -220,7 +241,7 @@ optif9(int nr, int n, double *x, fcn_p fcn, fcn_p d1fcn, d2fcn_p d2fcn,
        double *wrk, int *itncnt);
 SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian, 
 				double *typsize, double fscale, int msg, int ndigit, double gradtl, 
-				double stepmx, double steptol, int itnlim, model_info *model, myfcn_p myobjfun,
+				double stepmx, double steptol, int itnlim, void *model, myfcn_p myobjfun,
 				int optimize);
 
 SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian, 

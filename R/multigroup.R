@@ -1,5 +1,5 @@
 ### multigroup SEMs  
-# last modified J. Fox 2012-02-14
+# last modified J. Fox 2012-10-04
 
 ## model definition
 
@@ -73,10 +73,11 @@ sem.semmodList <- function(model, S, N, data, raw=FALSE, fixed.x=NULL, robust=!m
 			N.all <- nrow(data.group)
 			form <- if (is.list(formula)) formula[[g]] else formula
 			data.group <- model.matrix(form, data=data.group)
+            colnames(data.group)[colnames(data.group) == "(Intercept)"] <- "Intercept"
 			N[g] <- nrow(data.group)
 			if (N[g] < N.all) warning(N.all - N[g]," observations removed due to missingness in group ", levels[g])
 			S[[g]] <- if (raw) rawMoments(data.group) else{
-						data.group <- data.group[, colnames(data.group) != "(Intercept)"]
+						data.group <- data.group[, colnames(data.group) != "Intercept"]
 						cov(data.group)
 					}
 			data.out[[g]] <- data.group
@@ -159,11 +160,11 @@ parse.path <- function(path) {
 
 ## sem() method for msemmod objects
 
-sem.msemmod <- function(model, S, N, group="Group", groups=names(model), raw=FALSE, fixed.x, param.names, var.names, debug=FALSE, analytic.gradient=TRUE, warn=FALSE,
-		maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, startvalues=c("initial.fit", "startvalues"), initial.maxiter=1000,
+sem.msemmod <- function(model, S, N, start.fn=startvalues, group="Group", groups=names(model), raw=FALSE, fixed.x, param.names, var.names, debug=FALSE, analytic.gradient=TRUE, warn=FALSE,
+		maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, start=c("initial.fit", "startvalues"), initial.maxiter=1000,
 		optimizer = optimizerMsem, objective = msemObjectiveML, ...){
 	par.size <- match.arg(par.size)
-	startvalues <- match.arg(startvalues)
+	start <- match.arg(start)
 	G <- length(groups)
 	if (length(model) != G || length(N) != G) 
 		stop("inconsistent number of groups in model (", length(model), "), S (", G, "), and N (", length(N), ") arguments")
@@ -206,19 +207,19 @@ sem.msemmod <- function(model, S, N, group="Group", groups=names(model), raw=FAL
 	logdetS <- sapply(S, function(s) log(det(unclass(s))))
 	sel.free.2 <- sel.free.1 <- arrows.2.free <- arrows.1.free <- arrows.2t <- arrows.2 <- arrows.1 <- 
 			two.free <- one.free <- one.head <- sel.free <- fixed <- par.posn <- correct <- J <- vector(mode="list", length=G)  
-	initial.iterations <- if (startvalues == "initial.fit") numeric(G) else NULL
+	initial.iterations <- if (start == "initial.fit") numeric(G) else NULL
 	for (g in 1:G){
 		mod <- model[[g]]
 		tt <- sum(mod[, 4] != 0)
 		mod[mod[, 4] != 0, 4] <- 1:tt
-		start <- if (startvalues == "initial.fit"){
+		startvals <- if (start == "initial.fit"){
 					prelim.fit <- sem(mod, S[[g]], N=N[[g]], raw=raw, param.names=as.character(1:tt), var.names=as.character(1:m[[g]]), 
 							maxiter=initial.maxiter)
 					initial.iterations[g] <- prelim.fit$iterations
 					coef(prelim.fit)
 				}
-				else startvalues(S[[g]], mod)
-		model[[g]][mod[, 4] != 0, 5] <- ifelse(is.na(mod[mod[, 4] != 0, 5]), start, mod[mod[, 4] != 0, 5])
+				else start.fn(S[[g]], mod)
+		model[[g]][mod[, 4] != 0, 5] <- ifelse(is.na(mod[mod[, 4] != 0, 5]), startvals, mod[mod[, 4] != 0, 5])
 		J[[g]] <- matrix(0, n[g], m[g])
 		correct[[g]] <- matrix(2, m[g], m[g])
 		diag(correct[[g]]) <- 1
@@ -243,14 +244,14 @@ sem.msemmod <- function(model, S, N, group="Group", groups=names(model), raw=FAL
 	}
 	unique.free.1 <- lapply(sel.free.1, unique)
 	unique.free.2 <- lapply(sel.free.2, unique)
-	start <- numeric(t)
-	for (j in 1:t) start[j] <- mean(unlist(sapply(model, function(r) r[r[, 4] == j, 5])), na.rm=TRUE)
+	startvals <- numeric(t)
+	for (j in 1:t) startvals[j] <- mean(unlist(sapply(model, function(r) r[r[, 4] == j, 5])), na.rm=TRUE)
 	model.description <- list(G=G, m=m, n=n, t=t, fixed=fixed, ram=model, sel.free=sel.free, arrows.1=arrows.1, 
 			one.head=one.head, arrows.2=arrows.2, arrows.2t=arrows.2t, J=J, S=S, logdetS=logdetS, 
 			N=N, raw=raw, correct=correct, unique.free.1=unique.free.1, unique.free.2=unique.free.2, 
 			arrows.1.free=arrows.1.free, arrows.2.free=arrows.2.free, param.names=param.names, 
 			var.names=var.names)
-	result <- optimizer(start=start, objective=objective, gradient=analytic.gradient,
+	result <- optimizer(start=startvals, objective=objective, gradient=analytic.gradient,
 			maxiter=maxiter, debug=debug, par.size=par.size, model.description=model.description, warn=warn, ...)
 	if (!is.na(result$iterations)) if(result$iterations >= maxiter) warning("maximum iterations exceeded")
 	result <- c(result, list(ram=model, param.names=param.names, var.names=var.names, group=group, groups=groups,
@@ -383,6 +384,30 @@ msemObjectiveGLS <- function(gradient=FALSE){
 	result
 }
 
+msemObjectiveFIML <- function(gradient=FALSE){
+	result <- list(
+			objective = function(par, model.description){
+				with(model.description, {
+							
+							res <- msemCompiledObjective(par=par, model.description=model.description, objective="objectiveFIML")
+							AA <- PP <- CC <- vector(G,  mode="list")
+							for(g in 1:model.description$G)
+							{
+								AA[[g]] <- res$A[[g]]
+								PP[[g]] <- res$P[[g]]
+								CC[[g]] <- res$C[[g]]
+							}
+							
+							f <- res$f
+							attributes(f) <- list(A=AA, P=PP, C=CC, f=res$ff)
+							f
+						})
+			}
+	)
+	
+	class(result) <- "msemObjective"
+	result
+}
 
 ##  nlm()-based optimizer for multigroup SEMs
 
@@ -397,7 +422,11 @@ optimizerMsem <- function(start, objective=msemObjectiveML, gradient=TRUE,
 					objectiveCompiled <- "objectiveGLS"
 					gradient <- FALSE
 				}
-				else stop("optimizerMsem requires the msemObjectiveML or msemObjectiveGLS objective function")
+				else if (identical(objective, msemObjectiveFIML)) {
+					objectiveCompiled <- "objectiveFIML"
+					gradient <- FALSE
+				}
+				else stop("optimizerMsem requires the msemObjectiveML, msemObjectiveGLS or msemObjectiveFIML objective function")
 				
 				if (!warn) save.warn <- options(warn=-1)
 				
@@ -523,12 +552,21 @@ print.msemObjectiveML <- function(x, ...){
 }
 
 print.msemObjectiveGLS <- function(x, ...) print.msemObjectiveML(x, ...)
+print.msemObjectiveFIML <- function(x, ...) print.msemObjectiveML(x, ...)
 
-summary.msemObjectiveML <- function(object, digits=5, conf.level=.90, robust=FALSE, 
-		analytic.se=object$t <= 500, ...){
-	old.digits <- options(digits = digits)
-	on.exit(options(old.digits))
+summary.msemObjectiveML <- function(object, digits=getOption("digits"), conf.level=.90, robust=FALSE, 
+		analytic.se=object$t <= 500,
+        fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC"),
+        ...){
+    fit.indices <- if (is.null(fit.indices)) ""
+    else {
+        if (missing(fit.indices)){
+            if (is.null(opt <- getOption("fit.indices"))) c("AIC", "BIC") else opt
+        }
+        else match.arg(fit.indices, several.ok=TRUE)
+    }
 	if(inherits(object, "msemObjectiveGLS")) analytic.se <- FALSE
+	else if(inherits(object, "msemObjectiveFIML")) analytic.se <- FALSE
 	groups <- object$groups
 	G <- length(groups)
 	par <- object$coeff
@@ -557,73 +595,84 @@ summary.msemObjectiveML <- function(object, digits=5, conf.level=.90, robust=FAL
 				J=J[[g]], A=A[[g]], P=P[[g]], criterion=group.criteria[g], par.posn=ram[[g]][, 4] != 0, 
 				iterations=object$iterations, semmod=semmod[[g]], adj.obj=object$adj.objects[[g]], 
 				robust.vcov=object$robust.vcov[par.names, par.names])
-		class(group) <- if(inherits(object, "msemObjectiveGLS")) c("objectiveGLS", "sem") else c("objectiveML", "sem")
+		class(group) <- if(inherits(object, "msemObjectiveGLS")) c("objectiveGLS", "sem") 
+				else if(inherits(object, "msemObjectiveFIML")) c("objectiveFIML", "sem")
+				else c("objectiveML", "sem")
 		group.summaries[[g]] <- if(inherits(object, "msemObjectiveGLS"))
-					summary(group, digits=digits, conf.level=conf.level, robust=FALSE, ...)
-			else summary(group, digits=digits, conf.level=conf.level, robust=robust, analytic.se=FALSE, ...)
+					summary(group, digits=digits, conf.level=conf.level, robust=FALSE, fit.indices=fit.indices, ...)
+			else if(inherits(object, "msemObjectiveFIML")) 
+					summary(group, digits=digits, conf.level=conf.level, robust=FALSE, fit.indices=fit.indices, ...)
+			else summary(group, digits=digits, conf.level=conf.level, robust=robust, analytic.se=FALSE, fit.indices=fit.indices, ...)
 		group.summaries[[g]]$iterations <- NA
 	}
 	df <- sum(n*(n + 1)/2) - object$t - sum(n.fix*(n.fix + 1)/2)
 	chisq <- sum(N - !object$raw)*object$criterion
 	wt <- (N - object$raw)/(sum(N - object$raw))
-	SRMR <-if (!object$raw) sum(wt*sapply(group.summaries, function(s) s$SRMR)) else NA
-	GFI <- if (!object$raw) sum(wt*sapply(group.summaries, function(s) s$GFI)) else NA
+	SRMR <-if (!object$raw && "SRMR" %in% fit.indices) sum(wt*sapply(group.summaries, function(s) s$SRMR)) else NA
+	GFI <- if (!object$raw && "GFI" %in% fit.indices) sum(wt*sapply(group.summaries, function(s) s$GFI)) else NA
 	chisqNull <- if(!object$raw) sum(sapply(group.summaries, function(s) s$chisqNull)) else NA
 	dfNull <- sum(n*(n - 1)/2)
 	if (!object$raw && df > 0){
-		AGFI <- 1 - (sum(n*(n * 1))/(2*df))*(1 - GFI)
-		NFI <- (chisqNull - chisq)/chisqNull
-		NNFI <- (chisqNull/dfNull - chisq/df)/(chisqNull/dfNull -1)
-		L1 <- max(chisq - df, 0)
-		L0 <- max(L1, chisqNull - dfNull)
-		CFI <- 1 - L1/L0
-		RMSEA <- sqrt(G*max(object$criterion/df - 1/(sum(N - 1)), 0))
-		tail <- (1 - conf.level)/2
-		max <- sum(N)
-		while (max > 1) {
-			res <- optimize(function(lam) (tail - pchisq(chisq, 
-											df, ncp = lam))^2, interval = c(0, max))
-			if (is.na(res$objective) || res$objective < 0) {
-				max <- 0
-				warning("cannot find upper bound of RMSEA")
-				break
-			}
-			if (sqrt(res$objective) < tail/100) 
-				break
-			max <- max/2
-		}
-		lam.U <- if (max <= 1) 
-					NA
-				else res$minimum
-		max <- max(max, 1)
-		while (max > 1) {
-			res <- optimize(function(lam) (1 - tail - pchisq(chisq, 
-											df, ncp = lam))^2, interval = c(0, max))
-			if (sqrt(res$objective) < tail/100) 
-				break
-			max <- max/2
-			if (is.na(res$objective) || res$objective < 0) {
-				max <- 0
-				warning("cannot find lower bound of RMSEA")
-				break
-			}
-		}
-		lam.L <- if (max <= 1) 
-					NA
-				else res$minimum
-		RMSEA.U <- sqrt(G*lam.U/(sum(N - 1) * df))
-		RMSEA.L <- sqrt(G*lam.L/(sum(N - 1) * df))
+		AGFI <- if ("AGFI" %in% fit.indices) 1 - (sum(n*(n * 1))/(2*df))*(1 - GFI) else NA
+		NFI <- if ("NFI" %in% fit.indices) (chisqNull - chisq)/chisqNull else NA
+		NNFI <- if ("NNFI" %in% fit.indices) (chisqNull/dfNull - chisq/df)/(chisqNull/dfNull -1) else NA
+        L1 <- max(chisq - df, 0)
+    	L0 <- max(L1, chisqNull - dfNull)
+        CFI <- if ("CFI" %in% fit.indices) 1 - L1/L0 else NA
+        RNI <- if ("RNI" %in% fit.indices) 1 - (chisq - df)/(chisqNull - dfNull) else NA
+        IFI <- if ("IFI" %in% fit.indices) (chisqNull - chisq)/(chisqNull - df) else NA
+        if ("RMSEA" %in% fit.indices){
+    		RMSEA <- sqrt(G*max(object$criterion/df - 1/(sum(N - 1)), 0))
+    		tail <- (1 - conf.level)/2
+    		max <- sum(N)
+    		while (max > 1) {
+    			res <- optimize(function(lam) (tail - pchisq(chisq, 
+    											df, ncp = lam))^2, interval = c(0, max))
+    			if (is.na(res$objective) || res$objective < 0) {
+    				max <- 0
+    				warning("cannot find upper bound of RMSEA")
+    				break
+    			}
+    			if (sqrt(res$objective) < tail/100) 
+    				break
+    			max <- max/2
+    		}
+    		lam.U <- if (max <= 1) 
+    					NA
+    				else res$minimum
+    		max <- max(max, 1)
+    		while (max > 1) {
+    			res <- optimize(function(lam) (1 - tail - pchisq(chisq, 
+    											df, ncp = lam))^2, interval = c(0, max))
+    			if (sqrt(res$objective) < tail/100) 
+    				break
+    			max <- max/2
+    			if (is.na(res$objective) || res$objective < 0) {
+    				max <- 0
+    				warning("cannot find lower bound of RMSEA")
+    				break
+    			}
+    		}
+    		lam.L <- if (max <= 1) 
+    					NA
+    				else res$minimum
+    		RMSEA.U <- sqrt(G*lam.U/(sum(N - 1) * df))
+    		RMSEA.L <- sqrt(G*lam.L/(sum(N - 1) * df))
+            }
+        else RMSEA.U <- RMSEA.L <- RMSEA <- NA
 	}
-	else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- NA
+	else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <-IFI <- RNI <- CFI <- AGFI <- NA
 	if (robust){
 		chisq.adjusted <- sum(sapply(group.summaries, function(x) x$chisq.adjusted))
 		if (!object$raw && df > 0){
 			chisqNull.adjusted <- sum(sapply(group.summaries, function(x) x$chisqNull.adjusted))
-			NFI.adjusted <- (chisqNull.adjusted - chisq.adjusted)/chisqNull.adjusted
-			NNFI.adjusted <- (chisqNull.adjusted/dfNull - chisq.adjusted/df)/(chisqNull.adjusted/dfNull - 1)
+			NFI.adjusted <- if ("NFI" %in% fit.indices) (chisqNull.adjusted - chisq.adjusted)/chisqNull.adjusted else NA
+			NNFI.adjusted <- if ("NNFI" %in% fit.indices) (chisqNull.adjusted/dfNull - chisq.adjusted/df)/(chisqNull.adjusted/dfNull - 1) else NA
 			L1 <- max(chisq.adjusted - df, 0)
 			L0 <- max(L1, chisqNull.adjusted - dfNull)
-			CFI.adjusted <- 1 - L1/L0
+			CFI.adjusted <- if ("CFI" %in% fit.indices) 1 - L1/L0 else NA
+            RNI.adjusted <- if ("RNI" %in% fit.indices) 1 - (chisq.adjusted - df)/(chisqNull.adjusted - dfNull) else NA
+            IFI.adjusted <- if ("IFI" %in% fit.indices) (chisqNull.adjusted - chisq.adjusted)/(chisqNull.adjusted - df) else NA
 		}
 	}
 	if (object$raw) cat("\nModel fit to raw moment matrix.\n")	
@@ -636,28 +685,32 @@ summary.msemObjectiveML <- function(object, digits=5, conf.level=.90, robust=FAL
 			cat("\n Corrected Chisquare (null model) = ", chisqNull.adjusted,  "  Df = ", dfNull)
 		}
 		if (df > 0 && !object$raw){
-			cat("\n Corrected Bentler-Bonnett NFI = ", NFI.adjusted)
-			cat("\n Corrected Tucker-Lewis NNFI = ", NNFI.adjusted)
-			cat("\n Corrected Bentler CFI = ", CFI.adjusted)
+			if (!is.na(NFI.adjusted)) cat("\n Corrected Bentler-Bonett NFI = ", NFI.adjusted)
+			if (!is.na(NNFI.adjusted)) cat("\n Corrected Tucker-Lewis NNFI = ", NNFI.adjusted)
+			if (!is.na(CFI.adjusted)) cat("\n Corrected Bentler CFI = ", CFI.adjusted)
+            if (!is.na(RNI.adjusted)) cat("\n Corrected Bentler RNI = ", RNI.adjusted)
+            if (!is.na(IFI.adjusted)) cat("\n Corrected Bollen IFI = ", IFI.adjusted)
 		}
 		cat("\n\nUncorrected Fit Statistics:\n")
 	}
-	if (inherits(object, "msemObjectiveGLS")) {
+	if (inherits(object, "msemObjectiveGLS") || inherits(object, "msemObjectiveFIML")) {
 		AIC <- AICc <- BIC <- NA
 	}
 	else {
-		AIC <- AIC(object)
-		AICc <- AICc(object)
-		BIC <- BIC(object)
+		AIC <- if ("AIC" %in% fit.indices) AIC(object) else NA
+		AICc <- if ("AICc" %in% fit.indices) AICc(object) else NA
+		BIC <- if ("BIC" %in% fit.indices) BIC(object) else NA
 	}
 	cat("\n Model Chisquare =", chisq, " Df =", df, " Pr(>Chisq) =", pchisq(chisq, df, lower.tail=FALSE))
 	if (!is.na(chisqNull)) cat("\n Chisquare (null model) =", chisqNull, " Df =", dfNull)
 	if (!is.na(GFI)) cat("\n Goodness-of-fit index =", GFI)
 	if (!is.na(AGFI)) cat("\n Adjusted goodness-of-fit index =", AGFI)
 	if (!is.na(RMSEA)) cat("\n RMSEA index = ", RMSEA, " ", 100*conf.level, "% CI: (", RMSEA.L, ", ", RMSEA.U, ")", sep="")
-	if (!is.na(NFI)) cat("\n Bentler-Bonnett NFI =", NFI)
+	if (!is.na(NFI)) cat("\n Bentler-Bonett NFI =", NFI)
 	if (!is.na(NNFI)) cat("\n Tucker-Lewis NNFI =", NNFI)
 	if (!is.na(CFI)) cat("\n Bentler CFI =", CFI)
+    if (!is.na(RNI)) cat("\n Bentler RNI = ", RNI)
+    if (!is.na(IFI)) cat("\n Bollen IFI = ", IFI)
 	if (!is.na(SRMR)) cat("\n SRMR =", SRMR)
 	if (!is.na(AIC)) cat("\n AIC =", AIC)
 	if (!is.na(AICc)) cat("\n AICc =", AICc)
@@ -672,9 +725,19 @@ summary.msemObjectiveML <- function(object, digits=5, conf.level=.90, robust=FAL
 	invisible(object)
 }
 
-summary.msemObjectiveGLS <- function(object, digits=5, conf.level=.90, robust=FALSE, ...){
+summary.msemObjectiveGLS <- function(object, digits=getOption("digits"), conf.level=.90,
+    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR"), ...){
+    fit.indices <- if (missing(fit.indices)){
+       getOption("fit.indices")
+    }
+    else match.arg(fit.indices, several.ok=TRUE)
+    summary.msemObjectiveML(object, digits=digits, conf.level=conf.level, robust=FALSE, fit.indices=fit.indices, ...)
+	invisible(object)
+}
+
+summary.msemObjectiveFIML <- function(object, digits=getOption("digits"), conf.level=.90, ...){
 	summary.msemObjectiveML(object, digits=digits, conf.level=conf.level, 
-			robust=robust, ...)
+			robust=FALSE, ...)
 	invisible(object)
 }
 
@@ -690,7 +753,8 @@ AICc.msemObjectiveML <- function(object, ...) {
 }
 
 BIC.msemObjectiveML <- function(object, ...) {
-	deviance(object) + object$t*log(sum(object$N))
+	# deviance(object) + object$t*log(sum(object$N))
+    deviance(object) - df.residual(object)*log(sum(object$N))
 }
 
 residuals.msem <- function(object, ...){

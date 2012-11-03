@@ -1,4 +1,4 @@
-# last modified 2011-08-10 by J. Fox
+# last modified 2012-07-29 by J. Fox
 
 raw.moments <- function(...){
 	.Deprecated("rawMoments", package="sem")
@@ -8,7 +8,7 @@ raw.moments <- function(...){
 rawMoments <- function(object, ...) UseMethod("rawMoments")
 
 rawMoments.formula <- function(formula, data, subset, na.action, 
-	contrasts = NULL, ...) {
+		contrasts = NULL, ...) {
 	if (missing(na.action))
 		na.action <- options()$na.action
 	m <- match.call(expand.dots = FALSE)
@@ -20,7 +20,10 @@ rawMoments.formula <- function(formula, data, subset, na.action,
 	response <- attr(attr(mf, "terms"), "response")
 	if (response) stop("formula cannot have a response")
 	na.act <- attr(mf, "na.action")
-	rawMoments(model.matrix(formula, data = mf, contrasts))
+	X <- model.matrix(formula, data = mf, contrasts)
+	nms <- colnames(X)
+	if ("(Intercept)" %in% nms) colnames(X)[nms == "(Intercept)"] <- "Intercept"
+	rawMoments(X)
 }
 
 rawMoments.default <- function(object, na.rm=FALSE, ...){
@@ -48,11 +51,9 @@ cov2raw <- function(cov, mean, N, sd){
 	raw <- ((N - 1)*cov + N*outer(mean, mean))/N
 	colnames(raw) <- rownames(raw) <- rownames(cov)
 	raw <- rbind(c(1, mean), cbind(mean, raw))
-	if (!("(Intercept)" %in% rownames(raw)))
-		colnames(raw)[1] <- rownames(raw)[1] <- "(Intercept)"
+	if (!("Intercept" %in% rownames(raw)))
+		colnames(raw)[1] <- rownames(raw)[1] <- "Intercept"
 	attr(raw, "N") <- N
 	class(raw) <- "rawmoments"
 	raw
 } 
-
-

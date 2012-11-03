@@ -3,11 +3,14 @@
 \alias{objective.functions}
 \alias{objectiveML}
 \alias{objectiveGLS}
+\alias{objectiveFIML}
 \alias{objectiveML2}
 \alias{objectiveGLS2}
+\alias{objectiveFIML2}
 \alias{msemObjectiveML}
 \alias{msemObjectiveML2}
 \alias{msemObjectiveGLS}
+%% \alias{msemObjectiveFIML}
 
 
 \title{
@@ -18,7 +21,11 @@ sem Objective-Function Builders
 These functions return objective functions suitable for use with \code{\link{optimizers}} called by \code{\link{sem}}. The user would not
 normally call these functions directly, but rather supply one of them in the \code{objective} argument to
 \code{sem}. Users may also write their own objective functions. \code{objectiveML} and \code{objectiveML2} are for multinormal maximum-likelihood
-estimation; \code{objectiveGLS} and \code{objectiveGLS2} are for generalized least squares. \code{objectiveML} and \code{objectiveGLS} use
+estimation; \code{objectiveGLS} and \code{objectiveGLS2} are for generalized least squares; and \code{objectiveFIML2}
+is for so-called ``full-information maximum-likelihood'' estimation in the presence of missing data. The FIML estimator
+provides the same estimates as the ML estimator when there is no missing data; it can be slow because it iterates over
+the unique patterns of missing data that occur in the data set.
+\code{objectiveML} and \code{objectiveGLS} use
 compiled code and are therefore substantially faster. \code{objectiveML2} and \code{objectiveGLS2} are provided primarily to illustrate
 how to write \code{sem} objective functions in R. \code{msemObjectiveML} uses compiled code is for fitting multi-group models by 
 multinormal maximum likelihood; \code{msemObjectiveML2} is similar but doesn't use compiled code. \code{msemObjectiveGLS} uses compiled
@@ -32,15 +39,20 @@ objectiveML2(gradient=TRUE)
 objectiveGLS(gradient=FALSE)
 objectiveGLS2(gradient=FALSE)
 
+objectiveFIML(gradient=TRUE, hessian=FALSE)
+objectiveFIML2(gradient=TRUE, hessian=FALSE)
+
 msemObjectiveML(gradient=TRUE)
 msemObjectiveML2(gradient=TRUE)
 
 msemObjectiveGLS(gradient=FALSE)
+
+%% msemObjectiveFIML(gradient=FALSE)
 }
 
 \arguments{
   \item{gradient}{If \code{TRUE}, the object that's returned includes a function for computing an analytic gradient; there is at present no
-  analytic gradient available for \code{objectiveGLS}, \code{objectiveGLS2}, or \code{msemObjectiveGL}.}
+  analytic gradient available for \code{objectiveFIML}, \code{objectiveGLS}, \code{objectiveGLS2}, or \code{msemObjectiveGL}.}
   \item{hessian}{If \code{TRUE}, the objected returned includes a function to compute an analytic Hessian; only avaiable for \code{objectiveML}
   and not generally recommended.}
 }
@@ -62,4 +74,3 @@ See \code{\link{sem}}.
 }
 
 \keyword{models}
-

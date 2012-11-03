@@ -5,10 +5,10 @@
 # sem or adjchisq objects
 # as well as generate and AIC table
 
-# last modified 2011-11-03 by J. Fox
+# last modified 2012-10-02 by J. Fox
 
 logLik.objectiveML <- function(object, ...){
-	deviance(object)*-2	
+	-0.5*deviance(object)
 	}
 
 # generics
@@ -36,7 +36,13 @@ CAIC.objectiveML <- function(object, ...) {
 }
 
 BIC.objectiveML <- function(object, ...) {
-	deviance(object) + object$t*log(object$N)
+    n <- object$n
+    n.fix <- object$n.fix
+    N <- object$N
+    t <- object$t
+    df <- n*(n + 1)/2 - t - n.fix*(n.fix + 1)/2
+#	deviance(object) + object$t*log(object$N)
+    deviance(object) - df*log(N)
 }
 
 # the following are not exported and are just place-keepers for the summary method
