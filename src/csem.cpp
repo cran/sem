@@ -36,15 +36,39 @@
 
 
 #include "csem.h"
+#include "utils.h"
 
 using namespace std;
 
 // Environment for evaluation and object hunting
 static SEXP theenv;
+static SEXP thefun;   // call R functions. Currently,  we call "print" in R.
+
 static double csem_NaN;
 static const double log2Pi = 1.83787706640934533908193770912476;   //log(2*pi)
 
 void printSEXP(SEXP sexp, const string msg);
+
+void semprintRealVector(const double *x,  int n,  int index)
+{
+		SEXP rargs,Rcall,result;
+
+		// Allocate memory for a vector of reals.
+		// This vector will contain the elements of x,
+		// x is the argument to the R function R_eval_f
+		PROTECT(rargs = allocVector(REALSXP,n));
+		for (int i=0;i<n;i++) {
+				REAL(rargs)[i] = x[i];
+		}
+
+		// evaluate R function R_eval_f with the control x as an argument
+		PROTECT(Rcall = lang2(thefun,rargs));
+		PROTECT(result = eval(Rcall,theenv));
+
+		UNPROTECT(3);
+		return;
+
+}
 //
 // Extracts element with name 'str' from R object 'list'
 // and returns that element.
@@ -532,7 +556,6 @@ static double *Kronecker(const double *A,  const int &rowA, const int &colA, con
 		double *kron = new double[rowA*colA*rowB*colB];
 		int iA, jA, iB, jB;
 		int rowC = rowA*rowB;
-//  int colC = colA*colB;   /* we don't need it when dealing with a column-wise matrix. */
 
 		for(iA = 0; iA < colA; ++iA)
 		{
@@ -1792,6 +1815,7 @@ SEXP csemSolve( SEXP args )
 		R_CheckUserInterrupt();
 
 		theenv = getListElement(args, "csem.environment");
+		thefun = getListElement(args, "print.f");  // for print a Real vector
 
 		csem_NaN = std::numeric_limits<double>::quiet_NaN();
 
@@ -2064,6 +2088,7 @@ SEXP cmsemSolve( SEXP args )
 		R_CheckUserInterrupt();
 
 		theenv = getListElement(args, "csem.environment");
+		thefun = getListElement(args, "print.f");  // for print a Real vector
 
 		csem_NaN = std::numeric_limits<double>::quiet_NaN();
 

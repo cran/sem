@@ -1,4 +1,4 @@
-# last modified 2012-10-24 by J. Fox
+# last modified 2013-01-24 by J. Fox
 
 startvalues2 <- function(S, ram, debug=FALSE, tol=1E-6){
 	ram <- ram[!(ram[, "parameter"] == 0 & ram[, "start value"] == 0), , drop=FALSE] # eliminate fixed parameters set to 0
@@ -89,7 +89,7 @@ startvalues <- function(S, ram, debug=FALSE, tol=1E-6){
     for (l in latent) {
         indicators <- A.pat[observed, l]
         if (any(indicators)){
-            ref <- which.max(rowMeans(abs(R[observed[indicators], observed[indicators]])))
+            ref <- which.max(rowMeans(abs(R[observed[indicators], observed[indicators], drop=FALSE])))
             ref.indicators[l] <- observed[indicators][ref]
         }
         for (j in observed){

@@ -1,10 +1,10 @@
-b97be8cf6d2da501c92347a7a8b20c3f *DESCRIPTION
+89cc4cd27409c9772b81d15a122e582d *DESCRIPTION
 99a3c8a6bc7bc8b2abb79d8e70ade307 *NAMESPACE
-95c0e8635e6a8b9ff0a009a138acbe3f *NEWS
+5bf9d306b871bf20221d61c20849f6b6 *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 088adccbd6f58d3a0c88231abdca659d *R/bootSem.R
 2498e7096d81fc8d04d7a1f3cc25de12 *R/chisqNull.R
-f725b439ddce732dc2124d4bf07654cd *R/csem.R
+7836ee6204abab7585800999f69e5bf6 *R/csem.R
 14578b3cfb3dd6236cbe19be9c98cefe *R/effects.R
 f9a41ba3f0542636d7bbafb2068c997f *R/fscores.R
 b21bb0a8ce1342e86a47e3d900e5343c *R/icmethods.R
@@ -31,7 +31,7 @@ f6c99509287da072a47f5b324b98a4a2 *R/residuals.R
 1b1074ab4882136fe00ae9fcbda2e87f *R/sem.R
 1e38f76a29c8e58783901661c02eed96 *R/specifyModel.R
 24800e46cf9a596191f208fe0a4664b4 *R/standardizedCoefficients.R
-bba56307af80e6afbaa58cd0c222cf00 *R/startvalues.R
+e9d74da3560a9970a141ca14be48f273 *R/startvalues.R
 0b91baeb487906a7e86d5d3396d4d054 *R/summary.methods.R
 f5cfb5a51f998b3c1a442f20706b4400 *R/tsls.R
 6896a232c7cff81faf7b39c3f49ae047 *R/update.R
@@ -83,8 +83,9 @@ d2695fee4aa8e2d26206a3acb68174d6 *man/readMoments.Rd
 5b7398f0f097e221ff7a7dc498afd0ee *man/standardizedCoefficients.Rd
 d4a4baccc252ec3848a3ff5cf12cff86 *man/tsls.Rd
 4bd73d878ae41ff4e047712439474246 *src/Makevars
-d052edf35916c70c988b97ed7e388fdb *src/csem.cpp
+b70e857012d135e4c24d6695dd205e89 *src/csem.cpp
 9f6cbfc66e5cbed2f4fc303070dd3a17 *src/csem.h
 085c025dc4ffacf5b98be1a8fc24682d *src/csemnlm.c
 aa4cbdce5f30acc4e5df41fd5aad5acb *src/csemnlm.h
-84907193d46abad306fdd1de5f2245ae *src/uncmin.c
+f65d35c208a22d7211e82cf91449ff25 *src/uncmin.c
+120ac4d5369777630e7f17282a9c02b6 *src/utils.h

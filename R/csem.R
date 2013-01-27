@@ -138,6 +138,10 @@ msemCompiledSolve <- function(model.description, start, objective=c("objectiveML
 		return(ret)
 }
 
+print.f <- function(input)
+{
+		print(input);   # call R function "print" 
+}
 
 #optimze:0 we only compute the objective function,  gradients or hessian and return them.
 # 
@@ -146,6 +150,11 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 								 opts=list("hessian"=1, "fscale"=1, "gradtol"=1e-6, "steptol"=1e-6, "stepmax"=max(1000 * sqrt(sum((start/typsize)^2)),  1000), "iterlim"=100, 
 													 "ndigit"=12,"print.level"=0, "check.analyticals"=1), 
 								 csem.environment = new.env(), ...){
+
+		environment(print.f) <- csem.environment; 
+ ## Write wrappers around user-defined functions to pass additional
+  ## arguments
+  print.f.wrapper <- function(x){ print.f(x,...) }
 
 		if(missing(model)) stop("Must provide the model.")
 		if(missing(objective)) objective <- "objectiveML"
@@ -159,7 +168,7 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 		if(print.level < 0 || print.level > 2) stop("'print.level' must be in {0, 1, 2}")
 
 
-    ## the following is for generating gradient.
+		## the following is for generating gradient.
 		if(objective != "objectivelogLik")
 		{
 				arrows.1.seq <- model$ram[model$ram[, 1]==1 & model$ram[, 4]!=0,  4] 
@@ -261,6 +270,7 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 										"arrows.1.seq" = arrows.1.seq, 
 										"arrows.2.seq" = arrows.2.seq, 
 										"typsize" = typsize, 
+										"print.f" = print.f.wrapper, 
 										"csem.environment"=csem.environment)
 				attr(ret, "class") <- "csem"
 		}
@@ -279,6 +289,7 @@ csem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), ob
 										"tri" = model$tri, 
 										"posn.intercept" = model$posn.intercept, 
 										"typsize" = typsize, 
+										"print.f" = print.f.wrapper, 
 										"csem.environment"=csem.environment
 										)
 		}
@@ -302,6 +313,11 @@ cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), o
 									opts=list("hessian"=1, "fscale"=1, "gradtol"=1e-6, "steptol"=1e-6, "stepmax"=max(1000 * sqrt(sum((start/typsize)^2)),  1000), "iterlim"=100, 
 														"ndigit"=12,"print.level"=0, "check.analyticals"=1), 
 									csem.environment = new.env(), ...){
+
+		environment(print.f) <- csem.environment; 
+ ## Write wrappers around user-defined functions to pass additional
+  ## arguments
+  print.f.wrapper <- function(x){ print.f(x,...) }
 
 		if(missing(model)) stop("Must provide the model.")
 		if(missing(objective)) objective <- "objectiveML"
@@ -416,6 +432,7 @@ cmsem <- function(model=NULL, start=NULL,opt.flag=1,  typsize=rep(1, model$t), o
 								"arrows.1.seq" = arrows.1.seq, 
 								"arrows.2.seq" = arrows.2.seq, 
 								"typsize" = typsize, 
+								"print.f" = print.f.wrapper, 
 								"csem.environment"=csem.environment)
 		attr(ret, "class") <- "cmsem"
 
