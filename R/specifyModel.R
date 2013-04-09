@@ -1,4 +1,4 @@
-# last modified 2012-07-27 by J. Fox
+# last modified 2013-03-28 by J. Fox
 
 specify.model <- function(...){
 	.Deprecated("specifyModel", package="sem")
@@ -6,70 +6,71 @@ specify.model <- function(...){
 }
 
 specifyModel <- function(file="", exog.variances=FALSE, endog.variances=TRUE, covs, suffix="", quiet=FALSE){
-	add.variances <- function () {
-		variables <- need.variance()
-		nvars <- length(variables)
-		if (nvars == 0) return(model)
-		message("NOTE: adding ", nvars, " variances to the model")
-		paths <- character(nvars)
-		par.names <- character(nvars)
-		for (i in 1:nvars) {
-			paths[i] <- paste(variables[i], "<->", variables[i])
-			par.names[i] <- paste("V[", variables[i], "]", sep = "")
-		}
-		model.2 <- cbind(c(model[, 1], paths), c(model[, 2], par.names), 
-				c(model[, 3], rep(NA, length(paths))))
-		class(model.2) <- "semmod"
-		model.2
-	}
-	need.variance <- function () {
-		all.vars <- classifyVariables(model)
-		exo.vars <- all.vars$exogenous
-		end.vars <- all.vars$endogenous
-		variables <- logical(0)
-		for (paths in model[, 1]) {
-			vars <- strip.white(paths)
-			vars <- sub("-*>", "->", sub("<-*", "<-", vars))
-			vars <- sub("<->|<-", "->", vars)
-			vars <- strsplit(vars, "->")[[1]]
-			if (vars[1] != vars[2]) {
-				for (a.variable in vars) {
-					if (is.na(variables[a.variable])) variables[a.variable] <- TRUE
-				}
-			}
-			else {
-				variables[vars[1]] <- FALSE
-			}
-		}
-		if (!exog.variances && length(exo.vars) > 0) variables[exo.vars] <- FALSE
-		if (!endog.variances && length(end.vars) > 0) variables[end.vars] <- FALSE
-		names(variables)[variables]
-	}
-	model <- scan(file=file, what=list(path="", par="", start=1, dump=""), sep=",", 
-			strip.white=TRUE, comment.char="#", fill=TRUE, quiet=quiet) 
-	# dump permits comma at line end
-	model$par[model$par == ""] <- NA
-	model <- cbind(model$path, model$par, model$start)
-	if (!(missing(covs))){
-		for (cov in covs){
-			vars <- strsplit(cov, "[ ,]+")[[1]]
-			nvar <- length(vars)
-			for (i in 1:nvar){
-				for (j in i:nvar){
-					row <- c(paste(vars[i], "<->", vars[j]), 
-							if (i == j) paste("V[", vars[i], "]", sep="") else paste("C[", vars[i], ",", vars[j], "]", sep=""),
-							NA)
-					if (row[2] %in% model[,2]) next
-					model <- rbind(model, row)
-				}
-			}
-		}
-	}
-	model <- removeRedundantPaths(model, warn=FALSE)
-	result <- add.variances()
-	which.pars <- !is.na(result[, 2])
-	result[which.pars, 2] <- paste(result[which.pars, 2], suffix, sep="")
-	result
+    add.variances <- function () {
+        variables <- need.variance()
+        nvars <- length(variables)
+        if (nvars == 0) return(model)
+        message("NOTE: adding ", nvars, " variances to the model")
+        paths <- character(nvars)
+        par.names <- character(nvars)
+        for (i in 1:nvars) {
+            paths[i] <- paste(variables[i], "<->", variables[i])
+            par.names[i] <- paste("V[", variables[i], "]", sep = "")
+        }
+        model.2 <- cbind(c(model[, 1], paths), c(model[, 2], par.names), 
+            c(model[, 3], rep(NA, length(paths))))
+        class(model.2) <- "semmod"
+        model.2
+    }
+    need.variance <- function () {
+        all.vars <- classifyVariables(model)
+        exo.vars <- all.vars$exogenous
+        end.vars <- all.vars$endogenous
+        variables <- logical(0)
+        for (paths in model[, 1]) {
+            vars <- strip.white(paths)
+            vars <- sub("-*>", "->", sub("<-*", "<-", vars))
+            vars <- sub("<->|<-", "->", vars)
+            vars <- strsplit(vars, "->")[[1]]
+            if (vars[1] != vars[2]) {
+                for (a.variable in vars) {
+                    if (is.na(variables[a.variable])) variables[a.variable] <- TRUE
+                }
+            }
+            else {
+                variables[vars[1]] <- FALSE
+            }
+        }
+        if (!exog.variances && length(exo.vars) > 0) variables[exo.vars] <- FALSE
+        if (!endog.variances && length(end.vars) > 0) variables[end.vars] <- FALSE
+        names(variables)[variables]
+    }
+    model <- scan(file=file, what=list(path="", par="", start=1, dump=""), sep=",", 
+        strip.white=TRUE, comment.char="#", fill=TRUE, quiet=quiet) 
+    # dump permits comma at line end
+    model$path <- gsub("\\t", " ", model$path)
+    model$par[model$par == ""] <- NA
+    model <- cbind(model$path, model$par, model$start)
+    if (!(missing(covs))){
+        for (cov in covs){
+            vars <- strsplit(cov, "[ ,]+")[[1]]
+            nvar <- length(vars)
+            for (i in 1:nvar){
+                for (j in i:nvar){
+                    row <- c(paste(vars[i], "<->", vars[j]), 
+                        if (i == j) paste("V[", vars[i], "]", sep="") else paste("C[", vars[i], ",", vars[j], "]", sep=""),
+                        NA)
+                    if (row[2] %in% model[,2]) next
+                    model <- rbind(model, row)
+                }
+            }
+        }
+    }
+    model <- removeRedundantPaths(model, warn=FALSE)
+    result <- add.variances()
+    which.pars <- !is.na(result[, 2])
+    result[which.pars, 2] <- paste(result[which.pars, 2], suffix, sep="")
+    result
 }
 
 print.semmod <- function(x, ...){

@@ -987,7 +987,7 @@ anova(sem.mg, sem.mg.eq) # test equality constraints
 	
 # The following examples use file input and may be executed via example():
 
-etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
+etc <- system.file(package="sem", "etc") # path to data and model files
 
 #   to get all fit indices (not recommended, but for illustration):
 

@@ -111,7 +111,7 @@ standardizedResiduals(sem.dhp) # same as residuals because model is fit to corre
     }
 # The following example can be executed via example():
 
-etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
+etc <- system.file(package="sem", "etc") # path to data and model files
    
 (R.DHP <- readMoments(file=file.path(etc, "R-DHP.txt"),
 				diag=FALSE, names=c("ROccAsp", "REdAsp", "FOccAsp", 

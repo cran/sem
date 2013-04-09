@@ -114,7 +114,7 @@ effects(sem.dhp)
     
 ## the following example may be executed via example()
 
-etc <- file.path(.path.package(package="sem")[1], "etc") # path to data and model files
+etc <- system.file(package="sem", "etc") # path to data and model files
 
 # The recursive Blau and Duncan basic stratification model:
 #  x1 is father's education, x2 father's SES, y3 respondent's education,
