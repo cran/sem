@@ -1,6 +1,24 @@
+Changes to Version 3.1-4
+
+    o Fixed multigroup start values (which failed under some circumstances, reported by Timo von Oertzen).
+
+    o specifyModel() no longer fails when the model has just one input line.
+
+    o specifyEquations() allows structural equations to be split over more than one line.
+
+    o Fixed bug in computing robust statistics in multigroup models when not all variables in the input data set are in the model (reported by Thomas Niemand).
+
+    o summary.tsls() now returns an object, printed by print.summary.tsls() (after question by Steve Koch).
+
+    o Fixed bug suppressing computation of R^2s in a just-identified model (after report by Paula N. Fergnani).
+
+    o Added message to specifyModel() suggesting use of specifyEquations() or cfa().
+
+    o Small fixes.
+
 Changes to Version 3.1-3
 
-    o Nothing yet!
+    o No substantive changes.
 
 Changes to Version 3.1-2
 

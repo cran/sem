@@ -51,7 +51,8 @@ the presence of missing data),
 \method{anova}{objectiveFIML}(object, model.2, ...)
 
 \method{logLik}{objectiveML}(object, ...)
-\method{logLik}{objectiveFIML}(object, saturated=FALSE, intercept="Intercept", iterlim=1000, ...)
+\method{logLik}{objectiveFIML}(object, saturated=FALSE, 
+    intercept="Intercept", iterlim=1000, ...)
 \method{deviance}{objectiveML}(object, ...)
 \method{deviance}{objectiveFIML}(object, saturated.logLik, ...)
 \method{deviance}{msemObjectiveML}(object, ...) 
@@ -73,18 +74,25 @@ the presence of missing data),
 \method{print}{msemObjectiveML}(x, ...)
 \method{print}{msemObjectiveGLS}(x, ...)
 
-\method{summary}{objectiveML}(object, digits=getOption("digits"), conf.level=.90, robust=FALSE, analytic.se=object$t <= 500, 
-    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC", "CAIC"), ...)
+\method{summary}{objectiveML}(object, digits=getOption("digits"), 
+    conf.level=.90, robust=FALSE, analytic.se=object$t <= 500, 
+    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI",
+      "IFI", "SRMR", "AIC", "AICc", "BIC", "CAIC"), ...)
 \method{summary}{objectiveFIML}(object, digits=getOption("digits"), conf.level=.90,
     fit.indices=c("AIC", "AICc", "BIC", "CAIC"),
     saturated=FALSE, intercept="Intercept", saturated.logLik, ...)
 \method{summary}{objectiveGLS}(object, digits=getOption("digits"), conf.level=.90, 
-    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR"), ...)
-\method{summary}{msemObjectiveML}(object, digits=getOption("digits"), conf.level=.90, robust=FALSE, 
+    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR"),
+    ...)
+\method{summary}{msemObjectiveML}(object, digits=getOption("digits"), 
+    conf.level=.90, robust=FALSE, 
     analytic.se=object$t <= 500,
-    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC"), ...)
-\method{summary}{msemObjectiveGLS}(object, digits=getOption("digits"), conf.level=.90,
-    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR"), ...)
+    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", 
+      "IFI", "SRMR", "AIC", "AICc", "BIC"), ...)
+\method{summary}{msemObjectiveGLS}(object, digits=getOption("digits"), 
+    conf.level=.90,
+    fit.indices=c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", 
+      "CFI", "RNI", "IFI", "SRMR"), ...)
 }
 
 \arguments{

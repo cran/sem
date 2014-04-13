@@ -13,7 +13,8 @@
 
 \usage{
 standardizedCoefficients(object, ...)
-\method{standardizedCoefficients}{sem}(object, digits = getOption("digits"), oneheaded = TRUE, twoheaded = TRUE, ...)
+\method{standardizedCoefficients}{sem}(object, 
+    digits = getOption("digits"), oneheaded = TRUE, twoheaded = TRUE, ...)
 \method{standardizedCoefficients}{msem}(object, ...)
 
 stdCoef(...)

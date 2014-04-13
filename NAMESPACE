@@ -1,9 +1,11 @@
-# last modified 2012-11-01 by J. Fox
+# last modified 2013-09-10 by J. Fox
 
 useDynLib(sem)
 useDynLib(sem, csemSolve)
 
 import(stats)
+
+importFrom(matrixcalc, duplication.matrix, vech)
 
 export(ram, standardizedResiduals, normalizedResiduals, readMoments, 
     startvalues, startvalues2,
@@ -44,6 +46,7 @@ S3method(tsls, default)
 S3method(tsls, formula)
 S3method(print, tsls)
 S3method(summary, tsls)
+S3method(print, summary.tsls)
 S3method(residuals, tsls) 
 S3method(coef, tsls)
 S3method(coef, sem)

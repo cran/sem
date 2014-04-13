@@ -9,6 +9,7 @@
 \alias{anova.tsls}
 \alias{print.tsls}
 \alias{summary.tsls}
+\alias{print.summary.tsls}
 
 \title{Two-Stage Least Squares}
 \description{
@@ -23,6 +24,7 @@
 
 \method{print}{tsls}(x, ...)
 \method{summary}{tsls}(object, digits=getOption("digits"), ...)
+\method{print}{summary.tsls}(x, ...)
 \method{anova}{tsls}(object, model.2, s2, dfe, ...)
 
 \method{fitted}{tsls}(object, ...)
@@ -52,7 +54,8 @@
   \item{X}{Matrix of predictors, including a constant (if one is in the model).}
   \item{Z}{Matrix of instrumental variables, including a constant (if one is in the model).}
   \item{names}{optional character vector of names for the columns of the \code{X} matrix.}
-  \item{x, object, model.2}{objects of class \code{tsls} returned by \code{tsls.formula}, for \code{anova} 
+  \item{x, object, model.2}{objects of class \code{tsls} returned by \code{tsls.formula} 
+    (or of class \code{summary.tsls}), for \code{anova} 
     containing nested models
     to be compared by an incremental \eqn{F}-test. One model should be nested in the other; the
     order of models is immaterial.}

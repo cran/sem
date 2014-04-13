@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 2012-02-26 by J. Fox
+# last modified 2013-09-10 by J. Fox
 
 tsls <- function (y, ...) {
 	UseMethod("tsls")
@@ -84,33 +84,42 @@ print.tsls <- function (x, ...) {
 }
 
 summary.tsls <- function (object, digits=getOption("digits"), ...) {
-	save.digits <- unlist(options(digits = digits))
-	on.exit(options(digits = save.digits))
-	cat("\n 2SLS Estimates\n")
-	cat("\nModel Formula: ")
-	print(object$formula)
-	cat("\nInstruments: ")
-	print(object$instruments)
-	if (!is.null(object$wt.var)){
-		cat("\nWeights: ", object$wt.var, "\n")
-	}
-	cat("\nResiduals:\n")
-	print(summary(residuals(object)))
-	cat("\n")
-	df <- object$n - object$p
-	std.errors <- sqrt(diag(object$V))
-	b <- object$coefficients
-	t <- b/std.errors
-	p <- 2 * (1 - pt(abs(t), df))
-	table <- cbind(b, std.errors, t, p)
-	rownames(table) <- names(b)
-	colnames(table) <- c("Estimate", "Std. Error", "t value", 
-			"Pr(>|t|)")
-	printCoefmat(table, digits=digits)
-	cat(paste("\nResidual standard error:", round(object$s, digits), 
-					"on", df, "degrees of freedom\n\n"))
-}
+    save.digits <- options(digits = digits)
+    on.exit(options(save.digits))
+    df <- object$n - object$p
+    std.errors <- sqrt(diag(object$V))
+    b <- object$coefficients
+    t <- b/std.errors
+    p <- 2 * (1 - pt(abs(t), df))
+    table <- cbind(b, std.errors, t, p)
+    rownames(table) <- names(b)
+    colnames(table) <- c("Estimate", "Std. Error", "t value", 
+        "Pr(>|t|)")
     
+    result <- list(formula=object$formula, instruments=object$instruments, wt.var=object$wt.var,
+        residuals=summary(residuals(object)), coefficients=table, digits=digits, s=object$s, df=df)
+    class(result) <- "summary.tsls"
+    result
+}
+
+print.summary.tsls <- function(x, ...){
+    cat("\n 2SLS Estimates\n")
+    cat("\nModel Formula: ")
+    print(x$formula)
+    cat("\nInstruments: ")
+    print(x$instruments)
+    if (!is.null(x$wt.var)){
+        cat("\nWeights: ", x$wt.var, "\n")
+    }
+    cat("\nResiduals:\n")
+    print(x$residuals)
+    cat("\n")
+    printCoefmat(x$coefficients, digits=x$digits)
+    cat(paste("\nResidual standard error:", round(x$s, x$digits), 
+        "on", x$df, "degrees of freedom\n\n"))
+    invisible(x)
+}
+
 residuals.tsls <- function(object, ...){
     res <- object$residuals
     if (is.null(object$na.action)) 

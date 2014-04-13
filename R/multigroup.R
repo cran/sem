@@ -1,5 +1,5 @@
 ### multigroup SEMs  
-# last modified J. Fox 2012-10-04
+# last modified J. Fox 2013-06-14
 
 ## model definition
 
@@ -41,110 +41,111 @@ print.semmodList <- function(x, ...){
 ## sem() method for semmodList objects
 
 sem.semmodList <- function(model, S, N, data, raw=FALSE, fixed.x=NULL, robust=!missing(data), formula, group="Group", debug=FALSE, ...){
-	data.out <- NULL
-	if (missing(S)){
-		if (missing(data)) stop("S and data cannot both be missing")
-		data.df <- inherits(data, "data.frame")
-		if (data.df && missing(group)) stop("S and group cannot both be missing")
-		if (data.df){
-			if (!is.factor(data[, group])) stop("Groups variable, ", group, ", is not a factor")
-			levels <- levels(data[, group])
-			if (missing(formula)) formula <- as.formula(paste("~ . -", group))
-		}
-		else {
-			if (!all(sapply(data, function(d) inherits(d, "data.frame")))) stop("data must be a data frame or list of data frames")
-			levels <- names(data)
-			if (is.null(levels)) levels <- paste("Group", seq(along=data), sep=".")
-			if (missing(formula)) formula <- ~ .
-		}
-		G <- length(levels)
-		if (is.list(formula) && length(formula) != G) stop("number of formulas, ", length(formula), ", not equal to number of groups, ", G, sep="")
-		if (is.list(formula)){	
-			if (!all(names(model) == names(formula))) warning("names of groups (", paste(names(model), collapse=", "), 
-						") is not the same as names of formulas in formula argument (", 
-						paste(names(formula), collapse=", "), ")")
-		}
-		S <- vector(G, mode="list")
-		names(S) <- levels
-		N <- numeric(G)
-		data.out <- vector(G, mode="list")
-		for (g in 1:G){
-			data.group <- if (data.df) subset(data, subset = data[, group] == levels[g]) else data[[g]]
-			N.all <- nrow(data.group)
-			form <- if (is.list(formula)) formula[[g]] else formula
-			data.group <- model.matrix(form, data=data.group)
+    data.out <- NULL
+    if (missing(S)){
+        if (missing(data)) stop("S and data cannot both be missing")
+        data.df <- inherits(data, "data.frame")
+        if (data.df && missing(group)) stop("S and group cannot both be missing")
+        if (data.df){
+            if (!is.factor(data[, group])) stop("Groups variable, ", group, ", is not a factor")
+            levels <- levels(data[, group])
+            if (missing(formula)) formula <- as.formula(paste("~ . -", group))
+        }
+        else {
+            if (!all(sapply(data, function(d) inherits(d, "data.frame")))) stop("data must be a data frame or list of data frames")
+            levels <- names(data)
+            if (is.null(levels)) levels <- paste("Group", seq(along=data), sep=".")
+            if (missing(formula)) formula <- ~ .
+        }
+        G <- length(levels)
+        if (is.list(formula) && length(formula) != G) stop("number of formulas, ", length(formula), ", not equal to number of groups, ", G, sep="")
+        if (is.list(formula)){    
+            if (!all(names(model) == names(formula))) warning("names of groups (", paste(names(model), collapse=", "), 
+                ") is not the same as names of formulas in formula argument (", 
+                paste(names(formula), collapse=", "), ")")
+        }
+        S <- vector(G, mode="list")
+        names(S) <- levels
+        N <- numeric(G)
+        data.out <- vector(G, mode="list")
+        for (g in 1:G){
+            data.group <- if (data.df) subset(data, subset = data[, group] == levels[g]) else data[[g]]
+            N.all <- nrow(data.group)
+            form <- if (is.list(formula)) formula[[g]] else formula
+            data.group <- model.matrix(form, data=data.group)
             colnames(data.group)[colnames(data.group) == "(Intercept)"] <- "Intercept"
-			N[g] <- nrow(data.group)
-			if (N[g] < N.all) warning(N.all - N[g]," observations removed due to missingness in group ", levels[g])
-			S[[g]] <- if (raw) rawMoments(data.group) else{
-						data.group <- data.group[, colnames(data.group) != "Intercept"]
-						cov(data.group)
-					}
-			data.out[[g]] <- data.group
-		}
-	}
-	else G <- length(S)
-	if (length(model) != G) stop("number of group models, ", length(model), ", not equal to number of moment/data matrices, ", G, sep="")
-	pars <-  unique(na.omit(unlist(lapply(model, function(mod) mod[, 2]))))
-	vars <- rams <- vector(length(model), mode="list")
-	all.par.names <- character(0)
-	all.pars <- numeric(0)
-	for (i in 1:G){
-		obs.variables <- colnames(S[[i]])
-		mod <- model[[i]]
-		if ((!is.matrix(mod)) | ncol(mod) != 3) stop("model argument must be a 3-column matrix")
-		startvalues <- as.numeric(mod[, 3])
-		par.names <- mod[, 2]
-		n.paths <- length(par.names)
-		heads <- from <- to <- rep(0, n.paths)
-		for (p in 1:n.paths){
-			path <- parse.path(mod[p, 1])
-			heads[p] <- abs(path$direction)
-			to[p] <- path$second
-			from[p] <- path$first
-			if (path$direction == -1) {
-				to[p] <- path$first
-				from[p] <- path$second
-			}
-		}
-		ram <- matrix(0, n.paths, 5)
-		all.vars <- unique(c(to, from))
-		latent.vars <- setdiff(all.vars, obs.variables)
-		not.used <- setdiff(obs.variables, all.vars)
-		if (length(not.used) > 0){
-			rownames(S[[i]]) <- colnames(S[[i]]) <- obs.variables
-			obs.variables <- setdiff(obs.variables, not.used)
-			S[[i]] <- S[[i]][obs.variables, obs.variables]
-			warning("The following observed variables are in the input covariance or raw-moment matrix for group ", i,
-					" but do not appear in the model:\n",
-					paste(not.used, collapse=", "), "\n")
-		}
-		vars[[i]] <- c(obs.variables, latent.vars)
-		ram[,1] <- heads
-		ram[,2] <- apply(outer(vars[[i]], to, "=="), 2, which)
-		ram[,3] <- apply(outer(vars[[i]], from, "=="), 2, which)   
-		par.nos <- apply(outer(pars, par.names, "=="), 2, which)
-		if (length(par.nos) > 0)
-			ram[,4] <- unlist(lapply(par.nos, function(x) if (length(x) == 0) 0 else x))
-		ram[,5]<- startvalues
-		colnames(ram) <- c("heads", "to", "from", "parameter", "start value")
-		rams[[i]] <- ram
-		all.pars <- c(all.pars, par.nos)
-		all.par.names <- c(all.par.names, par.names)
-	}
-	all.pars <- unique(unlist(all.pars))
-	all.par.names <- unique(na.omit(all.par.names))	
-	class(rams) <- "msemmod"
-	result <- sem(rams, S, N, group=group, groups=names(model), raw=raw, fixed.x=fixed.x, param.names=all.par.names[all.pars], var.names=vars, debug=debug, ...)
-	result$semmodList <- model
-	result$data <- if(missing(data)) NULL else data.out
-	if (robust && !missing(data) && inherits(result, "msemObjectiveML")){
-		res <- robustVcovMsem(result)
-		result$robust.vcov <- res$vcov
-		result$chisq.scaled <- res$chisq.scaled
-		result$adj.objects <- res$adj.objects
-	}
-	result
+            N[g] <- nrow(data.group)
+            if (N[g] < N.all) warning(N.all - N[g]," observations removed due to missingness in group ", levels[g])
+            S[[g]] <- if (raw) rawMoments(data.group) else{
+                data.group <- data.group[, colnames(data.group) != "Intercept"]
+                cov(data.group)
+            }
+            data.out[[g]] <- data.group
+        }
+    }
+    else G <- length(S)
+    if (length(model) != G) stop("number of group models, ", length(model), ", not equal to number of moment/data matrices, ", G, sep="")
+    pars <-  unique(na.omit(unlist(lapply(model, function(mod) mod[, 2]))))
+    vars <- rams <- vector(length(model), mode="list")
+    all.par.names <- character(0)
+    all.pars <- numeric(0)
+    for (i in 1:G){
+        obs.variables <- colnames(S[[i]])
+        mod <- model[[i]]
+        if ((!is.matrix(mod)) | ncol(mod) != 3) stop("model argument must be a 3-column matrix")
+        startvalues <- as.numeric(mod[, 3])
+        par.names <- mod[, 2]
+        n.paths <- length(par.names)
+        heads <- from <- to <- rep(0, n.paths)
+        for (p in 1:n.paths){
+            path <- parse.path(mod[p, 1])
+            heads[p] <- abs(path$direction)
+            to[p] <- path$second
+            from[p] <- path$first
+            if (path$direction == -1) {
+                to[p] <- path$first
+                from[p] <- path$second
+            }
+        }
+        ram <- matrix(0, n.paths, 5)
+        all.vars <- unique(c(to, from))
+        latent.vars <- setdiff(all.vars, obs.variables)
+        not.used <- setdiff(obs.variables, all.vars)
+        if (length(not.used) > 0){
+            rownames(S[[i]]) <- colnames(S[[i]]) <- obs.variables
+            obs.variables <- setdiff(obs.variables, not.used)
+            S[[i]] <- S[[i]][obs.variables, obs.variables]
+            data.out[[i]] <- data.out[[i]][, obs.variables]
+            warning("The following observed variables are in the input covariance or raw-moment matrix for group ", i,
+                " but do not appear in the model:\n",
+                paste(not.used, collapse=", "), "\n")
+        }
+        vars[[i]] <- c(obs.variables, latent.vars)
+        ram[,1] <- heads
+        ram[,2] <- apply(outer(vars[[i]], to, "=="), 2, which)
+        ram[,3] <- apply(outer(vars[[i]], from, "=="), 2, which)   
+        par.nos <- apply(outer(pars, par.names, "=="), 2, which)
+        if (length(par.nos) > 0)
+            ram[,4] <- unlist(lapply(par.nos, function(x) if (length(x) == 0) 0 else x))
+        ram[,5]<- startvalues
+        colnames(ram) <- c("heads", "to", "from", "parameter", "start value")
+        rams[[i]] <- ram
+        all.pars <- c(all.pars, par.nos)
+        all.par.names <- c(all.par.names, par.names)
+    }
+    all.pars <- unique(unlist(all.pars))
+    all.par.names <- unique(na.omit(all.par.names))	
+    class(rams) <- "msemmod"
+    result <- sem(rams, S, N, group=group, groups=names(model), raw=raw, fixed.x=fixed.x, param.names=all.par.names[all.pars], var.names=vars, debug=debug, ...)
+    result$semmodList <- model
+    result$data <- if(missing(data)) NULL else data.out
+    if (robust && !missing(data) && inherits(result, "msemObjectiveML")){
+        res <- robustVcovMsem(result)
+        result$robust.vcov <- res$vcov
+        result$chisq.scaled <- res$chisq.scaled
+        result$adj.objects <- res$adj.objects
+    }
+    result
 }
 
 parse.path <- function(path) {                                           
@@ -161,107 +162,113 @@ parse.path <- function(path) {
 ## sem() method for msemmod objects
 
 sem.msemmod <- function(model, S, N, start.fn=startvalues, group="Group", groups=names(model), raw=FALSE, fixed.x, param.names, var.names, debug=FALSE, analytic.gradient=TRUE, warn=FALSE,
-		maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, start=c("initial.fit", "startvalues"), initial.maxiter=1000,
-		optimizer = optimizerMsem, objective = msemObjectiveML, ...){
-	par.size <- match.arg(par.size)
-	start <- match.arg(start)
-	G <- length(groups)
-	if (length(model) != G || length(N) != G) 
-		stop("inconsistent number of groups in model (", length(model), "), S (", G, "), and N (", length(N), ") arguments")
-	if (is.null(names(S))) names(S) <- groups
-	if (is.null(names(N))) names(N) <- groups
-	if (is.null(names(model))) names(model) <- groups
-	if (!all(groups == names(model))) warning("names of groups (", paste(groups, collapse=", "), 
-				") is not the same as names of models in model argument (", 
-				paste(names(model), collapse=", "), ")")
-	if (!all(groups == names(S))) warning("names of groups (", paste(groups, collapse=", "),
-				") is not the same as names of moment matrices in S argument (", 
-				paste(names(S), collapse=", "), ")")
-	if (!all(groups == names(N))) warning("names of groups (", paste(groups, collapse=", "),
-				") is not the same as names of sample sizes in N argument (", 
-				paste(names(N), collapse=", "), ")")
-	if (length(fixed.x) == 1) fixed.x <- lapply(1:G, function(g) fixed.x)
-	n.fix <- 0 
-	if (!is.null(fixed.x)){
-		n.fix <- numeric(G)
-		for (g in 1:G){
-			fx <- fixed.x[[g]]
-			n.fix[g] <- length(fx)
-			if (n.fix[g] == 0) next
-			fx <- which(rownames(S[[g]]) %in% fx)
-			mod <- model[[g]]
-			for (i in 1:n.fix[g]){
-				for (j in 1:i){
-					mod <- rbind(mod, c(2, fx[i], fx[j],
-									0, S[[g]][fx[i], fx[j]]))
-				}
-			}
-			model[[g]] <- mod
-		}
-	}
-	t <- max(sapply(model, function(r) max(r[, 4])))
-	if(missing(param.names)) param.names <- paste("Parameter", 1:t, sep=".")
-	if (missing(var.names)) var.names <- lapply(model, function(mod) paste("Variable", 1:max(mod[, c(2,3)]), sep="."))
-	n <- sapply(S, nrow)
-	m <- sapply(model, function(r)  max(r[, c(2, 3)]))
-	logdetS <- sapply(S, function(s) log(det(unclass(s))))
-	sel.free.2 <- sel.free.1 <- arrows.2.free <- arrows.1.free <- arrows.2t <- arrows.2 <- arrows.1 <- 
-			two.free <- one.free <- one.head <- sel.free <- fixed <- par.posn <- correct <- J <- vector(mode="list", length=G)  
-	initial.iterations <- if (start == "initial.fit") numeric(G) else NULL
-	for (g in 1:G){
-		mod <- model[[g]]
-		tt <- sum(mod[, 4] != 0)
-		mod[mod[, 4] != 0, 4] <- 1:tt
-		startvals <- if (start == "initial.fit"){
-					prelim.fit <- sem(mod, S[[g]], N=N[[g]], raw=raw, param.names=as.character(1:tt), var.names=as.character(1:m[[g]]), 
-							maxiter=initial.maxiter)
-					initial.iterations[g] <- prelim.fit$iterations
-					coef(prelim.fit)
-				}
-				else start.fn(S[[g]], mod)
-		model[[g]][mod[, 4] != 0, 5] <- ifelse(is.na(mod[mod[, 4] != 0, 5]), startvals, mod[mod[, 4] != 0, 5])
-		J[[g]] <- matrix(0, n[g], m[g])
-		correct[[g]] <- matrix(2, m[g], m[g])
-		diag(correct[[g]]) <- 1
-		observed <- 1:n[g]
-		J[[g]][cbind(observed, observed)] <- 1
-		par.posn[[g]] <-  sapply(1:t, function(i) which(model[[g]][,4] == i)[1])
-		colnames(model[[g]]) <- c("heads", "to", "from", "parameter", "start value")
-		rownames(model[[g]]) <- rep("", nrow(model[[g]]))
-		fixed[[g]] <- model[[g]][, 4] == 0
-		sel.free[[g]] <- model[[g]][, 4]
-		sel.free[[g]][fixed[[g]]] <- 1
-		one.head[[g]] <- model[[g]][, 1] == 1
-		one.free[[g]] <- which( (!fixed[[g]]) & one.head[[g]] )
-		two.free[[g]] <- which( (!fixed[[g]]) & (!one.head[[g]]) )
-		arrows.1[[g]] <- model[[g]][one.head[[g]], c(2, 3), drop=FALSE]
-		arrows.2[[g]] <- model[[g]][!one.head[[g]], c(2, 3), drop=FALSE]
-		arrows.2t[[g]] <- model[[g]][!one.head[[g]], c(3 ,2), drop=FALSE]
-		arrows.1.free[[g]] <- model[[g]][one.free[[g]], c(2, 3), drop=FALSE]
-		arrows.2.free[[g]] <- model[[g]][two.free[[g]], c(2, 3), drop=FALSE]
-		sel.free.1[[g]] <- sel.free[[g]][one.free[[g]]]
-		sel.free.2[[g]] <- sel.free[[g]][two.free[[g]]]
-	}
-	unique.free.1 <- lapply(sel.free.1, unique)
-	unique.free.2 <- lapply(sel.free.2, unique)
-	startvals <- numeric(t)
-	for (j in 1:t) startvals[j] <- mean(unlist(sapply(model, function(r) r[r[, 4] == j, 5])), na.rm=TRUE)
-	model.description <- list(G=G, m=m, n=n, t=t, fixed=fixed, ram=model, sel.free=sel.free, arrows.1=arrows.1, 
-			one.head=one.head, arrows.2=arrows.2, arrows.2t=arrows.2t, J=J, S=S, logdetS=logdetS, 
-			N=N, raw=raw, correct=correct, unique.free.1=unique.free.1, unique.free.2=unique.free.2, 
-			arrows.1.free=arrows.1.free, arrows.2.free=arrows.2.free, param.names=param.names, 
-			var.names=var.names)
-	result <- optimizer(start=startvals, objective=objective, gradient=analytic.gradient,
-			maxiter=maxiter, debug=debug, par.size=par.size, model.description=model.description, warn=warn, ...)
-	if (!is.na(result$iterations)) if(result$iterations >= maxiter) warning("maximum iterations exceeded")
-	result <- c(result, list(ram=model, param.names=param.names, var.names=var.names, group=group, groups=groups,
-					S=S, N=N, J=J, n=n, m=m, t=t, raw=raw, optimizer=optimizer, objective=objective, fixed.x=fixed.x, n.fix=n.fix,
-					initial.iterations=initial.iterations))
-	cls <- gsub("\\.", "", deparse(substitute(objective)))
-	cls <- gsub("2", "", cls)
-	class(result) <- c(cls, "msem")
-	result
+    maxiter=5000, par.size = c("ones", "startvalues"), start.tol = 1e-06, start=c("initial.fit", "startvalues"), initial.maxiter=1000,
+    optimizer = optimizerMsem, objective = msemObjectiveML, ...){
+    par.size <- match.arg(par.size)
+    start <- match.arg(start)
+    G <- length(groups)
+    if (length(model) != G || length(N) != G) 
+        stop("inconsistent number of groups in model (", length(model), "), S (", G, "), and N (", length(N), ") arguments")
+    if (is.null(names(S))) names(S) <- groups
+    if (is.null(names(N))) names(N) <- groups
+    if (is.null(names(model))) names(model) <- groups
+    if (!all(groups == names(model))) warning("names of groups (", paste(groups, collapse=", "), 
+        ") is not the same as names of models in model argument (", 
+        paste(names(model), collapse=", "), ")")
+    if (!all(groups == names(S))) warning("names of groups (", paste(groups, collapse=", "),
+        ") is not the same as names of moment matrices in S argument (", 
+        paste(names(S), collapse=", "), ")")
+    if (!all(groups == names(N))) warning("names of groups (", paste(groups, collapse=", "),
+        ") is not the same as names of sample sizes in N argument (", 
+        paste(names(N), collapse=", "), ")")
+    if (length(fixed.x) == 1) fixed.x <- lapply(1:G, function(g) fixed.x)
+    n.fix <- 0 
+    if (!is.null(fixed.x)){
+        n.fix <- numeric(G)
+        for (g in 1:G){
+            fx <- fixed.x[[g]]
+            n.fix[g] <- length(fx)
+            if (n.fix[g] == 0) next
+            fx <- which(rownames(S[[g]]) %in% fx)
+            mod <- model[[g]]
+            for (i in 1:n.fix[g]){
+                for (j in 1:i){
+                    mod <- rbind(mod, c(2, fx[i], fx[j],
+                        0, S[[g]][fx[i], fx[j]]))
+                }
+            }
+            model[[g]] <- mod
+        }
+    }
+    t <- max(sapply(model, function(r) max(r[, 4])))
+    if(missing(param.names)) param.names <- paste("Parameter", 1:t, sep=".")
+    if (missing(var.names)) var.names <- lapply(model, function(mod) paste("Variable", 1:max(mod[, c(2,3)]), sep="."))
+    n <- sapply(S, nrow)
+    m <- sapply(model, function(r)  max(r[, c(2, 3)]))
+    logdetS <- sapply(S, function(s) log(det(unclass(s))))
+    sel.free.2 <- sel.free.1 <- arrows.2.free <- arrows.1.free <- arrows.2t <- arrows.2 <- arrows.1 <- 
+        two.free <- one.free <- one.head <- sel.free <- fixed <- par.posn <- correct <- J <- vector(mode="list", length=G)  
+    initial.iterations <- if (start == "initial.fit") numeric(G) else NULL
+    for (g in 1:G){
+        mod <- model[[g]]
+        #         tt <- sum(mod[, 4] != 0)
+        #         mod[mod[, 4] != 0, 4] <- 1:tt
+        initial.pars <- mod[, 4]
+        unique.pars <- unique(initial.pars)
+        unique.pars <- unique.pars[unique.pars != 0]
+        tt <- length(unique.pars)
+        if (tt > 0) for (i in 1:tt) mod[initial.pars == unique.pars[i], 4] <- i
+        startvals <- if (start == "initial.fit"){
+            prelim.fit <- sem(mod, S[[g]], N=N[[g]], raw=raw, param.names=if(tt > 0) as.character(1:tt) else character(0), var.names=as.character(1:m[[g]]), 
+                maxiter=initial.maxiter)
+            initial.iterations[g] <- prelim.fit$iterations
+            coef(prelim.fit)
+        }
+        else start.fn(S[[g]], mod)
+        model[[g]][mod[, 4] != 0, 5] <- ifelse(is.na(mod[mod[, 4] != 0, 5]), startvals, mod[mod[, 4] != 0, 5])
+        J[[g]] <- matrix(0, n[g], m[g])
+        correct[[g]] <- matrix(2, m[g], m[g])
+        diag(correct[[g]]) <- 1
+        observed <- 1:n[g]
+        J[[g]][cbind(observed, observed)] <- 1
+        par.posn[[g]] <-  sapply(1:t, function(i) which(model[[g]][,4] == i)[1])
+        colnames(model[[g]]) <- c("heads", "to", "from", "parameter", "start value")
+        rownames(model[[g]]) <- rep("", nrow(model[[g]]))
+        fixed[[g]] <- model[[g]][, 4] == 0
+        sel.free[[g]] <- model[[g]][, 4]
+        sel.free[[g]][fixed[[g]]] <- 1
+        one.head[[g]] <- model[[g]][, 1] == 1
+        one.free[[g]] <- which( (!fixed[[g]]) & one.head[[g]] )
+        two.free[[g]] <- which( (!fixed[[g]]) & (!one.head[[g]]) )
+        arrows.1[[g]] <- model[[g]][one.head[[g]], c(2, 3), drop=FALSE]
+        arrows.2[[g]] <- model[[g]][!one.head[[g]], c(2, 3), drop=FALSE]
+        arrows.2t[[g]] <- model[[g]][!one.head[[g]], c(3 ,2), drop=FALSE]
+        arrows.1.free[[g]] <- model[[g]][one.free[[g]], c(2, 3), drop=FALSE]
+        arrows.2.free[[g]] <- model[[g]][two.free[[g]], c(2, 3), drop=FALSE]
+        sel.free.1[[g]] <- sel.free[[g]][one.free[[g]]]
+        sel.free.2[[g]] <- sel.free[[g]][two.free[[g]]]
+    }
+    unique.free.1 <- lapply(sel.free.1, unique)
+    unique.free.2 <- lapply(sel.free.2, unique)
+    startvals <- numeric(t)
+    for (j in 1:t) startvals[j] <- mean(unlist(sapply(model, function(r) r[r[, 4] == j, 5])), na.rm=TRUE)
+    model.description <- list(G=G, m=m, n=n, t=t, fixed=fixed, ram=model, sel.free=sel.free, arrows.1=arrows.1, 
+        one.head=one.head, arrows.2=arrows.2, arrows.2t=arrows.2t, J=J, S=S, logdetS=logdetS, 
+        N=N, raw=raw, correct=correct, unique.free.1=unique.free.1, unique.free.2=unique.free.2, 
+        arrows.1.free=arrows.1.free, arrows.2.free=arrows.2.free, param.names=param.names, 
+        var.names=var.names)
+    result <- optimizer(start=startvals, objective=objective, gradient=analytic.gradient,
+        maxiter=maxiter, debug=debug, par.size=par.size, model.description=model.description, warn=warn, ...)
+    if (!is.na(result$iterations)) if(result$iterations >= maxiter) warning("maximum iterations exceeded")
+    result <- c(result, list(ram=model, param.names=param.names, var.names=var.names, group=group, groups=groups,
+        S=S, N=N, J=J, n=n, m=m, t=t, raw=raw, optimizer=optimizer, objective=objective, fixed.x=fixed.x, n.fix=n.fix,
+        initial.iterations=initial.iterations))
+    cls <- gsub("\\.", "", deparse(substitute(objective)))
+    cls <- gsub("2", "", cls)
+    class(result) <- c(cls, "msem")
+    result
 }
+
 
 
 

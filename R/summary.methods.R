@@ -1,4 +1,4 @@
-# last modified 2012-10-04 by J. Fox
+# last modified 2013-12-19 by J. Fox
 
 
 summary.objectiveML <- function(object, digits=getOption("digits"), conf.level=.90, robust=FALSE, analytic.se=object$t <= 500, 
@@ -31,6 +31,7 @@ summary.objectiveML <- function(object, digits=getOption("digits"), conf.level=.
 	chisqNull <- chisqNull(object)
 	chisq <- object$criterion * (N - (!object$raw))
 	GFI <- if (!"GFI" %in% fit.indices) NA else if (!object$raw) 1 - sum(diag(CSC))/sum(diag(CS)) else NA
+    Rsq <- if (!object$raw) Rsq(object) else NA
 	if ((!object$raw) && df > 0){
 		AGFI <- if (!"AGFI" %in% fit.indices) NA else 1 - (n*(n + 1)/(2*df))*(1 - GFI)
 		NFI <- if (!"NFI" %in% fit.indices) NA else (chisqNull - chisq)/chisqNull
@@ -73,9 +74,8 @@ summary.objectiveML <- function(object, digits=getOption("digits"), conf.level=.
 		    RMSEA.U <- sqrt(lam.U/((N - (!object$raw))*df))
 		    RMSEA.L <- sqrt(lam.L/((N - (!object$raw))*df))
 		}
-		Rsq <- Rsq(object)
 	}
-	else Rsq <- RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- RNI <- IFI <- NA
+	else RMSEA.U <- RMSEA.L <- RMSEA <- NFI <- NNFI <- CFI <- AGFI <- RNI <- IFI <- NA
 	if (!is.na(RMSEA)) RMSEA <- c(RMSEA, RMSEA.L, RMSEA.U, conf.level)
 	if (!is.null(object$coeff)){
 		var.names <- rownames(object$A)

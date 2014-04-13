@@ -63,7 +63,8 @@ removeRedundantPaths(model, warn=TRUE)
     fixed to \code{1}. The \code{sem} function should then be called with \code{raw=TRUE}, and either
     supplied with a data set (via the \code{data} argument) or a raw-moment matrix (via the \code{S}
     argument).}
-  \item{quiet}{if \code{FALSE}, the default, then the number of input lines is reported.}
+  \item{quiet}{if \code{FALSE}, the default, then the number of input lines is reported and
+    a message is printed suggesting that \code{specifyEquations} or \code{cfa} be used.}
   \item{x, model, object, name}{An object of class \code{semmod} or \code{semmodList}, as produced by
     \code{specifyModel} or \code{multigroupModel}.}
   \item{warn}{print a warning if redundant paths are detected.}
@@ -129,7 +130,9 @@ removeRedundantPaths(model, warn=TRUE)
   \code{1}) then it is treated as fixed. Note that no \dQuote{error} variable is included in
   the equation; \dQuote{error variances} are specified via either the \code{covs} argument,
   via \code{V(y) = par} (see immediately below), or are added automatically to the model
-  when, as by default, \code{endog.variances=TRUE}.
+  when, as by default, \code{endog.variances=TRUE}. A regression equation may be split over more
+  than one input by breaking at a \code{+}, so that \code{+} is either the last non-blank character
+  on a line or the first non-blank character on the subsequent line.
   
   Variances are specified in the form \code{V(var) = par} and covariances in the form
   \code{C(var1, var2) = par}, where the \code{var}s are variables (observed or unobserved) in
@@ -313,11 +316,13 @@ replace, Gen, General
 
 model.dhp.eq
 
-# A three-factor CFA model for the Thurstone mental-tests data, specified three equivalent ways:
+# A three-factor CFA model for the Thurstone mental-tests data, 
+#    specified three equivalent ways:
 
-R.thur <- readMoments(diag=FALSE, names=c('Sentences','Vocabulary',
-                                          'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
-                                          'Letter.Series','Pedigrees', 'Letter.Group'))
+R.thur <- readMoments(diag=FALSE, 
+    names=c('Sentences','Vocabulary',
+            'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
+            'Letter.Series','Pedigrees', 'Letter.Group'))
 .828                                              
 .776   .779                                        
 .439   .493    .46                                 

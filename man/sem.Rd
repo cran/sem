@@ -32,7 +32,8 @@
 \usage{
 \method{sem}{semmod}(model, S, N, data, 
     raw=identical(na.action, na.pass), obs.variables=rownames(S), 
-  	fixed.x=NULL, formula= ~ ., na.action=na.omit, robust=!missing(data), debug=FALSE, 
+  	fixed.x=NULL, formula= ~ ., na.action=na.omit, 
+    robust=!missing(data), debug=FALSE, 
     optimizer=optimizerSem, objective=objectiveML, ...)
     
 \method{sem}{default}(model, S, N, raw=FALSE, data=NULL, start.fn=startvalues,
@@ -60,7 +61,8 @@ startvalues2(S, ram, debug=FALSE, tol=1E-6)
 \method{coef}{msem}(object, ...)
 \method{vcov}{sem}(object, robust=FALSE, 
 	analytic=inherits(object, "objectiveML") && object$t <= 500, ...)
-\method{vcov}{msem}(object, robust=FALSE, analytic=inherits(object, "msemObjectiveML") && object$t <= 500, ...)
+\method{vcov}{msem}(object, robust=FALSE, 
+    analytic=inherits(object, "msemObjectiveML") && object$t <= 500, ...)
 \method{df.residual}{sem}(object, ...)
 \method{df.residual}{msem}(object, ...)
 }
@@ -169,7 +171,7 @@ startvalues2(S, ram, debug=FALSE, tol=1E-6)
   	in the SEM literature. The default for single-group models is \code{\link{objectiveML}},
   	which produces maximum-likelihood estimates assuming multinormality. An alternative is 
   	\code{\link{objectiveGLS}}, which produced generalized least squares estimates --- or the user
-  	can supply an objective function to be minimzed. For multigroup models, the default is
+  	can supply an objective function to be minimized. For multigroup models, the default is
   	available is \code{\link{msemObjectiveML}} for ML estimates and an alternative is \code{\link{msemObjectiveGLS}}
   	for GLS estiamtes.}
   \item{cls}{primary class to be assigned to the result; normally this is not specified directly, but
@@ -759,16 +761,19 @@ model.kerch <- specifyModel()
     Grades -> OccupAsp,           beta75
     EducExp -> OccupAsp,          beta76
                        
-sem.kerch <- sem(model.kerch, R.kerch, 737, fixed.x=c('Intelligence','Siblings',
-    'FatherEd','FatherOcc'))
+sem.kerch <- sem(model.kerch, R.kerch, 737, 
+    fixed.x=c('Intelligence', 'Siblings', 'FatherEd', 'FatherOcc'))
 summary(sem.kerch)
 
 # The model in equation format:
 
 model.kerch <- specifyEquations()
-Grades = gam51*Intelligence + gam52*Siblings + gam53*FatherEd + gam54*FatherOcc
-EducExp = gam61*Intelligence + gam62*Siblings + gam63*FatherEd + gam64*FatherOcc + beta65*Grades
-OccupAsp = gam71*Intelligence + gam72*Siblings + gam73*FatherEd + gam74*FatherOcc + beta75*Grades + beta76*EducExp
+Grades = gam51*Intelligence + gam52*Siblings + gam53*FatherEd 
+           + gam54*FatherOcc
+EducExp = gam61*Intelligence + gam62*Siblings + gam63*FatherEd 
+            + gam64*FatherOcc + beta65*Grades
+OccupAsp = gam71*Intelligence + gam72*Siblings + gam73*FatherEd 
+            + gam74*FatherOcc + beta75*Grades + beta76*EducExp
 
 
 #------------------- McArdle/Epstein latent-growth-curve model -----------------
@@ -776,7 +781,8 @@ OccupAsp = gam71*Intelligence + gam72*Siblings + gam73*FatherEd + gam74*FatherOc
 # raw moment matrix to fit a model with an intercept. (The example was suggested
 # by Mike Stoolmiller.)
 
-M.McArdle <- readMoments(names=c('WISC1', 'WISC2', 'WISC3', 'WISC4', 'UNIT'))
+M.McArdle <- readMoments(
+    names=c('WISC1', 'WISC2', 'WISC3', 'WISC4', 'UNIT'))
     365.661                                      
     503.175     719.905                           
     675.656     958.479    1303.392                
@@ -845,7 +851,8 @@ summary(sem.bollen)
 summary(sem.bollen, robust=TRUE) # robust SEs and tests
 summary(sem.bollen, analytic.se=FALSE) # uses numeric rather than analytic Hessian
 
-sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) # GLS rather than ML estimator
+  # GLS rather than ML estimator:
+sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) 
 summary(sem.bollen.gls)
 
 # The model in equation format:
@@ -875,9 +882,10 @@ v(Indust) = phi
 
 # -------------- A simple CFA model for the Thurstone mental tests data --------------
 
-R.thur <- readMoments(diag=FALSE, names=c('Sentences','Vocabulary',
-                                          'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
-                                          'Letter.Series','Pedigrees', 'Letter.Group'))
+R.thur <- readMoments(diag=FALSE, 
+  names=c('Sentences','Vocabulary',
+          'Sent.Completion','First.Letters','4.Letter.Words','Suffixes',
+          'Letter.Series','Pedigrees', 'Letter.Group'))
 .828                                              
 .776   .779                                        
 .439   .493    .46                                 
@@ -935,7 +943,7 @@ F3 <-> F3,                            NA,     1
 cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
 summary(cfa.thur.p)
 
-# -------  a CFA model fit by FIML to the mental-tests dataset with missing data -------
+# -----  a CFA model fit by FIML to the mental-tests dataset with missing data -----
 
 mod.cfa.tests <- cfa(raw=TRUE)
 verbal: x1, x2, x3
@@ -947,7 +955,7 @@ summary(cfa.tests)
 summary(cfa.tests, saturated=TRUE) # takes time to fit saturated model for comparison
 
 
-# -------  a multigroup CFA model fit to the Holzinger-Swineford mental-tests data  ---------
+# ---  a multigroup CFA model fit to the Holzinger-Swineford mental-tests data  -----
 
 library(MBESS) # for data
 data(HS.data)
@@ -991,7 +999,8 @@ etc <- system.file(package="sem", "etc") # path to data and model files
 
 #   to get all fit indices (not recommended, but for illustration):
 
-opt <- options(fit.indices = c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC", "CAIC"))
+opt <- options(fit.indices = c("GFI", "AGFI", "RMSEA", "NFI", "NNFI", 
+         "CFI", "RNI", "IFI", "SRMR", "AIC", "AICc", "BIC", "CAIC"))
 
 # ------------- Duncan, Haller and Portes peer-influences model ----------------------
 # A nonrecursive SEM with unobserved endogenous variables and fixed exogenous variables
@@ -1052,8 +1061,8 @@ summary(sem.thur)
 					   diag=FALSE, names=c('Intelligence','Siblings',
                         'FatherEd','FatherOcc','Grades','EducExp','OccupAsp')))
 (model.kerch <- specifyModel(file=file.path(etc, "model-Kerchoff.txt")))
-sem.kerch <- sem(model.kerch, R.kerch, 737, fixed.x=c('Intelligence','Siblings',
-    'FatherEd','FatherOcc'))
+sem.kerch <- sem(model.kerch, R.kerch, 737, 
+    fixed.x=c('Intelligence', 'Siblings', 'FatherEd', 'FatherOcc'))
 summary(sem.kerch)
 
 
@@ -1064,7 +1073,7 @@ summary(sem.kerch)
 # by Mike Stoolmiller.)
 
 (M.McArdle <- readMoments(file=file.path(etc, "M-McArdle.txt"),
-						 names=c('WISC1', 'WISC2', 'WISC3', 'WISC4', 'UNIT')))
+    names=c('WISC1', 'WISC2', 'WISC3', 'WISC4', 'UNIT')))
 (mod.McArdle <- specifyModel(file=file.path(etc, "model-McArdle.txt")))
 sem.McArdle <- sem(mod.McArdle, M.McArdle, 204, fixed.x="UNIT", raw=TRUE)
 summary(sem.McArdle)
@@ -1081,10 +1090,11 @@ summary(sem.bollen)
 summary(sem.bollen, robust=TRUE) # robust SEs and tests
 summary(sem.bollen, analytic.se=FALSE) # uses numeric rather than analytic Hessian
 
-sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) # GLS rather than ML estimator
+  # GLS rather than ML estimator:
+sem.bollen.gls <- sem(model.bollen, data=Bollen, objective=objectiveGLS) 
 summary(sem.bollen.gls)
 
-# -------  a CFA model fit by FIML to the mental-tests dataset with missing data -------
+# -----  a CFA model fit by FIML to the mental-tests dataset with missing data -----
 
 (mod.cfa.tests <- cfa(file=file.path(etc, "model-Tests.txt"), raw=TRUE))
 cfa.tests <- sem(mod.cfa.tests, data=Tests, na.action=na.pass, 
