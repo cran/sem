@@ -328,7 +328,7 @@ static void MatrixTranspose(double *A, const int &row,  const int &col)
 				A[c * row + r] = copy_A[i];
 		}
 
-		delete copy_A;
+		delete[] copy_A;
 		return;
 }
 
@@ -345,7 +345,7 @@ static void MatrixTranspose(int *A, const int &row,  const int &col)
 				A[c * row + r] = copy_A[i];
 		}
 
-		delete copy_A;
+		delete[] copy_A;
 		return;
 }
 
@@ -417,8 +417,8 @@ extern "C" {
 				}
 				F77_CALL(dgetri)(&n, A, &n, IPIV, WORK, &LWORK, &INFO);
 
-				delete IPIV;
-				delete WORK;
+				delete[] IPIV;
+				delete[] WORK;
 				return;
 		}
 
@@ -452,8 +452,8 @@ extern "C" {
 								det *= -1;
 				}
 
-				delete tA;
-				delete IPIV;
+				delete[] tA;
+				delete[] IPIV;
 
 				return(det);
 		}
@@ -660,15 +660,15 @@ static void generate_AP(int n,  const double x[], double *A, double *P,  double 
 				P[ir+il*m] = val_two_head[i];  //column-wise.
 		}
 
-		delete fixed;
-		delete sel_free;
-		delete ram5;
-		delete val;
-		delete(one_head);
-		delete(val_one_head);
-		delete(val_two_head);
-		delete(tA);
-		delete(tAt);
+		delete[] fixed;
+		delete[] sel_free;
+		delete[] ram5;
+		delete[] val;
+		delete[] one_head;
+		delete[] val_one_head;
+		delete[] val_two_head;
+		delete[] tA;
+		delete[] tAt;
 
 		return;
 }
@@ -687,7 +687,7 @@ static int *SubMatrixRow(SEXP A,  const int &row, const int &col, const int &ith
 
 		Memcpy(rowA, &transA[ithrow*col], col);
 
-		delete(transA);
+		delete[] transA;
 
 		return(rowA);
 
@@ -736,7 +736,7 @@ static double *SubMatrix(const double *A, const int *rA,  const int *cA, const i
 
 		MatrixTranspose(subA, row_subA, col_subA);
 
-		delete(tmpA);
+		delete[] tmpA;
 
 		return(subA);
 }
@@ -808,7 +808,7 @@ static double *ExtendMatrix(const double *selA, const int &row, const int &col, 
 				}
 		}
 
-		delete(B);
+		delete[] B;
 
 		return(A);
 }
@@ -978,20 +978,20 @@ void objectiveML(int n, const double x[], double *f, double *g, double *h,  doub
 				Memcpy(tA, INTEGER(AS_INTEGER(model->unique_free_2)), nP);
 				for(int i=0;i<nP;++i) g[tA[i]-1] = P_grad[tA[i]-1];
 
-				delete(tA);
-				delete(grad_Pu);
-				delete(grad_Au);
-				delete(P_grad);
-				delete(A_grad);
-				delete(grad_A);
-				delete(grad_P);
+				delete[] tA;
+				delete[] grad_Pu;
+				delete[] grad_Au;
+				delete[] P_grad;
+				delete[] A_grad;
+				delete[] grad_A;
+				delete[] grad_P;
 		}
 
 
-		delete(invA);
-		delete(C0);
-		delete(invC);
-		delete(ImA);
+		delete[] invA ;
+		delete[] C0;
+		delete[] invC;
+		delete[] ImA;
 
 		if(SEM_DEBUG) Rprintf("Exit from objectiveML.\n");
 
@@ -1056,8 +1056,8 @@ void msem_objectiveML(int n, const double x[], double *f, double *g, double *h, 
 
 		*f = *f/(sumN-(1-m_model->raw)*G);
 
-		delete C0;
-		delete grad;
+		delete[] C0;
+		delete[] grad;
 		delete state;
 		return;
 }
@@ -1142,11 +1142,11 @@ void objectiveGLS(int n, const double x[], double *f, double *g, double *h,  dou
 
 		*f = 0.5 * MatrixTrace(C0, modeln, modeln);
 
-		delete(grad_P);
-		delete(invA);
-		delete(C0);
-		delete(invC);
-		delete(ImA);
+		delete[] grad_P;
+		delete[] invA;
+		delete[] C0;
+		delete[] invC;
+		delete[] ImA;
 
 		return;
 }
@@ -1209,8 +1209,8 @@ void msem_objectiveGLS(int n, const double x[], double *f, double *g, double *h,
 
 		//				Rprintf("Number of Evaluations: %d [%f]\n", m_state->n_eval, *f);
 
-		delete C0;
-		delete grad;
+		delete[] C0;
+		delete[] grad;
 		delete state;
 
 		return;
@@ -1402,21 +1402,21 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 						if(SEM_DEBUG) 
 								printMatrix(dfdC, 1, nn, "dfdC = dfdC + dfdCi", 1);
 
-						delete(dfdCi);
-						delete(subC_T);
-						delete(X_T);
-						delete(IsubC);
-						delete(XkronI);
-						delete(CKronC);
-						delete(dfdCiExtend);
+						delete[] dfdCi;
+						delete[] subC_T;
+						delete[] X_T;
+						delete[] IsubC;
+						delete[] XkronI;
+						delete[] CKronC;
+						delete[] dfdCiExtend;
 				}
 
 
-				delete(sel);
-				delete(X);
-				delete(subC);
-				delete(CC);
-				delete(CCX);
+				delete[] sel;
+				delete[] X;
+				delete[] subC;
+				delete[] CC;
+				delete[] CCX;
 
 		}
 
@@ -1561,38 +1561,38 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 				Memcpy(tA, INTEGER(AS_INTEGER(model->unique_free_2)), nP);
 				for(int i=0;i<nP;++i) g[tA[i]-1] = P_grad[tA[i]-1];
 
-				delete(dCdP);
-				delete(B);
-				delete(tinvA);
-				delete(kinvA);
-				delete(dBdA);
-				delete(dCdA1);
-				delete(ImB);
-				delete(dCdA2);
-				delete(dCdA30);
-				delete(dCdA31);
-				delete(dCdA32);
-				delete(dCdA33);
-				delete(dCdA);
-				delete(dfdP0);
-				delete(vcorr);
-				delete(dfdP);
-				delete(dfdA);
+				delete[] dCdP;
+				delete[] B;
+				delete[] tinvA;
+				delete[] kinvA;
+				delete[] dBdA;
+				delete[] dCdA1;
+				delete[] ImB;
+				delete[] dCdA2;
+				delete[] dCdA30;
+				delete[] dCdA31;
+				delete[] dCdA32;
+				delete[] dCdA33;
+				delete[] dCdA;
+				delete[] dfdP0;
+				delete[] vcorr;
+				delete[] dfdP;
+				delete[] dfdA;
 
-				delete(A_grad);
-				delete(P_grad);
-				delete(grad_Au);
-				delete(grad_Pu);
-				delete(tA);
+				delete[] A_grad;
+				delete[] P_grad;
+				delete[] grad_Au;
+				delete[] grad_Pu;
+				delete[] tA;
 		}
 
-		delete(ImA);
-		delete(C0);
-		delete(JAinv);
-		delete(invA);
+		delete[] ImA;
+		delete[] C0;
+		delete[] JAinv;
+		delete[] invA;
 
-		delete(pattern_number);
-		delete(dfdC);
+		delete[] pattern_number;
+		delete[] dfdC;
 
 
 		return;
@@ -1696,18 +1696,18 @@ void objectivelogLik(int n, const double x[], double *f, double *g, double *h,  
 				*f += MatrixTrace(CCX, row_subX, row_subX);
 
 
-				delete(sel);
-				delete(X);
-				delete(subC);
-				delete(CC);
-				delete(CCX);
+				delete[] sel;
+				delete[] X;
+				delete[] subC;
+				delete[] CC;
+				delete[] CCX;
 
 		}
 
 
-		delete pattern_number;
-		delete C0;
-		delete tri;
+		delete[] pattern_number;
+		delete[] C0;
+		delete[] tri;
 		return;
 }
 //
@@ -1769,8 +1769,8 @@ void msem_objectiveFIML(int n, const double x[], double *f, double *g, double *h
 
 		//				Rprintf("Number of Evaluations: %d [%f]\n", m_state->n_eval, *f);
 
-		delete C0;
-		delete grad;
+		delete[] C0;
+		delete[] grad;
 		delete state;
 
 		return;
@@ -1995,8 +1995,8 @@ SEXP csemSolve( SEXP args )
 				solution = csemnlm(x0, model->t, iagflg[obj_ind]&gradient, iahflg[obj_ind], hessian, typsiz, fscale, msg, ndigit, gradtol, 
 								stepmax, steptol,  iterlim, model, (myfcn_p) objectiveFun[obj_ind], optimize);
 
-				delete x0;
-				delete typsiz;
+				delete[] x0;
+				delete[] typsiz;
 		}
 		else
 		{
@@ -2071,8 +2071,8 @@ SEXP csemSolve( SEXP args )
 								stepmax, steptol,  iterlim, model, (myfcn_p) objectiveFun[obj_ind], optimize);
 
 				delete semObject;
-				delete x0;
-				delete typsiz;
+				delete[] x0;
+				delete[] typsiz;
 		}
 
 		UNPROTECT(num_prot);
@@ -2317,10 +2317,10 @@ SEXP cmsemSolve( SEXP args )
 						stepmax, steptol,  iterlim, model, (msem_fcn_p) objectiveFun[obj_ind], optimize);
 
 		UNPROTECT(num_prot);
-		delete model->gmodel;
+		delete[] model->gmodel;
 		delete model;
-		delete x0;
-		delete typsiz;
+		delete[] x0;
+		delete[] typsiz;
 
 		return(solution);
 

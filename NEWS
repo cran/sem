@@ -1,3 +1,7 @@
+Changes to Version 3.1-5
+
+    o Small corrections to C++ code by Zhenghua Nie to prevent warnings from valgrind.
+
 Changes to Version 3.1-4
 
     o Fixed multigroup start values (which failed under some circumstances, reported by Timo von Oertzen).

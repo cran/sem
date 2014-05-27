@@ -1,6 +1,6 @@
-215938153d42a4bd3f0aac4e01ad5736 *DESCRIPTION
+e6551168f8b177f8ccee5f18f366d4ee *DESCRIPTION
 ab0acf8e71d3dabf2ae0eb3ebc85ebaf *NAMESPACE
-33b67782f0aa5e496bf83856ecf19320 *NEWS
+e7ba2d4b2c293aa193968c6e582cb703 *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 088adccbd6f58d3a0c88231abdca659d *R/bootSem.R
 2498e7096d81fc8d04d7a1f3cc25de12 *R/chisqNull.R
@@ -83,7 +83,7 @@ d2695fee4aa8e2d26206a3acb68174d6 *man/readMoments.Rd
 6a4dda2f6c8d69abcc62d8c4de3da82f *man/standardizedCoefficients.Rd
 a1d9e03dcff9cea404a755ccbbe1af2d *man/tsls.Rd
 4bd73d878ae41ff4e047712439474246 *src/Makevars
-b70e857012d135e4c24d6695dd205e89 *src/csem.cpp
+c3d446e80394994c6a033fac0f47957a *src/csem.cpp
 9f6cbfc66e5cbed2f4fc303070dd3a17 *src/csem.h
 085c025dc4ffacf5b98be1a8fc24682d *src/csemnlm.c
 aa4cbdce5f30acc4e5df41fd5aad5acb *src/csemnlm.h
