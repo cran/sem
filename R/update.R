@@ -1,4 +1,4 @@
-# last modified 2012-12-20 by J. Fox
+# last modified 2014-10-27 by J. Fox
 
 combineModels <- function (...){
 	UseMethod("combineModels")
@@ -10,7 +10,7 @@ combineModels.semmod <- function(..., warn=TRUE){
 	model
 }
 
-update.semmod <- function (object, file = "", ...) {
+update.semmod <- function (object, file = "", text, ...) {
 	regularizePaths <- function(p) sub(" *-*> *", "->", sub(" *<-* *", "<-", p))
 	delete.model.element <- function(delete.text, old.model, type = "path") {
 		type <- match.arg(type, c("path", "variable", "coefficient"))
@@ -22,7 +22,10 @@ update.semmod <- function (object, file = "", ...) {
 		return(old.model)
 	}
 	object[, 1] <- regularizePaths(object[, 1])
-	modmat <- scan(file = file, what = list(change = "", var1 = "", 
+	modmat <- if (!missing(text)) scan(text = text, what = list(change = "", var1 = "", 
+	                                         var2 = "", var3 = "", var4 = ""), sep = ",", strip.white = TRUE, 
+	                                        comment.char = "#", fill = TRUE)
+    else scan(file = file, what = list(change = "", var1 = "", 
 					var2 = "", var3 = "", var4 = ""), sep = ",", strip.white = TRUE, 
 			comment.char = "#", fill = TRUE)
 	modmat <- cbind(modmat$change, modmat$var1, modmat$var2, 

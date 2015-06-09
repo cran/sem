@@ -1,4 +1,4 @@
-# last modified 2013-09-10 by J. Fox
+# last modified 2015-06-09 by J. Fox
 
 useDynLib(sem)
 useDynLib(sem, csemSolve)
@@ -6,11 +6,16 @@ useDynLib(sem, csemSolve)
 import(stats)
 
 importFrom(matrixcalc, duplication.matrix, vech)
+importFrom(MASS, ginv)
+importFrom(boot, boot.ci)
+importFrom(mi, mi, complete)
+importFrom(tcltk, tkProgressBar, setTkProgressBar)
+importFrom(DiagrammeR, DiagrammeR)
 
 export(ram, standardizedResiduals, normalizedResiduals, readMoments, 
     startvalues, startvalues2,
     standardizedCoefficients, stdCoef, tsls, sem, modIndices, pathDiagram,
-    specifyModel, specifyEquations, cfa, bootSem, rawMoments, cov2raw, fscores,
+    specifyModel, specifyEquations, cfa, math, bootSem, rawMoments, cov2raw, fscores,
     AICc, CAIC,
     classifyVariables, combineModels, removeRedundantPaths,
     optimizerNlm, optimizerOptim, optimizerNlminb,

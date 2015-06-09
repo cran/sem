@@ -15,9 +15,11 @@ the \code{\link{sem}} function).
 \usage{
 bootSem(model, ...)
 
-\method{bootSem}{sem}(model, R=100, Cov=cov, data=model$data, max.failures=10, ...)
+\method{bootSem}{sem}(model, R=100, Cov=cov, data=model$data, 
+    max.failures=10, show.progress=TRUE, ...)
 
-\method{bootSem}{msem}(model, R=100, Cov=cov, data=model$data, max.failures=10, ...)
+\method{bootSem}{msem}(model, R=100, Cov=cov, data=model$data, 
+    max.failures=10, show.progress=TRUE, ...)
 
 \method{print}{bootsem}(x, digits=getOption("digits"), ...)
 
@@ -45,6 +47,7 @@ bootSem(model, ...)
     \code{sem} object, which will be present only if the model was fit to a data set rather than to
     a covariance or moment matrix, and may not be in a form suitable for \code{Cov}.}
   \item{max.failures}{maximum number of consecutive convergence failures before \code{bootSem} gives up.}
+  \item{show.progress}{display a text progress bar on the console tracing the bootstrap replications.}
   \item{x, object}{an object of class \code{bootsem}.}
   \item{digits}{controls the number of digits to print.}
   \item{type}{type of bootstrapped confidence intervals to compute; the
@@ -108,19 +111,19 @@ bootSem(model, ...)
 \seealso{\code{\link[boot]{boot}}, \code{\link{sem}}}
 
 \examples{
-    \dontrun{
+    \donttest{
 
 # A simple confirmatory factor-analysis model using polychoric correlations.
 #  The polycor package is required for the hetcor function.
 
-library(polycor)
+if (require(polycor)){
 
 # The following function returns correlations computed by hetcor,
 #   and is used for the bootstrapping.
 
 hcor <- function(data) hetcor(data, std.err=FALSE)$correlations
 
-model.cnes <- specifyModel()
+model.cnes <- specifyModel(text="
 F -> MBSA2, lam1
 F -> MBSA7, lam2
 F -> MBSA8, lam3
@@ -130,11 +133,13 @@ MBSA2 <-> MBSA2, the1
 MBSA7 <-> MBSA7, the2
 MBSA8 <-> MBSA8, the3
 MBSA9 <-> MBSA9, the4
+")
 
 R.cnes <- hcor(CNES)
 
 sem.cnes <- sem(model.cnes, R.cnes, N=1529)
 summary(sem.cnes)
+}
 
 #  Note: this can take a minute:
 
@@ -146,14 +151,15 @@ summary(boot.cnes, type="norm")
 
 # An example bootstrapping a multi-group model
 
-library(MBESS) # for data
+if (require(MBESS)){ # for data
 data(HS.data)
 
-mod.hs <- cfa()
+mod.hs <- cfa(text="
 spatial: visual, cubes, paper, flags
 verbal: general, paragrap, sentence, wordc, wordm
 memory: wordr, numberr, figurer, object, numberf, figurew
 math: deduct, numeric, problemr, series, arithmet
+")
 
 mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
 
@@ -172,6 +178,7 @@ set.seed(12345) # for reproducibility
 system.time(boot.mg <- bootSem(sem.mg, R=100))
 summary(boot.mg, type="norm")
 # cf., standard errors to those computed by summary(sem.mg)
+}
     }
 }
 

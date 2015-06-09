@@ -1,6 +1,6 @@
 # these functions originally by Jarrett Byrnes
 
-# last modified 2011-08-10 by J. Fox
+# last modified 2015-04-30 by J. Fox
 
 robustVcov <- function(sem.obj, adj.obj, data.obj, use.fit=FALSE, use.ginv=FALSE){
 	if (missing(adj.obj) && missing(data.obj)) 

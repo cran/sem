@@ -1,6 +1,6 @@
 # bootstrapped standard errors and confidence intervals for sem
 
-# last modified 2012-10-03 by J. Fox
+# last modified 2015-06-09 by J. Fox
 
 boot.sem <- function(...) {
 	.Deprecated("bootSem", package="sem")
@@ -11,7 +11,7 @@ bootSem <- function (model, ...){
     UseMethod("bootSem")
 }
 
-bootSem.sem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10, ...){
+bootSem.sem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10, show.progress=TRUE, ...){
     refit <- function(){
         indices <- sample(N, N, replace=TRUE)
         S <- Cov(data[indices,])
@@ -19,9 +19,13 @@ bootSem.sem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10
             	optimizer=model$optimizer, objective=model$objective, ...)
         refitted.model$coeff
         }
-    if (!require("boot")) stop("package boot not available")
-	has.tcltk <- require("tcltk")
-	if (has.tcltk) pb <- tkProgressBar("Bootstrap Sampling", "Bootstrap sample: ", 0, R)
+#    if (!require("boot")) stop("package boot not available")
+#	has.tcltk <- require("tcltk")
+#	  pb <- tkProgressBar("Bootstrap Sampling", "Bootstrap sample: ", 0, R)
+    if (show.progress){
+        cat("\n", R, "bootstrap replications\n")
+        pb <- txtProgressBar(min=0, max=R, style=3)
+    }
     # the following 2 lines borrowed from boot in package boot
     if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) runif(1)
     seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
@@ -38,7 +42,8 @@ bootSem.sem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10
     coefs <- matrix(numeric(0), R, length(coefficients))
     colnames(coefs) <- coef.names
     for (b in 1:R){
-		if (has.tcltk) setTkProgressBar(pb, b, label=sprintf("Bootstrap sample: %d", b))
+#		setTkProgressBar(pb, b, label=sprintf("Bootstrap sample: %d", b))
+        if (show.progress) setTxtProgressBar(pb, b)
         for (try in 1:(max.failures + 1)){
             if (try >  max.failures) stop("more than ",  max.failures, " consecutive convergence failures")
             res <- try(refit(), silent=TRUE)
@@ -57,12 +62,12 @@ bootSem.sem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10
         statistic=refit, sim="ordinary", stype="i", call=match.call(),
         strata=rep(1, N), weights=rep(1/N, N))
     res$call[[1]] <- as.name("bootSem")
-	if (has.tcltk) close(pb)
+	if (show.progress) close(pb)
     class(res) <- c("bootsem", "boot")
     res
     }
 
-bootSem.msem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10, ...){
+bootSem.msem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=10, show.progress=TRUE, ...){
     refit <- function(){
         for (g in 1:G){
             indices <- sample(N[g], N[g], replace=TRUE)
@@ -72,9 +77,13 @@ bootSem.msem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=1
         		optimizer=model$optimizer, objective=model$objective, fixed.x=model$fixed.x, ...)
         refitted.model$coeff
         }
-    if (!require("boot")) stop("package boot not available")
-	has.tcltk <- require("tcltk")
-	if (has.tcltk) pb <- tkProgressBar("Bootstrap Sampling", "Bootstrap sample: ", 0, R)
+#    if (!require("boot")) stop("package boot not available")
+#	has.tcltk <- require("tcltk")
+#	  pb <- tkProgressBar("Bootstrap Sampling", "Bootstrap sample: ", 0, R)
+    if (show.progress){
+        cat("\n", R, "bootstrap replications\n")
+        pb <- txtProgressBar(min=0, max=R, style=3)
+    }
     # the following 2 lines borrowed from boot in package boot
     if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) runif(1)
     seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
@@ -99,7 +108,8 @@ bootSem.msem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=1
     coefs <- matrix(numeric(0), R, length(coefficients))
     colnames(coefs) <- coef.names
     for (b in 1:R){
-		if (has.tcltk) setTkProgressBar(pb, b, label=sprintf("Bootstrap sample: %d", b))
+#		setTkProgressBar(pb, b, label=sprintf("Bootstrap sample: %d", b))
+        if (show.progress) setTxtProgressBar(pb, b)
         for (try in 1:(max.failures + 1)){
             if (try >  max.failures) stop("more than ",  max.failures, " consecutive convergence failures")
             res <- try(refit(), silent=TRUE)
@@ -118,7 +128,7 @@ bootSem.msem <- function(model, R=100, Cov=cov, data=model$data,  max.failures=1
         statistic=refit, sim="ordinary", stype="i", call=match.call(),
         strata=rep(1:G, N), weights=rep(1/N, N))
     res$call[[1]] <- as.name("bootSem")
-	if (has.tcltk) close(pb)
+	if (show.progress) close(pb)
     class(res) <- c("bootsem", "boot")
     res
     }
@@ -139,7 +149,6 @@ print.bootsem <- function(x, digits=getOption("digits"), ...){
 
 summary.bootsem <- function(object,
     type=c("perc", "bca", "norm", "basic", "none"), level=0.95, ...){
-    if ((!require("boot")) && (type != "none")) stop("boot package unavailable")
     type <- match.arg(type)
     t <- object$t
     t0 <- object$t0

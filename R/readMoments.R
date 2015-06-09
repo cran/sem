@@ -1,13 +1,13 @@
-# last modified 2011-087-07 by J. Fox
+# last modified 2014-10-27 by J. Fox
 
 read.moments <- function(...){
 	.Deprecated("readMoments", package="sem")
 	readMoments(...)
 }
 
-readMoments <- function(file="", diag=TRUE, 
+readMoments <- function(file="", text, diag=TRUE, 
         names=as.character(paste("X", 1:n, sep=""))){
-    elements <- scan(file=file)
+    elements <- if (!missing(text)) scan(text=text) else scan(file=file)
     m <- length(elements)
     d <- if (diag) 1 else -1
     n <- floor((sqrt(1 + 8*m) - d)/2)

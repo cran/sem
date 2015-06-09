@@ -417,10 +417,40 @@ startvalues2(S, ram, debug=FALSE, tol=1E-6)
 
 \examples{
 
-# Note: The first set of examples can't be run via example() because the default file
-#  argument of specifyModel() and readMoments() requires that the model 
-#  specification and covariances, correlations, or raw moments be entered
-#  at the command prompt. The examples can be copied and run in the R console,
+# The following example illustrates the use the text argument to 
+#   readMoments() and specifyEquations():
+
+R.DHP <- readMoments(diag=FALSE, names=c("ROccAsp", "REdAsp", "FOccAsp", 
+                "FEdAsp", "RParAsp", "RIQ", "RSES", "FSES", "FIQ", "FParAsp"),
+                text="
+    .6247     
+    .3269  .3669       
+    .4216  .3275  .6404
+    .2137  .2742  .1124  .0839
+    .4105  .4043  .2903  .2598  .1839
+    .3240  .4047  .3054  .2786  .0489  .2220
+    .2930  .2407  .4105  .3607  .0186  .1861  .2707
+    .2995  .2863  .5191  .5007  .0782  .3355  .2302  .2950
+    .0760  .0702  .2784  .1988  .1147  .1021  .0931 -.0438  .2087
+")
+
+model.dhp.1 <- specifyEquations(covs="RGenAsp, FGenAsp", text="
+RGenAsp = gam11*RParAsp + gam12*RIQ + gam13*RSES + gam14*FSES + beta12*FGenAsp
+FGenAsp = gam23*RSES + gam24*FSES + gam25*FIQ + gam26*FParAsp + beta21*RGenAsp
+ROccAsp = 1*RGenAsp
+REdAsp = lam21(1)*RGenAsp  # to illustrate setting start values
+FOccAsp = 1*FGenAsp
+FEdAsp = lam42(1)*FGenAsp
+")
+
+sem.dhp.1 <- sem(model.dhp.1, R.DHP, 329,
+    fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))
+summary(sem.dhp.1)
+
+# Note: The following set of examples can't be run via example() because the default file
+#  argument of specifyeEquations, specifyModel(), and readMoments() requires that the model 
+#  specification and covariances, correlations, or raw moments be entered in an interactive
+#  session at the command prompt. The examples can be copied and run in the R console,
 #  however. See ?specifyModel and ?readMoments for further information.
 #  These examples are repeated below using file input to specifyModel() and
 #  readMoments(). The second version of the examples may be executed through example().
@@ -517,7 +547,7 @@ REdAsp = lam21(1)*RGenAsp  # to illustrate setting start values
 FOccAsp = 1*FGenAsp
 FEdAsp = lam42(1)*FGenAsp
  
-sem.dhp.1 <- sem(model.dhp, R.DHP, 329,
+sem.dhp.1 <- sem(model.dhp.1, R.DHP, 329,
     fixed.x=c('RParAsp', 'RIQ', 'RSES', 'FSES', 'FIQ', 'FParAsp'))
 summary(sem.dhp.1)
 

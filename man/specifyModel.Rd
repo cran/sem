@@ -17,13 +17,14 @@
   Create the RAM specification of a structural equation model.
 }
 \usage{
-specifyModel(file="", exog.variances=FALSE, endog.variances=TRUE, covs, 
+specifyModel(file="", text, exog.variances=FALSE, endog.variances=TRUE, covs, 
 	suffix="", quiet=FALSE)
 
-specifyEquations(file="", ...)
+specifyEquations(file="", text, ...)
 
-cfa(file="", covs=paste(factors, collapse=","), reference.indicators=TRUE, 
-     raw=FALSE, ...)
+cfa(file="", text, covs=paste(factors, collapse=","), 
+    reference.indicators=TRUE, raw=FALSE, 
+    subscript=c("name", "number"), ...)
 
 multigroupModel(..., groups=names(models), allEqual=FALSE)
 
@@ -31,7 +32,7 @@ classifyVariables(model)
 
 removeRedundantPaths(model, warn=TRUE)
 \method{combineModels}{semmod}(..., warn=TRUE)
-\method{update}{semmod}(object, file = "", ...)
+\method{update}{semmod}(object, file = "", text, ...)
 \method{edit}{semmod}(name, ...)
 
 \method{print}{semmod}(x, ...)
@@ -41,8 +42,13 @@ removeRedundantPaths(model, warn=TRUE)
 \arguments{
   \item{file}{The (quoted) file from which to read the model specification,
     including the path to the file if it is not in the current directory. If
-    \code{""} (the default), then the specification is read from the standard
+    \code{""} (the default) and the \code{text} argument is not supplied,
+    then the specification is read from the standard
     input stream, and is terminated by a blank line.}
+  \item{text}{The model specification given as a character string, as an alternative
+    to specifying the ]code{file} argument or reading the model specification from
+    the input stream --- e.g., when the session is not interactive and there is no
+    standard input.}
   \item{exog.variances}{If \code{TRUE} (the default is \code{FALSE}), free variance
   	parameters are added for the exogenous variables that lack them.}
   \item{endog.variances}{If \code{TRUE} (the default), free error-variance parameters
@@ -51,7 +57,11 @@ removeRedundantPaths(model, warn=TRUE)
   	giving a string of variable names, separated by commas. Variances and covariances
   	among all variables in each such string are added to the model. For confirmatory
   	factor analysis models specified via \code{cfa}, \code{covs} defaults to all of
-  	the factors in the model, thus specifying all covariances among these factors.}
+  	the factors in the model, thus specifying all variances and covariances among these factors.
+  	\emph{Warning}: \code{covs="x1, x2"} and \code{covs=c("x1", "x2")} are \emph{not}
+  	equivalent: \code{covs="x1, x2"} specifies the variance of \code{x1}, the variance
+  	of \code{x2}, \emph{and} their covariance, while \code{covs=c("x1", "x2")} specifies
+  	the variance of \code{x1} and the variance of \code{x2} \emph{but not} their covariance.}
   \item{suffix}{a character string (defaulting to an empty string) to be 
     appended to each parameter name; this can be convenient for specifying multiple-group models.}
   \item{reference.indicators}{if \code{FALSE}, the default, variances of factors are
@@ -63,6 +73,10 @@ removeRedundantPaths(model, warn=TRUE)
     fixed to \code{1}. The \code{sem} function should then be called with \code{raw=TRUE}, and either
     supplied with a data set (via the \code{data} argument) or a raw-moment matrix (via the \code{S}
     argument).}
+  \item{subscript}{The \dQuote{subscripts} to be appended to \code{lam} to name factor-loading parameters,
+    either \code{"name"} (the default) to use the names of observed variables, or \code{"number"} to
+    number the parameters serially within each factor. Using \code{"number"} produces shorter parameter
+    names.}
   \item{quiet}{if \code{FALSE}, the default, then the number of input lines is reported and
     a message is printed suggesting that \code{specifyEquations} or \code{cfa} be used.}
   \item{x, model, object, name}{An object of class \code{semmod} or \code{semmodList}, as produced by
@@ -116,7 +130,7 @@ removeRedundantPaths(model, warn=TRUE)
         If given as \code{NA} (or simply omitted), \code{sem} will compute the start value.}
       }
       
-  Lines may end in a comment following \code{\#}.
+  Lines may end in a comment following \code{#}.
   
   \code{specifyEquations}:
 
@@ -141,6 +155,13 @@ removeRedundantPaths(model, warn=TRUE)
   a variance or covariance for an endogenous variable in the model is an \dQuote{error} variance or
   covariance.
   
+  \emph{Warning}: If the \code{covs} argument to \code{specifyEquations} is used to specify
+  variances and covariances, please be aware that
+  \code{covs="x1, x2"} and \code{covs=c("x1", "x2")} are \emph{not}
+  equivalent: \code{covs="x1, x2"} specifies the variance of \code{x1}, the variance
+  of \code{x2}, \emph{and} their covariance, while \code{covs=c("x1", "x2")} specifies
+  the variance of \code{x1} and the variance of \code{x2} \emph{but not} their covariance.
+  
   To set a start value for a free parameter, enclose the numeric start value in parentheses after the
   parameter name, as \code{parameter(value)}.
   
@@ -152,7 +173,21 @@ removeRedundantPaths(model, warn=TRUE)
   across two or more input lines; in this case, each such line but the last must end in a comma. A
   variable may load on more than one factor (as long as the resulting model is identified, of course),
   but each factor may appear in only one input line (or set of input lines, if the variable list
-  is continued onto the next line). If the argument \code{reference.indicators=FALSE}, the default,
+  is continued onto the next line). 
+  
+  Equality constraints for factor loadings can be set by using equal-signs (\code{=}) rather than commas 
+  to separate observed variable names. For example, \code{fac1: x1=x2=x3, x4=x5} sets the loadings
+  for \code{x1}, \code{x2}, and \code{x3} equal to each other, and the loadings for \code{x4} and \code{x5}
+  equal to each other. 
+  
+  Equality constraints among error variances can similarly be specified by using \code{var:} or \code{variance:}
+  at the beginning of a line (actually, any character string beginning with \code{var} will do, and thus
+  no factor name may begin with the characters \code{var}). For example, \code{var: x1=x2=x3, x4=x5} sets the
+  error variances for \code{x1}, \code{x2}, and \code{x3} equal to each other, and the 
+  error variances for \code{x4} and \code{x5} equal to each other. There may be several lines beginning with
+  \code{var:}.
+  
+  If the argument \code{reference.indicators=FALSE}, the default,
   \code{cfa} will fix the variance of each factor to 1, and by
   default include covariances (i.e., correlations) among all pairs of factors. Alternatively,
   if \code{reference.indicators=TRUE}, then the factor variances are free parameters to be estimated
@@ -208,10 +243,48 @@ removeRedundantPaths(model, warn=TRUE)
 
 \examples{
 
-# Note: These examples can't be run via example() because the default file
-#  argument of specifyModel() requires that the model specification be entered
-#  at the command prompt. The examples can be copied and run in the R console,
-#  however.
+# example using the text argument:
+
+model.dhp <- specifyModel(text="
+    RParAsp  -> RGenAsp, gam11,  NA
+    RIQ      -> RGenAsp, gam12,  NA
+    RSES     -> RGenAsp, gam13,  NA
+    FSES     -> RGenAsp, gam14,  NA
+    RSES     -> FGenAsp, gam23,  NA
+    FSES     -> FGenAsp, gam24,  NA
+    FIQ      -> FGenAsp, gam25,  NA
+    FParAsp  -> FGenAsp, gam26,  NA
+    FGenAsp  -> RGenAsp, beta12, NA
+    RGenAsp  -> FGenAsp, beta21, NA
+    RGenAsp  -> ROccAsp,  NA,     1
+    RGenAsp  -> REdAsp,  lam21,  NA
+    FGenAsp  -> FOccAsp,  NA,     1
+    FGenAsp  -> FEdAsp,  lam42,  NA
+    RGenAsp <-> RGenAsp, ps11,   NA
+    FGenAsp <-> FGenAsp, ps22,   NA
+    RGenAsp <-> FGenAsp, ps12,   NA
+    ROccAsp <-> ROccAsp, theta1, NA
+    REdAsp  <-> REdAsp,  theta2, NA
+    FOccAsp <-> FOccAsp, theta3, NA
+    FEdAsp  <-> FEdAsp,  theta4, NA
+")    
+model.dhp
+
+   # same model in equation form:
+model.dhp.1 <- specifyEquations(covs="RGenAsp, FGenAsp", text="
+RGenAsp = gam11*RParAsp + gam12*RIQ + gam13*RSES + gam14*FSES + beta12*FGenAsp
+FGenAsp = gam23*RSES + gam24*FSES + gam25*FIQ + gam26*FParAsp + beta21*RGenAsp
+ROccAsp = 1*RGenAsp
+REdAsp = lam21(1)*RGenAsp  # to illustrate setting start values
+FOccAsp = 1*FGenAsp
+FEdAsp = lam42(1)*FGenAsp
+")
+model.dhp
+
+# Note: The following examples can't be run via example() because the 
+#  default file argument requires that the model specification be entered
+#  at the command prompt. The examples can be copied and run in an interactive 
+#  session in the R console, however.
 
     \dontrun{
 model.dhp <- specifyModel()
@@ -389,6 +462,23 @@ F3 <-> F3,                            NA,     1
 
 cfa.thur.p <- sem(mod.cfa.thur.p, R.thur, 213)
 summary(cfa.thur.p)
+
+# The Thursstone CFA model with equality constraints on the
+#  factor loadings and error variances
+
+mod.cfa.thur.ceq <- cfa(reference.indicators=FALSE)
+FA: Sentences = Vocabulary = Sent.Completion
+FB: First.Letters = 4.Letter.Words = Suffixes
+FC: Letter.Series = Pedigrees = Letter.Group
+var: Sentences = Vocabulary = Sent.Completion
+var: First.Letters = 4.Letter.Words = Suffixes
+var: Letter.Series = Pedigrees = Letter.Group
+
+cfa.thur.ceq <- sem(mod.cfa.thur.ceq, R.thur, 213)
+summary(cfa.thur.ceq)
+anova(cfa.thur.c, cfa.thur.ceq)
+pathDiagram(cfa.thur.ceq, ignore.double=FALSE, ignore.self=TRUE,
+    min.rank="FA, FB, FC", edge.labels="values")
 
 # a multigroup CFA model fit to the Holzinger-Swineford
 #   mental-tests data (from the MBESS package)

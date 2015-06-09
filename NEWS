@@ -1,3 +1,13 @@
+Changes to Version 3.1-6
+
+    o Added text argument to specifyModel(), specifyEquations(), cfa(), readMoments(), and update.semmod().
+
+    o Modifications to miSem() etc. to work with version 0.9-99 of the mi package (contributed by Benjamin K Goodrich).
+    
+    o Major upgrades to pathDiagram() and cfa() (implementing suggestions of Michael Friendly).
+    
+    o Get rid of calls to require().
+
 Changes to Version 3.1-5
 
     o Small corrections to C++ code by Zhenghua Nie to prevent warnings from valgrind.
