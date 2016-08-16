@@ -1,11 +1,12 @@
+# last modified 2016-08-15 by J. Fox
+
 OBJECTS             = csemnlm.o  uncmin.o csem.o 
 
 #DEBUGING_FLAGS=-DDEBUGSEM                     # DEBUGSEM gives details
 
 
-PKG_LIBS=  -g -O2 -lm $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) 
-PKG_FLAGS = -arch x86_64 $(DEBUGING_FLAGS)
+# PKG_LIBS=  -g -O2 -lm $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) 
+# PKG_FLAGS = -arch x86_64 $(DEBUGING_FLAGS)
+
+PKG_LIBS = -lm $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) 
 PKG_CPPFLAGS = $(DEBUGING_FLAGS)
-
-
-

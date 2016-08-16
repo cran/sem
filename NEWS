@@ -1,3 +1,9 @@
+Changes to Version 3.1-8
+
+    o Fixed compilation flags (at request of CRAN).
+    
+    o Small correction to DESCRIPTION file.
+
 Changes to Version 3.1-7
 
     o Imports from standard packages to conform to new CRAN policy.

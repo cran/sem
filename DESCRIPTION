@@ -1,6 +1,6 @@
 Package: sem
-Version: 3.1-7
-Date: 2016-04-06
+Version: 3.1-8
+Date: 2016-08-15
 Title: Structural Equation Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Zhenghua", "Nie", role = "aut", email="zhenghua.nie@gmail.com"),
@@ -8,7 +8,7 @@ Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaste
     person("Michael", "Culbertson", role = "ctb"),
     person("Saikat", "DebRoy", role = "ctb"),
     person("Michael", "Friendly", role = "ctb"),
-    person("Goodrich", "Benjamin", role = "ctb"),
+    person("Benjamin", "Goodrich", role = "ctb"),
     person(given="Richard H.", family="Jones", role = "ctb"),
     person("Adam", "Kramer", role = "ctb"),
     person("Georges", "Monette", role = "ctb"),
@@ -31,7 +31,7 @@ Author: John Fox [aut, cre],
   Michael Culbertson [ctb],
   Saikat DebRoy [ctb],
   Michael Friendly [ctb],
-  Goodrich Benjamin [ctb],
+  Benjamin Goodrich [ctb],
   Richard H. Jones [ctb],
   Adam Kramer [ctb],
   Georges Monette [ctb],
@@ -39,8 +39,8 @@ Author: John Fox [aut, cre],
 Maintainer: John Fox <jfox@mcmaster.ca>
 Repository: CRAN
 Repository/R-Forge/Project: sem
-Repository/R-Forge/Revision: 172
-Repository/R-Forge/DateTimeStamp: 2016-04-06 14:37:21
-Date/Publication: 2016-04-06 18:18:55
+Repository/R-Forge/Revision: 173
+Repository/R-Forge/DateTimeStamp: 2016-08-16 00:03:41
+Date/Publication: 2016-08-16 19:49:26
 NeedsCompilation: yes
-Packaged: 2016-04-06 15:05:20 UTC; rforge
+Packaged: 2016-08-16 00:05:31 UTC; rforge

@@ -148,6 +148,9 @@ set.seed(12345) # for reproducibility
 system.time(boot.cnes <- bootSem(sem.cnes, R=100, Cov=hcor, data=CNES))
 summary(boot.cnes, type="norm")  
 # cf., standard errors to those computed by summary(sem.cnes)
+    }
+    
+    \dontrun{  # because of long execution time
 
 # An example bootstrapping a multi-group model
 

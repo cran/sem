@@ -1,6 +1,6 @@
-c15b3fb632e5c599f0dfc77052f337a4 *DESCRIPTION
+967d22f2ab438ff384d5d312357c8d5c *DESCRIPTION
 1b0207120de8bf0fd7353e70f4cab744 *NAMESPACE
-c1bcce5c8188cd1570c1abe00393ea33 *NEWS
+d860e3be22d74a1dfe17038b08d2da68 *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 511491887de6453cb0a5cd1382787b13 *R/bootSem.R
 9781913d2d4ddf378f4a67dff2588a68 *R/cfa.R
@@ -37,11 +37,11 @@ bb0d605868b06e1bb7c9d2acda4aa428 *R/summary.methods.R
 a2d256ed99ed553ce418cb05c8fb27ef *R/tsls.R
 5b3aaf75d5c4a1e5dd547ffbed4f0fa5 *R/update.R
 503e74b7d42e6c0d9486febe49739763 *cleanup
-eed1d6ffb1eae46728d991d477782de1 *data/Bollen.rda
-3aa50f3342cceb0b2cb2a585c08d5107 *data/CNES.rda
+a1a6b073c00e3adc7f67397a6da75680 *data/Bollen.rda
+1b307a8a1effbf11a0260e602bf57c6c *data/CNES.rda
 75586bdbf9352216b00627c825705771 *data/Klein.txt.bz2
 f9fa983a237637c61801c9d8d849cdcc *data/Kmenta.txt.gz
-f33fe975fa5148737a074132566910ce *data/Tests.rda
+eac4cf5ff72a36ba39909e39f612c53d *data/Tests.rda
 7e382b6314a1a9226b7536666a9e78e8 *inst/CHANGES
 d2cc9fecf94a4ec26090e69783fd8203 *inst/etc/GreekLetters.txt
 b292b20b397dcc0974b8b723f5d7d27b *inst/etc/M-McArdle.txt
@@ -66,7 +66,7 @@ bfaa1e1feb720bd9c67498932eafd4e6 *inst/etc/model-Thurstone.txt
 518bbcccc0fe1dc3264bcdd2f1f8ed65 *man/Kmenta.Rd
 71fd7a88c3a51553c1f5b6755f61bf25 *man/ML.methods.Rd
 c5d585b30fc4f4808e16904e3fe0f640 *man/Tests.Rd
-d1bb05e2efc3575cba2e87970f226176 *man/bootSem.Rd
+3169c22d7f4d041aeb4dc5c7221bdf15 *man/bootSem.Rd
 dee292347d7d2af36d5947bc9e3cb51e *man/effects.Rd
 60d22fbcd9982c4d96732a1f575710d2 *man/fscores.Rd
 c60f9556597268e50e597c40e4eb8c91 *man/information.criteria.Rd
@@ -84,7 +84,7 @@ d6fc97eeca7ac6074020b0386bac8b01 *man/sem.Rd
 d7921db9a1ac631ed70d69ac7f19cf7e *man/specifyModel.Rd
 6a4dda2f6c8d69abcc62d8c4de3da82f *man/standardizedCoefficients.Rd
 a1d9e03dcff9cea404a755ccbbe1af2d *man/tsls.Rd
-4bd73d878ae41ff4e047712439474246 *src/Makevars
+4e708e1c54e8c4feff9584a8c3e994b7 *src/Makevars
 c3d446e80394994c6a033fac0f47957a *src/csem.cpp
 9f6cbfc66e5cbed2f4fc303070dd3a17 *src/csem.h
 085c025dc4ffacf5b98be1a8fc24682d *src/csemnlm.c
