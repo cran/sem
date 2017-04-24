@@ -1,6 +1,6 @@
-967d22f2ab438ff384d5d312357c8d5c *DESCRIPTION
+d72e068a44d06b0255851786f81ecf2d *DESCRIPTION
 1b0207120de8bf0fd7353e70f4cab744 *NAMESPACE
-d860e3be22d74a1dfe17038b08d2da68 *NEWS
+d7c76b94f7c4e526c510dbc48a10e3aa *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 511491887de6453cb0a5cd1382787b13 *R/bootSem.R
 9781913d2d4ddf378f4a67dff2588a68 *R/cfa.R
@@ -37,11 +37,11 @@ bb0d605868b06e1bb7c9d2acda4aa428 *R/summary.methods.R
 a2d256ed99ed553ce418cb05c8fb27ef *R/tsls.R
 5b3aaf75d5c4a1e5dd547ffbed4f0fa5 *R/update.R
 503e74b7d42e6c0d9486febe49739763 *cleanup
-a1a6b073c00e3adc7f67397a6da75680 *data/Bollen.rda
-1b307a8a1effbf11a0260e602bf57c6c *data/CNES.rda
+f1bb49c81055246478362d151e493c89 *data/Bollen.rda
+e5ef84dd43cb3be0e6f8e95839ad8035 *data/CNES.rda
 75586bdbf9352216b00627c825705771 *data/Klein.txt.bz2
 f9fa983a237637c61801c9d8d849cdcc *data/Kmenta.txt.gz
-eac4cf5ff72a36ba39909e39f612c53d *data/Tests.rda
+0ecd3439a1e72d832671ff4b5b5f8a8e *data/Tests.rda
 7e382b6314a1a9226b7536666a9e78e8 *inst/CHANGES
 d2cc9fecf94a4ec26090e69783fd8203 *inst/etc/GreekLetters.txt
 b292b20b397dcc0974b8b723f5d7d27b *inst/etc/M-McArdle.txt
@@ -84,10 +84,11 @@ d6fc97eeca7ac6074020b0386bac8b01 *man/sem.Rd
 d7921db9a1ac631ed70d69ac7f19cf7e *man/specifyModel.Rd
 6a4dda2f6c8d69abcc62d8c4de3da82f *man/standardizedCoefficients.Rd
 a1d9e03dcff9cea404a755ccbbe1af2d *man/tsls.Rd
-4e708e1c54e8c4feff9584a8c3e994b7 *src/Makevars
-c3d446e80394994c6a033fac0f47957a *src/csem.cpp
+07f06070ce4a1675791580f41a9b4d10 *src/Makevars
+651b64bf27726a6d8ca18bae6aac8bf1 *src/csem.cpp
 9f6cbfc66e5cbed2f4fc303070dd3a17 *src/csem.h
 085c025dc4ffacf5b98be1a8fc24682d *src/csemnlm.c
 aa4cbdce5f30acc4e5df41fd5aad5acb *src/csemnlm.h
+9a89a4935d920e22e6ebe171d088e9fc *src/init.c
 f65d35c208a22d7211e82cf91449ff25 *src/uncmin.c
 120ac4d5369777630e7f17282a9c02b6 *src/utils.h

@@ -1,3 +1,7 @@
+Changes to Version 3.1-9
+
+    o Changes to C++ code (requested by CRAN).
+    
 Changes to Version 3.1-8
 
     o Fixed compilation flags (at request of CRAN).

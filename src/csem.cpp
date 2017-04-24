@@ -131,12 +131,15 @@ SEXP generateMatrix(double *A, int nrow,  int ncol)
 				REAL(elmt)[i] = A[i];
 		return(elmt);
 }
-
+/*
+ * We commented this function. This function is for debugging.
 SEXP showArgs1(SEXP largs)
 {
 		int i, nargs = LENGTH(largs);
 		Rcomplex cpl;
-		SEXP el, names = getAttrib(largs, R_NamesSymbol);
+		SEXP el, names;
+		PROTECT(names = getAttrib(largs, R_NamesSymbol));
+
 		const char *name;
 
 		for(i = 0; i < nargs; i++) {
@@ -162,9 +165,11 @@ SEXP showArgs1(SEXP largs)
 								Rprintf("[%d] '%s' R type\n", i+1, name);
 				}
 		}
+		UNPROTECT(1);
+
 		return(R_NilValue);
 }
-
+*/
 //
 void setApplicationOptions(int &hessian, double &fscale, double &steptol, double &stepmax, int &iterlim, int &ndigit, 
 				int &print_level, int &check_analyticals,  double &gradtol, SEXP opts ) {
@@ -206,7 +211,7 @@ void setApplicationOptions(int &hessian, double &fscale, double &steptol, double
 
 		// loop over the integer options and set them
 		SEXP opts_integer_names;
-		opts_integer_names = getAttrib(opts_integer, R_NamesSymbol);
+		PROTECT(opts_integer_names = getAttrib(opts_integer, R_NamesSymbol));
 		for (int list_cnt=0;list_cnt<length( opts_integer );list_cnt++) {
 
 				SEXP opt_value;
@@ -218,10 +223,11 @@ void setApplicationOptions(int &hessian, double &fscale, double &steptol, double
 				}
 				UNPROTECT(1);	
 		}
+		UNPROTECT(1);
 
 		// loop over the numeric options and set them
 		SEXP opts_numeric_names;
-		opts_numeric_names = getAttrib(opts_numeric, R_NamesSymbol);
+		PROTECT(opts_numeric_names = getAttrib(opts_numeric, R_NamesSymbol));
 		for (int list_cnt=0;list_cnt<length( opts_numeric );list_cnt++) {
 
 				SEXP opt_value;
@@ -233,6 +239,7 @@ void setApplicationOptions(int &hessian, double &fscale, double &steptol, double
 				}
 				UNPROTECT(1);	
 		}
+		UNPROTECT(1);
 
 		// loop over the string options and set them
 		// Currently,  we don't have string options, so we commented the following two lines.

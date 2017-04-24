@@ -1,6 +1,6 @@
 # last modified 2016-08-15 by J. Fox
 
-OBJECTS             = csemnlm.o  uncmin.o csem.o 
+OBJECTS             = csemnlm.o  uncmin.o csem.o init.o 
 
 #DEBUGING_FLAGS=-DDEBUGSEM                     # DEBUGSEM gives details
 
