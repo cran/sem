@@ -452,7 +452,7 @@ optimizerMsem <- function(start, objective=msemObjectiveML, gradient=TRUE,
 									res$code, '. Consult ?nlm.\n', sep=""))
 				vcov <- matrix(NA, t, t)
 				qr.hess <- try(qr(res$hessian), silent=TRUE)
-				if (class(qr.hess) == "try-error"){
+				if (inherits(qr.hess, "try-error")){
 					warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 				}
 				else if (qr.hess$rank < t){
@@ -508,7 +508,7 @@ msemOptimizerNlm <- function(start, objective=msemObjectiveML, gradient=TRUE,
 									res$code, '. Consult ?nlm.\n', sep=""))
 				vcov <- matrix(NA, t, t)
 				qr.hess <- try(qr(res$hessian), silent=TRUE)
-				if (class(qr.hess) == "try-error"){
+				if (inherits(qr.hess, "try-error")){
 					warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 				}
 				else if (qr.hess$rank < t){
@@ -1004,8 +1004,8 @@ vcov.msem <- function (object, robust=FALSE, analytic = inherits(object, "msemOb
 	param.names <- rownames(h)
 	vcov <- matrix(NA, t, t)
 	qr.hess <- try(qr(h), silent = TRUE)
-	if (class(qr.hess) == "try-error") {
-		warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
+	if (inherits(qr.hess, "try-error")){
+	  warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 	}
 	else if (qr.hess$rank < t) {
 		warning(" singular Hessian: model is probably underidentified.\n")

@@ -33,7 +33,7 @@ bootSem(model, ...)
     be enough for computing standard errors, but not confidence intervals
     (except for the normal-theory intervals).}
   \item{Cov}{a function to compute the input covariance or moment matrix; the default is
-    \code{\link[stats]{cov}}. Use \code{\link[stats]{cor}} if the model is fit
+    \code{\link{cov}}. Use \code{\link[stats]{cor}} if the model is fit
     to the correlation matrix. The function \code{\link[polycor]{hetcor}} in the 
     \code{polycor} package will compute product-moment, polychoric, and
     polyserial correlations among mixed continuous and ordinal variables
@@ -154,9 +154,6 @@ summary(boot.cnes, type="norm")
 
 # An example bootstrapping a multi-group model
 
-if (require(MBESS)){ # for data
-data(HS.data)
-
 mod.hs <- cfa(text="
 spatial: visual, cubes, paper, flags
 verbal: general, paragrap, sentence, wordc, wordm
@@ -181,7 +178,6 @@ set.seed(12345) # for reproducibility
 system.time(boot.mg <- bootSem(sem.mg, R=100))
 summary(boot.mg, type="norm")
 # cf., standard errors to those computed by summary(sem.mg)
-}
     }
 }
 

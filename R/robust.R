@@ -1,6 +1,6 @@
 # these functions originally by Jarrett Byrnes
 
-# last modified 2015-04-30 by J. Fox
+# last modified 2019-11-15 by J. Fox
 
 robustVcov <- function(sem.obj, adj.obj, data.obj, use.fit=FALSE, use.ginv=FALSE){
 	if (missing(adj.obj) && missing(data.obj)) 
@@ -11,7 +11,7 @@ robustVcov <- function(sem.obj, adj.obj, data.obj, use.fit=FALSE, use.ginv=FALSE
 	ncases <- sem.obj$N
 	hes <- semHessian(adj.obj$w_mat, adj.obj$p_deriv_mat)
 	info_m <- try(solve(hes), silent = TRUE)
-	if (class(info_m) == "try-error" && use.ginv == TRUE) {
+	if (inherits(info_m, "try-error") && isTRUE(use.ginv)) {
 		info_m <- ginv(hes)
 		ginvFlag <- TRUE
 	}
@@ -33,7 +33,7 @@ sbchisq <- function(sem.obj, sem.data, adj=1e-04, use.fit=FALSE, use.ginv=FALSE)
 	ginvFlag <- FALSE
 	invMat <- try(solve(t(p_deriv_mat) %*% w_mat %*% p_deriv_mat), 
 		silent = TRUE)
-	if (class(invMat) == "try-error" && use.ginv == TRUE) {
+	if (inherits(invMat, "try-error") && isTRUE(use.ginv)) {
 		invMat <- ginv(t(p_deriv_mat) %*% w_mat %*% p_deriv_mat)
 		ginvFlag <- TRUE
 	}

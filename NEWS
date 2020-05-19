@@ -1,3 +1,14 @@
+Changes to Version 3.1-11
+
+    o Replaced HS.data data set formerly in the MBESS package (following problem reported by Brian Ripley for CRAN).
+    
+    o Small fixes to docs.
+
+
+Changes to Version 3.1-10
+
+    o Change instances of class(x) == "y" to inherits(x, "y"), and of x == TRUE to isTRUE(x).
+    
 Changes to Version 3.1-9
 
     o Changes to C++ code (requested by CRAN).

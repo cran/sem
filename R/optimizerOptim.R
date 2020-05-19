@@ -1,4 +1,4 @@
-# last modified 2011-08-10 by J. Fox
+# last modified 2019-11-15 by J. Fox
 
 optimizerOptim <- function(start, objective=objectiveML, 
 	gradient=TRUE, maxiter, debug, par.size, model.description, warn, method="CG", ...){
@@ -22,7 +22,7 @@ optimizerOptim <- function(start, objective=objectiveML,
 						res$convergence, '. Consult ?optim.\n', sep=""))
 			vcov <- matrix(NA, t, t)
 			qr.hess <- try(qr(res$hessian), silent=TRUE)
-			if (class(qr.hess) == "try-error"){
+			if (inherits(qr.hess, "try-error")){
 				warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 			}
 			else if (qr.hess$rank < t){

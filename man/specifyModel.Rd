@@ -481,10 +481,7 @@ pathDiagram(cfa.thur.ceq, ignore.double=FALSE, ignore.self=TRUE,
     min.rank="FA, FB, FC", edge.labels="values")
 
 # a multigroup CFA model fit to the Holzinger-Swineford
-#   mental-tests data (from the MBESS package)
-
-library(MBESS)
-data(HS.data)
+#   mental-tests data 
 
 mod.hs <- cfa()
 spatial: visual, cubes, paper, flags

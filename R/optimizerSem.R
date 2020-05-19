@@ -1,4 +1,4 @@
-# last modified 2012-01-07 by J. Fox
+# last modified 2019-11-15 by J. Fox
 # Modified for Compiled Objective and nlm in C/C++ by Zhenghua Nie.
 
 optimizerSem <- function(start, objective=objectiveML,  
@@ -38,7 +38,7 @@ optimizerSem <- function(start, objective=objectiveML,
 						res$code, '. Consult ?nlm.\n', sep=""))
 			vcov <- matrix(NA, t, t)
 			qr.hess <- try(qr(res$hessian), silent=TRUE)
-			if (class(qr.hess) == "try-error"){
+			if (inherits(qr.hess, "try-error")){
 				warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 			}
 			else if (qr.hess$rank < t){

@@ -1,7 +1,7 @@
 # Two-Stage Least Squares
 #   John Fox
 
-# last modified 2013-09-10 by J. Fox
+# last modified 2019-11-15 by J. Fox
 
 tsls <- function (y, ...) {
 	UseMethod("tsls")
@@ -141,7 +141,7 @@ fitted.tsls <- function(object, ...){
 vcov.tsls <- function(object, ...) object$V
     
 anova.tsls <- function(object, model.2, s2, dfe, ...){
-    if(class(model.2) != "tsls") stop('requires two models of class tsls')
+    if(!inherits(model.2, "tsls")) stop('requires two models of class tsls')
     s2.1 <- object$s^2
     n.1 <- object$n 
     p.1 <- object$p

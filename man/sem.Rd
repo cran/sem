@@ -987,9 +987,6 @@ summary(cfa.tests, saturated=TRUE) # takes time to fit saturated model for compa
 
 # ---  a multigroup CFA model fit to the Holzinger-Swineford mental-tests data  -----
 
-library(MBESS) # for data
-data(HS.data)
-
 mod.hs <- cfa()
 spatial: visual, cubes, paper, flags
 verbal: general, paragrap, sentence, wordc, wordm
@@ -1133,37 +1130,34 @@ summary(cfa.tests)
 
 #------------ Holzinger and Swineford muiltigroup CFA example ----------------
 
-if (require(MBESS)){ # for data
-	data(HS.data)
+mod.hs <- cfa(file=file.path(etc, "model-HS.txt"))
+
+mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
+
+sem.mg <- sem(mod.mg, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+              general + paragrap + sentence + wordc + wordm +
+              wordr + numberr + figurer + object + numberf + figurew +
+              deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg)
+
+	# with cross-group equality constraints:
 	
-	mod.hs <- cfa(file=file.path(etc, "model-HS.txt"))
-	
-	mod.mg <- multigroupModel(mod.hs, groups=c("Female", "Male")) 
-	
-	sem.mg <- sem(mod.mg, data=HS.data, group="Gender",
-	              formula = ~ visual + cubes + paper + flags +
-	              general + paragrap + sentence + wordc + wordm +
-	              wordr + numberr + figurer + object + numberf + figurew +
-	              deduct + numeric + problemr + series + arithmet
-	              )
-	summary(sem.mg)
-	
-		# with cross-group equality constraints:
-		
-	mod.mg.eq <- multigroupModel(mod.hs, groups=c("Female", "Male"), allEqual=TRUE)
-	
-	sem.mg.eq <- sem(mod.mg.eq, data=HS.data, group="Gender",
-	              formula = ~ visual + cubes + paper + flags +
-	                general + paragrap + sentence + wordc + wordm +
-	                wordr + numberr + figurer + object + numberf + figurew +
-	                deduct + numeric + problemr + series + arithmet
-	              )
-	summary(sem.mg.eq)
-	
-	anova(sem.mg, sem.mg.eq) # test equality constraints
-    
-    options(opt) # restore fit.indices option
-	}
+mod.mg.eq <- multigroupModel(mod.hs, groups=c("Female", "Male"), allEqual=TRUE)
+
+sem.mg.eq <- sem(mod.mg.eq, data=HS.data, group="Gender",
+              formula = ~ visual + cubes + paper + flags +
+                general + paragrap + sentence + wordc + wordm +
+                wordr + numberr + figurer + object + numberf + figurew +
+                deduct + numeric + problemr + series + arithmet
+              )
+summary(sem.mg.eq)
+
+anova(sem.mg, sem.mg.eq) # test equality constraints
+
+options(opt) # restore fit.indices option
+
 }   
 
 \keyword{models}

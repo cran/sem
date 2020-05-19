@@ -157,7 +157,7 @@ math(text, html.only=FALSE, hat=FALSE)
 \references{
     Koutsofios, E., and North, S. C. (2002)
     Drawing graphs with \emph{dot}.
-    \url{http://www.graphviz.org/Documentation/dotguide.pdf}.    
+    \url{https://graphviz.org/documentation/}.    
 }
 
 \author{John Fox \email{jfox@mcmaster.ca}, Adam Kramer, and Michael Friendly}

@@ -1,4 +1,4 @@
-# last modified 2012-11-03 by J. Fox
+# last modified 2019-11-15 by J. Fox
 
 sem <- function(model, ...){
 	if (is.character(model)) class(model) <- "semmod"
@@ -337,7 +337,7 @@ vcov.sem <- function(object, robust=FALSE, analytic=inherits(object, "objectiveM
 	param.names <- rownames(h)
 	vcov <- matrix(NA, t, t)
 	qr.hess <- try(qr(h), silent=TRUE)
-	if (class(qr.hess) == "try-error"){
+	if (inherits(qr.hess, "try-error")){
 		warning("Could not compute QR decomposition of Hessian.\nOptimization probably did not converge.\n")
 	}
 	else if (qr.hess$rank < t){
