@@ -111,7 +111,7 @@ bootSem(model, ...)
 \seealso{\code{\link[boot]{boot}}, \code{\link{sem}}}
 
 \examples{
-    \donttest{
+    \dontrun{ # because of long execution time
 
 # A simple confirmatory factor-analysis model using polychoric correlations.
 #  The polycor package is required for the hetcor function.

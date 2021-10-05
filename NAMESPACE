@@ -1,11 +1,11 @@
-# last modified 2015-07-14 by J. Fox
+# last modified 2020-06-02 by J. Fox
 
 useDynLib(sem)
 useDynLib(sem, csemSolve)
 
 import(stats)
 
-importFrom(matrixcalc, duplication.matrix, vech)
+# importFrom(matrixcalc, duplication.matrix, vech)
 importFrom(MASS, ginv)
 importFrom(boot, boot.ci)
 importFrom(mi, mi, complete)

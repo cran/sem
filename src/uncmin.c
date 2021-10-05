@@ -172,7 +172,7 @@ static void mvmltu(int nr, int n, double *a, double *x, double *y)
   int i, length, one = 1;
 
   for (i = 0, length = n; i < n; --length, ++i)
-    y[i] = F77_CALL(ddot)(&length, &a[i + i * nr], &one, &x[i], &one);
+    y[i] = F77_CALL(ddot)(&length, &a[i + i * nr], &one, &x[i], &one FCONE FCONE);
 } /* mvmltu */
 
 
@@ -231,9 +231,9 @@ static void lltslv(int nr, int n, double *a, double *x, double *b)
   int job = 0, info;
 
   if( x != b) Memcpy(x, b, (size_t) n);
-  F77_CALL(dtrsl)(a, &nr, &n, x, &job, &info);
+  F77_CALL(dtrsl)(a, &nr, &n, x, &job, &info FCONE FCONE);
   job = 10;
-  F77_CALL(dtrsl)(a, &nr, &n, x, &job, &info);
+  F77_CALL(dtrsl)(a, &nr, &n, x, &job, &info FCONE FCONE);
 } /* lltslv */
 
 static void
@@ -506,7 +506,7 @@ tregup(int nr, int n, double *x, double f, double *g, double *a, fcn_p fcn,
 
     (*fcn)(n, xpls, fpls, state);
     dltf = *fpls - f;
-    slp = F77_CALL(ddot)(&n, g, &one, sc, &one);
+    slp = F77_CALL(ddot)(&n, g, &one, sc, &one FCONE FCONE);
 
     /*	next statement added for case of compilers which do not optimize
 	evaluation of next "if" statement (in which case fplsp could be
@@ -655,10 +655,10 @@ lnsrch(int n, double *x, double f, double *g, double *p, double *xpls,
     if (sln > stepmx) {
 	/*	newton step longer than maximum allowed */
 	scl = stepmx / sln;
-	F77_CALL(dscal)(&n, &scl, p, &one);
+	F77_CALL(dscal)(&n, &scl, p, &one FCONE FCONE);
 	sln = stepmx;
     }
-    slp = F77_CALL(ddot)(&n, g, &one, p, &one);
+    slp = F77_CALL(ddot)(&n, g, &one, p, &one FCONE FCONE);
     rln = 0.;
     for (i = 0; i < n; ++i) {
 	temp1 = fabs(p[i])/ fmax2(fabs(x[i]), 1./sx[i]);
@@ -804,7 +804,7 @@ dog_1step(int nr, int n, double *g, double *a, double *p, double *sx,
 	    ssd[i] = -(alpha / bet) * g[i] / sx[i];
 	*cln = alpha * sqrt(alpha) / bet;
 	*eta = (.8 * alpha * alpha /
-		(-bet * F77_CALL(ddot)(&n, g, &one, p, &one))) + .2;
+		(-bet * F77_CALL(ddot)(&n, g, &one, p, &one FCONE FCONE))) + .2;
 	for (i = 0; i < n; ++i)
 	    v[i] = *eta * sx[i] * p[i] - ssd[i];
 	if (*dlt == -1.) *dlt = fmin2(*cln, stepmx);
@@ -823,8 +823,8 @@ dog_1step(int nr, int n, double *g, double *a, double *p, double *sx,
     else {
 	/* calculate convex combination of ssd and eta*p
 	   which has scaled length dlt */
-	dot1 = F77_CALL(ddot)(&n, v, &one, ssd, &one);
-	dot2 = F77_CALL(ddot)(&n, v, &one, v, &one);
+	dot1 = F77_CALL(ddot)(&n, v, &one, ssd, &one FCONE FCONE);
+	dot2 = F77_CALL(ddot)(&n, v, &one, v, &one FCONE FCONE);
 	alam = (-dot1 + sqrt(dot1 * dot1 - dot2 * (*cln * *cln - *dlt * *dlt)))
 	    / dot2;
 	for (i = 0; i < n; ++i)
@@ -963,9 +963,9 @@ hook_1step(int nr, int n, double *g, double *a, double *udiag, double *p,
 	for (i = 0; i < n; ++i)
 	    wrk0[i] = sx[i] * sx[i] * p[i];
 	/*	  solve l*y = (sx**2)*p */
-	F77_CALL(dtrsl)(a, &nr, &n, wrk0, &job, &info);
+	F77_CALL(dtrsl)(a, &nr, &n, wrk0, &job, &info FCONE FCONE);
 	/* Computing 2nd power */
-	temp1 = F77_CALL(dnrm2)(&n, wrk0, &one);
+	temp1 = F77_CALL(dnrm2)(&n, wrk0, &one FCONE FCONE);
 	*phip0 = -(temp1 * temp1) / rnwtln;
 	*fstime = FALSE;
     }
@@ -1010,8 +1010,8 @@ hook_1step(int nr, int n, double *g, double *a, double *udiag, double *p,
 	*phi = stepln - *dlt;
 	for (i = 0; i < n; ++i)
 	    wrk0[i] = sx[i] * sx[i] * sc[i];
-	F77_CALL(dtrsl)(a, &nr, &n, wrk0, &job, &info);
-	temp1 = F77_CALL(dnrm2)(&n, wrk0, &one);
+	F77_CALL(dtrsl)(a, &nr, &n, wrk0, &job, &info FCONE FCONE);
+	temp1 = F77_CALL(dnrm2)(&n, wrk0, &one FCONE FCONE);
 	phip = -(temp1 * temp1) / stepln;
 	if ((alo * *dlt <= stepln && stepln <= hi * *dlt)
 	    || (amuup - amulo > 0.)) {
@@ -1180,13 +1180,13 @@ secunf(int nr, int n, double *x, double *g, double *a, double *udiag,
 	s[i] = xpls[i] - x[i];
 	y[i] = gpls[i] - g[i];
     }
-    den1 = F77_CALL(ddot)(&n, s, &one, y, &one);
-    snorm2 = F77_CALL(dnrm2)(&n, s, &one);
-    ynrm2  = F77_CALL(dnrm2)(&n, y, &one);
+    den1 = F77_CALL(ddot)(&n, s, &one, y, &one FCONE FCONE);
+    snorm2 = F77_CALL(dnrm2)(&n, s, &one FCONE FCONE);
+    ynrm2  = F77_CALL(dnrm2)(&n, y, &one FCONE FCONE);
     if (den1 < sqrt(epsm) * snorm2 * ynrm2) return;
 
     mvmlts(nr, n, a, s, t);
-    den2 = F77_CALL(ddot)(&n, s, &one, t, &one);
+    den2 = F77_CALL(ddot)(&n, s, &one, t, &one FCONE FCONE);
     if (*noupdt) {
 	/*	  h <-- [(s+)y/(s+)hs]h */
 
@@ -1264,15 +1264,15 @@ secfac(int nr, int n, double *x, double *g, double *a, double *xpls,
 	s[i] = xpls[i] - x[i];
 	y[i] = gpls[i] - g[i];
     }
-    den1 = F77_CALL(ddot)(&n, s, &one, y, &one);
-    snorm2 = F77_CALL(dnrm2)(&n, s, &one);
-    ynrm2  = F77_CALL(dnrm2)(&n, y, &one);
+    den1 = F77_CALL(ddot)(&n, s, &one, y, &one FCONE FCONE);
+    snorm2 = F77_CALL(dnrm2)(&n, s, &one FCONE FCONE);
+    ynrm2  = F77_CALL(dnrm2)(&n, y, &one FCONE FCONE);
 
     if (den1 < sqrt(epsm) * snorm2 * ynrm2)
 	return;
 
     mvmltu(nr, n, a, s, u);
-    den2 = F77_CALL(ddot)(&n, u, &one, u, &one);
+    den2 = F77_CALL(ddot)(&n, u, &one, u, &one FCONE FCONE);
 
     /*	l <-- sqrt(den1/den2)*l */
 

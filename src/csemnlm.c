@@ -664,7 +664,7 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				}
 
 				setAttrib(value, R_NamesSymbol, names);
-				UNPROTECT(3);
+				UNPROTECT(2);
 		}
 		else {
 
@@ -798,7 +798,7 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				}
 
 				setAttrib(value, R_NamesSymbol, names);
-				UNPROTECT(3);
+				UNPROTECT(2);
 		}
 
     return value;
@@ -960,7 +960,7 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				k++;
 
 				setAttrib(value, R_NamesSymbol, names);
-				UNPROTECT(3);
+				UNPROTECT(2);
 		}
 		else {
 
@@ -1102,7 +1102,7 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				k++;
 
 				setAttrib(value, R_NamesSymbol, names);
-				UNPROTECT(3);
+				UNPROTECT(2);
 		}
 
     return value;

@@ -37,6 +37,8 @@
 #ifndef __CSEMNLM_HPP__
 #define __CSEMNLM_HPP__
 
+#define USE_FC_LEN_T
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -48,6 +50,12 @@
 #include <Rmath.h>
 #include <R_ext/Applic.h>
 #include <R_ext/RS.h>	       	/* for Memcpy */
+#include <R_ext/BLAS.h>
+#include <R_ext/Linpack.h>
+
+#ifndef FCONE
+#define FCONE
+#endif
 
 #ifdef DEBUGSEM
 #define SEM_DEBUG 1

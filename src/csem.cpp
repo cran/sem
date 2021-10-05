@@ -299,7 +299,7 @@ void printMatrix(const double *x, int row, int col, const string msg, int column
 		}
 }
 //
-//print a mtrix (double)
+//print a mtrix (integer)
 void printMatrix(const int *x, int row, int col, const string msg, int column_wise) 
 {
 		Rprintf("Matrix: %s [%d*%d]\t", msg.c_str(), row, col);
@@ -418,11 +418,11 @@ extern "C" {
 				double *WORK = new double[LWORK];
 				int INFO;
 
-				F77_CALL(dgetrf)(&n, &n, A, &n, IPIV, &INFO);
+				F77_CALL(dgetrf)(&n, &n, A, &n, IPIV, &INFO FCONE FCONE);
 				if(INFO != 0) {
 						error(( "The matrix is non-invertable."));
 				}
-				F77_CALL(dgetri)(&n, A, &n, IPIV, WORK, &LWORK, &INFO);
+				F77_CALL(dgetri)(&n, A, &n, IPIV, WORK, &LWORK, &INFO FCONE FCONE);
 
 				delete[] IPIV;
 				delete[] WORK;
@@ -446,7 +446,7 @@ extern "C" {
 				Memcpy(tA, A, nrow*ncol);
 
 
-				F77_CALL(dgetrf)(&nrow, &ncol, tA, &ncol, IPIV, &INFO);
+				F77_CALL(dgetrf)(&nrow, &ncol, tA, &ncol, IPIV, &INFO FCONE FCONE);
 
 				if(INFO != 0) {
 						error(("Nonsingular matrix." ));
@@ -498,7 +498,7 @@ extern "C" {
 				char Tran = 'n';
 				const double alpha = 1.0;
 				const double beta = 0.0;
-				F77_CALL(dgemm)(&Tran, &Tran, &rowA, &colB, &colA, &alpha, A, &rowA, B, &colA, &beta, C, &rowA);
+				F77_CALL(dgemm)(&Tran, &Tran, &rowA, &colB, &colA, &alpha, A, &rowA, B, &colA, &beta, C, &rowA FCONE FCONE);
 
 				return;
 		}
@@ -521,7 +521,7 @@ extern "C" {
 				char BTran = 't';
 				const double alpha = 1.0;
 				const double beta = 0.0;
-				F77_CALL(dgemm)(&ATran, &BTran, &rowA, &rowB, &colA, &alpha, A, &rowA, B, &rowB, &beta, C, &rowA);
+				F77_CALL(dgemm)(&ATran, &BTran, &rowA, &rowB, &colA, &alpha, A, &rowA, B, &rowB, &beta, C, &rowA FCONE FCONE);
 
 				return;
 		}
@@ -544,7 +544,7 @@ extern "C" {
 				char BTran = 't';
 				const double alpha = 1.0;
 				const double beta = 0.0;
-				F77_CALL(dgemm)(&ATran, &BTran, &colA, &rowB, &rowA, &alpha, A, &rowA, B, &rowB, &beta, C, &rowA);
+				F77_CALL(dgemm)(&ATran, &BTran, &colA, &rowB, &rowA, &alpha, A, &rowA, B, &rowB, &beta, C, &rowA FCONE FCONE);
 
 				return;
 		}
@@ -913,7 +913,7 @@ void objectiveML(int n, const double x[], double *f, double *g, double *h,  doub
 				int incx = 1;
 				int mm = modeln*modeln;
 
-				F77_CALL(daxpy)(&mm,&alpha, C0,&incx, grad_A, &incx); //grad_A = -C0 + grad_A ==>  grad_A = -S + C
+				F77_CALL(daxpy)(&mm,&alpha, C0,&incx, grad_A, &incx FCONE FCONE); //grad_A = -C0 + grad_A ==>  grad_A = -S + C
 				if(SEM_DEBUG) printMatrix(grad_A, modeln, modeln, "(C-S)", 1);
 
 				MatrixMulti(grad_P, m, modeln, grad_A, modeln, modeln, C0);
@@ -1056,7 +1056,7 @@ void msem_objectiveML(int n, const double x[], double *f, double *g, double *h, 
 						//F77_NAME(daxpy)(const int *n,  const double *alpha, 
 						//								const double *dx,  const int *incx, 
 						//								double *dy,  const int *incy); y = ax+y
-						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
+						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx FCONE FCONE); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
 				}
 
 		}
@@ -1138,7 +1138,7 @@ void objectiveGLS(int n, const double x[], double *f, double *g, double *h,  dou
 		//F77_NAME(daxpy)(const int *n,  const double *alpha, 
 		//								const double *dx,  const int *incx, 
 		//								double *dy,  const int *incy);
-		F77_CALL(daxpy)(&mm,&alpha, invC,&incx, C0, &incx); //C0 = C0 - grad_A ==>  grad_A = S - C
+		F77_CALL(daxpy)(&mm,&alpha, invC,&incx, C0, &incx FCONE FCONE); //C0 = C0 - grad_A ==>  grad_A = S - C
 		if(SEM_DEBUG) printMatrix(C0, modeln, modeln, "(S-C)", 1);
 
 		Memcpy(grad_P, REAL(AS_NUMERIC(model->invS)), modeln*modeln);
@@ -1207,7 +1207,7 @@ void msem_objectiveGLS(int n, const double x[], double *f, double *g, double *h,
 						//F77_NAME(daxpy)(const int *n,  const double *alpha, 
 						//								const double *dx,  const int *incx, 
 						//								double *dy,  const int *incy); y = ax+y
-						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
+						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx FCONE FCONE); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
 				}
 
 		}
@@ -1360,7 +1360,7 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 						//								const double *dx,  const int *incx, 
 						//								double *dy,  const int *incy); y = ax+y
 						double alpha = static_cast<double>(row_subX);
-						F77_CALL(daxpy)(&ndfdCi,&alpha, subC_T,&incx, dfdCi, &incx); 
+						F77_CALL(daxpy)(&ndfdCi,&alpha, subC_T,&incx, dfdCi, &incx FCONE FCONE); 
 
 						if(SEM_DEBUG) 
 								printMatrix(dfdCi, 1, ndfdCi, "nrow(X)*t(vec(t(inv(C[sel, sel]))))", 1);
@@ -1395,7 +1395,7 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 
 						alpha = -1.0;
 
-						F77_CALL(daxpy)(&ndfdCi,&alpha, IsubC, &incx, dfdCi, &incx); //
+						F77_CALL(daxpy)(&ndfdCi,&alpha, IsubC, &incx, dfdCi, &incx FCONE FCONE); //
 						if(SEM_DEBUG) 
 								printMatrix(dfdCi, 1, ndfdCi, "dfdCi", 1);
 
@@ -1405,7 +1405,7 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 
 						alpha = 1.0/static_cast<double>(model->N);
 						int nn = modeln*modeln;
-						F77_CALL(daxpy)(&nn,&alpha, dfdCiExtend, &incx, dfdC, &incx); //
+						F77_CALL(daxpy)(&nn,&alpha, dfdCiExtend, &incx, dfdC, &incx FCONE FCONE); //
 						if(SEM_DEBUG) 
 								printMatrix(dfdC, 1, nn, "dfdC = dfdC + dfdCi", 1);
 
@@ -1491,7 +1491,7 @@ void objectiveFIML(int n, const double x[], double *f, double *g, double *h,  do
 				double alpha = 1.0;
 				int mn = modeln*modeln*modeln*m;
 				int incx = 1;
-				F77_CALL(daxpy)(&mn,&alpha,dCdA2 , &incx, dCdA33, &incx); //
+				F77_CALL(daxpy)(&mn,&alpha,dCdA2 , &incx, dCdA33, &incx FCONE FCONE); //
 				if(SEM_DEBUG) 
 						printMatrix(dCdA33, modeln*modeln, modeln*m, "(B %*% t(P)) %x% diag(nrow(B)) + (diag(nrow(B)) %x% B) %*% Tmn %*% (P %x% diag(nrow(B))) ", 1);
 
@@ -1767,7 +1767,7 @@ void msem_objectiveFIML(int n, const double x[], double *f, double *g, double *h
 						//F77_NAME(daxpy)(const int *n,  const double *alpha, 
 						//								const double *dx,  const int *incx, 
 						//								double *dy,  const int *incy); y = ax+y
-						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
+						F77_CALL(daxpy)(&n,&alpha, grad,&incx, g, &incx FCONE FCONE); //grad.all = grad.all+((N[g]-!raw)/(sum(N)-(!raw)*G))*grad
 				}
 
 		}
@@ -1827,7 +1827,7 @@ SEXP csemSolve( SEXP args )
 		csem_NaN = std::numeric_limits<double>::quiet_NaN();
 
 		SEXP solution;
-		int num_prot = 0;
+		int num_prot = 1;
 
 		PROTECT(solution=args);
 
@@ -2100,7 +2100,7 @@ SEXP cmsemSolve( SEXP args )
 		csem_NaN = std::numeric_limits<double>::quiet_NaN();
 
 		SEXP solution;
-		int num_prot = 0;
+		int num_prot = 1;
 
 		PROTECT(solution=args);
 

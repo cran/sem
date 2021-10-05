@@ -103,7 +103,7 @@ miSem(model, ...)
 \code{\link{sem}}, \code{\link{mi}}
 }
 \examples{
-    \donttest{
+    \dontrun{ # because of long execution time
 mod.cfa.tests <- cfa(raw=TRUE, text="
 verbal: x1, x2, x3
 math: y1, y2, y3
