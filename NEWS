@@ -1,3 +1,8 @@
+Changes to Version 3.1-14
+
+    o Make pathDiagram() compatible with the current version of DiagrammeR package.
+
+
 Changes to Version 3.1-13
 
     o Eliminate dependency on matrixcalc package.

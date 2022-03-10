@@ -1,6 +1,6 @@
-6c3f3130f6674d0f15b055e56149ea53 *DESCRIPTION
+f360350a04fed82be1bfcfbafef5bd62 *DESCRIPTION
 6fd5f04c0ae824d6a23100edf0bd01b4 *NAMESPACE
-55b80674bdba0ce2e4de86159433dbaa *NEWS
+a3b7ebcdc37afbe11eaca49e23e66b7c *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 511491887de6453cb0a5cd1382787b13 *R/bootSem.R
 9781913d2d4ddf378f4a67dff2588a68 *R/cfa.R
@@ -23,7 +23,7 @@ c61060fe404ea72f9af42b110ecf0f9b *R/objectiveML.R
 ce8734534902e16ae94ec7df1851785b *R/optimizerNlminb.R
 3a98fcdfcfebb147856762b2b6eb5fe1 *R/optimizerOptim.R
 542187b66c55ee301e0e86d4884f5320 *R/optimizerSem.R
-f7b1f6baf2fcf9841eb06373ea19c58c *R/pathDiagram.R
+7584d123cb5afdb754077b9a3092c613 *R/pathDiagram.R
 12062f699cc233aaac93b2973b791e0a *R/print.methods.R
 56cf34eba0ff8466dd53c84a687f1e20 *R/ram.R
 b6761bac9f8a0bad80cb03c93edc06dd *R/rawMoments.R
@@ -38,12 +38,12 @@ bb0d605868b06e1bb7c9d2acda4aa428 *R/summary.methods.R
 bac40fa9079b65706eee65802482cbeb *R/tsls.R
 5b3aaf75d5c4a1e5dd547ffbed4f0fa5 *R/update.R
 503e74b7d42e6c0d9486febe49739763 *cleanup
-8ae227af42addc469ac160300057d163 *data/Bollen.rda
-5040697d08f2855983cba10d9001b849 *data/CNES.rda
-25b362f1446ebc03303492bd19489cce *data/HS.data.rda
+bf4d9fbcc1bca786719de0d7966786b8 *data/Bollen.rda
+d73812485b726766da9c9b02c06d89a4 *data/CNES.rda
+8a4a41e218bb61d1efebc4655ff34782 *data/HS.data.rda
 75586bdbf9352216b00627c825705771 *data/Klein.txt.bz2
 f9fa983a237637c61801c9d8d849cdcc *data/Kmenta.txt.gz
-0e5e82bcb8b1057b973dae3c097aab18 *data/Tests.rda
+e580c674625f8d228843a2dc72f452e0 *data/Tests.rda
 7e382b6314a1a9226b7536666a9e78e8 *inst/CHANGES
 d2cc9fecf94a4ec26090e69783fd8203 *inst/etc/GreekLetters.txt
 b292b20b397dcc0974b8b723f5d7d27b *inst/etc/M-McArdle.txt

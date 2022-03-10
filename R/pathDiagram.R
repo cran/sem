@@ -378,7 +378,7 @@ pathDiagram.sem <-
                 result <- try(system(cmd))
             }
             if (output.type == "html" && requireNamespace("DiagrammeR")) {
-                print(DiagrammeR::DiagrammeR(textConnection(dot), type = "grViz"))
+                print(DiagrammeR::DiagrammeR(dot, type = "grViz"))
             }
             result <-
                 if (output.type == "html")

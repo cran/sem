@@ -1,6 +1,6 @@
 Package: sem
-Version: 3.1-13
-Date: 2021-10-03
+Version: 3.1-14
+Date: 2022-03-09
 Title: Structural Equation Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Zhenghua", "Nie", role = "aut", email="zhenghua.nie@gmail.com"),
@@ -17,7 +17,7 @@ Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaste
 	)
 Depends: R (>= 3.5.0), stats
 Imports: MASS, boot, mi (>= 0.9-99), utils
-Suggests: polycor, DiagrammeR
+Suggests: polycor, DiagrammeR (>= 1.0.9)
 LazyLoad: yes
 LazyData: yes
 ByteCompile: yes
@@ -42,8 +42,8 @@ Author: John Fox [aut, cre],
 Maintainer: John Fox <jfox@mcmaster.ca>
 Repository: CRAN
 Repository/R-Forge/Project: sem
-Repository/R-Forge/Revision: 182
-Repository/R-Forge/DateTimeStamp: 2021-10-03 20:22:56
-Date/Publication: 2021-10-05 07:10:05 UTC
+Repository/R-Forge/Revision: 183
+Repository/R-Forge/DateTimeStamp: 2022-03-09 17:08:05
+Date/Publication: 2022-03-10 11:20:05 UTC
 NeedsCompilation: yes
-Packaged: 2021-10-03 20:28:07 UTC; rforge
+Packaged: 2022-03-09 17:11:26 UTC; rforge
