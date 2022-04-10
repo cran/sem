@@ -37,7 +37,9 @@
 #ifndef __CSEMNLM_HPP__
 #define __CSEMNLM_HPP__
 
-#define USE_FC_LEN_T
+//#ifndef USE_FC_LEN_T
+//#define USE_FC_LEN_T
+//#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -54,7 +56,7 @@
 #include <R_ext/Linpack.h>
 
 #ifndef FCONE
-#define FCONE
+//#define FCONE
 #endif
 
 #ifdef DEBUGSEM

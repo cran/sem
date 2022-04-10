@@ -1,6 +1,6 @@
-f360350a04fed82be1bfcfbafef5bd62 *DESCRIPTION
+1feee2c1d80635db8043ac5caca90317 *DESCRIPTION
 6fd5f04c0ae824d6a23100edf0bd01b4 *NAMESPACE
-a3b7ebcdc37afbe11eaca49e23e66b7c *NEWS
+7446d6d5b4b820bd5aa1aad495d0658b *NEWS
 8847aeafd88a3c87be520511b7c30009 *R/anova.methods.R
 511491887de6453cb0a5cd1382787b13 *R/bootSem.R
 9781913d2d4ddf378f4a67dff2588a68 *R/cfa.R
@@ -88,10 +88,10 @@ f8f25eebcaaeb3924f307bc66aa3f949 *man/specifyModel.Rd
 6a4dda2f6c8d69abcc62d8c4de3da82f *man/standardizedCoefficients.Rd
 a1d9e03dcff9cea404a755ccbbe1af2d *man/tsls.Rd
 07f06070ce4a1675791580f41a9b4d10 *src/Makevars
-b8e8870841139b5e6471bd7140e80c26 *src/csem.cpp
+41e39be67bb9dc1718e86af5043b2b3f *src/csem.cpp
 9f6cbfc66e5cbed2f4fc303070dd3a17 *src/csem.h
-1c6c11f2fe85c7334eaeeb057b0fe5a3 *src/csemnlm.c
-f14c4c1dba9d4e0a6d0a9d425f802127 *src/csemnlm.h
+b0f2506490f83ae316be377535658fda *src/csemnlm.c
+d59ec4ce09bf0fce1c99a03ec66bf256 *src/csemnlm.h
 9a89a4935d920e22e6ebe171d088e9fc *src/init.c
-a7d81ff2f83fdf2ebd2662435de48782 *src/uncmin.c
+2db5b192449ef3404c662383d16192c7 *src/uncmin.c
 120ac4d5369777630e7f17282a9c02b6 *src/utils.h

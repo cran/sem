@@ -26,6 +26,7 @@
  *  http://www.r-project.org/Licenses/
  */
 #include "csemnlm.h"
+//#include <stdint.h>
 
 /* General Nonlinear Optimization */
 /* Initialize the storage in the table of computed function values */
@@ -263,9 +264,10 @@ static void fcn(int n, const double x[], double *f, function_info *state)
 		A = (double *)R_alloc(m*m, sizeof(double));
 		P = (double *)R_alloc(m*m, sizeof(double));
 
-		myfcn_p myobjfun = (myfcn_p)state->myobjfun;
+//		myfcn_p myobjfun = (myfcn_p)(intptr_t)state->myobjfun;
 
-		(myobjfun)(n, x, f, g, h,  A, P, C, state);
+//		(myobjfun)(n, x, f, g, h,  A, P, C, state);
+		(*state->myobjfun)(n, x, f, g, h,  A, P, C, state);
 		++state->n_eval;  //number of the evaluations.
 
 		if((*f != *f) || !R_FINITE(*f)) {
@@ -314,9 +316,10 @@ static void msem_fcn(int n, const double x[], double *f, msem_function_info *sta
 		P = (double *)R_alloc(state->sizeAP, sizeof(double));
 		ff = (double *)R_alloc(state->model->G, sizeof(double));
 
-		msem_fcn_p myobjfun = (msem_fcn_p)state->myobjfun;
+//		msem_fcn_p myobjfun = (msem_fcn_p)(intptr_t)state->myobjfun;
 
-		(myobjfun)(n, x, f, g, h,  A, P, C,ff,  state);
+//		(myobjfun)(n, x, f, g, h,  A, P, C,ff,  state);
+		(*state->myobjfun)(n, x, f, g, h,  A, P, C,ff,  state);
 		++state->n_eval;  //number of the evaluations.
 
 		if((*f != *f) || !R_FINITE(*f)) {
@@ -538,7 +541,8 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 		state->have_gradient = iagflg;
 		state->have_hessian = iahflg;
 		state->n_eval = 0;
-		state->myobjfun = (myfcn_p *) myobjfun;
+//		state->myobjfun = (myfcn_p *)(intptr_t)myobjfun;
+		state->myobjfun = &myobjfun;
 
 
 /* .Internal(
@@ -828,7 +832,8 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 		state->have_gradient = iagflg;
 		state->have_hessian = iahflg;
 		state->n_eval = 0;
-		state->myobjfun = (msem_fcn_p *) myobjfun;
+//		state->myobjfun = (msem_fcn_p *)(intptr_t)myobjfun;
+		state->myobjfun =  &myobjfun;
 
 /* .Internal(
  *	nlm(function(x) f(x, ...), p, hessian, typsize, fscale,
