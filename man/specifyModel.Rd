@@ -46,7 +46,7 @@ removeRedundantPaths(model, warn=TRUE)
     then the specification is read from the standard
     input stream, and is terminated by a blank line.}
   \item{text}{The model specification given as a character string, as an alternative
-    to specifying the ]code{file} argument or reading the model specification from
+    to specifying the ]\code{file} argument or reading the model specification from
     the input stream --- e.g., when the session is not interactive and there is no
     standard input.}
   \item{exog.variances}{If \code{TRUE} (the default is \code{FALSE}), free variance

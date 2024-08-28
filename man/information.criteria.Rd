@@ -30,7 +30,7 @@ CAIC(object, ...)
     
      Bozdogan, H. (1987)
      Model selection and Akaike's information criterion (AIC).
-	\emph{Psychometrika}  bold{52}, 345--370.
+	\emph{Psychometrika}  \bold{52}, 345--370.
 }
 
 \seealso{

@@ -1,9 +1,11 @@
 # with contributions by Adam Kramer and Michael Friendly (originally by J. Fox)
-# last modified 2015-06-09 by J. Fox
+# last modified 2020-04-20 by J. Fox
 
 globalVariables("dot")
 
 Greek <- read.table(system.file("etc/GreekLetters.txt", package="sem"), as.is=TRUE)
+Subscripts <- read.table(system.file("etc/subscripts.txt", package="sem"), as.is=TRUE)
+Superscripts <- read.table(system.file("etc/superscripts.txt", package="sem"), as.is=TRUE)
 
 math <- function(text, html.only=FALSE, hat=FALSE){
     if (length(text) > 1) {
@@ -11,13 +13,16 @@ math <- function(text, html.only=FALSE, hat=FALSE){
         names(result) <- names(text)
         return(result)
     }
-#     subscripts <- c("&#8320;", "&#8321;", "&#8322;", "&#8323;", "&#8324;", "&#8325;", "&#8326;",
-#         "&#8327;", "&#8328;", "&#8329;")
-    subscripts <- c("&#x2080;", "&#x2081;", "&#x2082;", "&#x2083;", "&#x2084;", "&#x2085;", "&#x2086;",
-        "&#x2087;", "&#x2088;", "&#x2089;")
-    superscripts <- c("&#x2070;", "&sup1;", "&sup2;", "&sup3;", "&#x2074;", "&#x2075;", 
-        "&#x2076;", "&#x2077;", "&#x2078;", "&#x2079;")
-    names(subscripts) <- names(superscripts) <- 0:9
+    # subscripts <- c("&#x2080;", "&#x2081;", "&#x2082;", "&#x2083;", "&#x2084;", "&#x2085;", "&#x2086;",
+    #     "&#x2087;", "&#x2088;", "&#x2089;", "&#x208B;")
+    # superscripts <- c("&#x2070;", "&sup1;", "&sup2;", "&sup3;", "&#x2074;", "&#x2075;", 
+    #     "&#x2076;", "&#x2077;", "&#x2078;", "&#x2079;")
+    # names(subscripts) <- c(0:9, "-")
+    # names(superscripts) <- 0:9
+    subscripts <- Subscripts$hex
+    superscripts <- Superscripts$hex
+    names(subscripts) <- rownames(Subscripts)
+    names(superscripts) <- rownames(Superscripts)
     hat <- if (hat) "&#770;" else ""
     text <- gsub(" ", "", text)
     symbol <- regexpr("^[a-zA-Z]+", text)
@@ -26,9 +31,9 @@ math <- function(text, html.only=FALSE, hat=FALSE){
         paste0("&", substring(text, 1, attr(symbol, "match.length")), ";")
     }
     else{
-        s <- substring(text, 1, attr(symbol, "match.length"))
-        s <- Greek[s, "decimal"]
-        if (is.na(s)) stop(s, " is not a Greek letter")
+        ss <- substring(text, 1, attr(symbol, "match.length"))
+        s <- Greek[ss, "decimal"]
+        if (is.na(s)) stop(ss, " is not a Greek letter")
         s
     }
     subscript <- regexpr("_\\{", text)
@@ -42,7 +47,7 @@ math <- function(text, html.only=FALSE, hat=FALSE){
     if (subscript != ""){
         subscript <- unlist(strsplit(subscript, split=""))
         subscript <- subscripts[subscript]
-        if (any(is.na(subscript))) stop ("invalid non-numeral subscript")
+        if (any(is.na(subscript))) stop ("invalid subscript")
         subscript <- paste(subscript, collapse="")
     }
     superscript <- regexpr("\\^\\{", text)
@@ -56,7 +61,7 @@ math <- function(text, html.only=FALSE, hat=FALSE){
     if (superscript != ""){
         superscript <- unlist(strsplit(superscript, split=""))
         superscript <- superscripts[superscript]
-        if (any(is.na(superscript))) stop ("invalid non-numeral superscript")
+        if (any(is.na(superscript))) stop ("invalid superscript")
         superscript <- paste(superscript, collapse="")
     }
     paste0(symbol, hat, subscript, superscript)

@@ -1,3 +1,9 @@
+Changes to Version 3.1-16
+
+    o Modifications to C/C++ code requested by CRAN.
+
+    o New support for subscripts, superscripts in pathDiagram().
+
 Changes to Version 3.1-15
 
     o Modifications to C/C++ code requested by CRAN.

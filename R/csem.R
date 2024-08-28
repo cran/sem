@@ -138,9 +138,9 @@ msemCompiledSolve <- function(model.description, start, objective=c("objectiveML
 		return(ret)
 }
 
-print.f <- function(input)
+print.f <- function(x,...)
 {
-		print(input);   # call R function "print" 
+		print(x,...);   # call R function "print" 
 }
 
 #optimze:0 we only compute the objective function,  gradients or hessian and return them.

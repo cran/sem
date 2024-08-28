@@ -117,7 +117,7 @@ math(text, html.only=FALSE, hat=FALSE)
     In either case, the symbols may be followed by numeric subscripts in curly braces consisting of numerals 
     (e.g., \code{"beta_{12}"}),
     and/or numeric superscripts (e.g., \code{"sigma^{2}"},
-    \code{"sigma_{1}^{2}"}). Depending upon your OS, subscripts and superscripts may only work properly with HTML output
+    \code{"sigma_{1}^{2}"}). Superscripts and subscripts may also include most lowercase or uppercase letters. Depending upon your OS, subscripts and superscripts may only work properly with HTML output
     from \code{pathDiagram}, not with graphics output produced by \emph{dot}.}
   \item{hat}{If \code{TRUE} (the default is \code{FALSE}), a hat (circumflex) is placed over the
     symbols in \code{text}; this feature doesn't produce a visually appealing result.}
@@ -128,7 +128,7 @@ math(text, html.only=FALSE, hat=FALSE)
   for a structural-equation-model or SEM-specification object to be processed by the
   graph-drawing program \emph{dot}, which can be called
   automatically; see Koutsofios and North (2002)
-  and \url{http://www.graphviz.org/}. To obtain graphics output
+  and \url{https://www.graphviz.org/}. To obtain graphics output
   directly, the \emph{dot} program must be on the system search path. 
   
   Alternatively, \emph{HTML} output can be created in a web browser without an independent installation

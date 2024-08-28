@@ -10,7 +10,7 @@ Estimate a Structural Equation Model By Multiple Imputation
 }
 
 \description{
-\code{miSem} uses the \code{\link{mi}} function in the \pkg{mi} package to generate multiple imputations of missing
+\code{miSem} uses the \code{\link[mi]{mi}} function in the \pkg{mi} package to generate multiple imputations of missing
 data, fitting the specified model to each completed data set.
 }
 
@@ -64,11 +64,11 @@ miSem(model, ...)
     }
 
   \item{mi.args}{
-    other arguments to be passed to \code{\link{mi}}.
+    other arguments to be passed to \code{\link[mi]{mi}}.
     }
   \item{show.progress}{
     show a text progress bar on the console tracking model fitting to the multiple imputations; this is distinct from
-    the progress of the multiple-imputation process, which is controlled by the \code{verbose} argument to \code{\link{mi}}
+    the progress of the multiple-imputation process, which is controlled by the \code{verbose} argument to \code{\link[mi]{mi}}
     (and which, although it defaults to \code{TRUE}, \emph{fails} to produce verbose output on Windows system, as of \pkg{mi} version
     1.0).
   }
@@ -85,9 +85,9 @@ miSem(model, ...)
     \item{initial.fit}{an \code{sem} model object produced using \code{\link{objectiveFIML}} if \code{raw=TRUE},
     or the objective function given by the \code{objective} argument otherwise.}
     \item{mi.fits}{a list of \code{sem} model objects, one for each imputed data set.}
-    \item{imputation}{the object produced by \code{\link{complete}}, containing the completed imputed data sets.}
+    \item{imputation}{the object produced by \code{\link[mi]{complete}}, containing the completed imputed data sets.}
     \item{seed}{the seed used for the random number generator.}
-    \item{mi.data}{the object returned by \code{\link{mi}}, containing the multiple imputations, and useful, e.g., for diagnostic checking of the imputation process.}
+    \item{mi.data}{the object returned by \code{\link[mi]{mi}}, containing the multiple imputations, and useful, e.g., for diagnostic checking of the imputation process.}
 }
 
 \references{
@@ -100,7 +100,7 @@ miSem(model, ...)
     }
 
 \seealso{
-\code{\link{sem}}, \code{\link{mi}}
+\code{\link{sem}}, \code{\link[mi]{mi}}
 }
 \examples{
     \dontrun{ # because of long execution time

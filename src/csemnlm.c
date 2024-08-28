@@ -245,7 +245,7 @@ static void fcn(int n, const double x[], double *f, function_info *state)
 		}
 
 		for (i = 0; i < n; i++) {
-				if (!R_FINITE(x[i])) error(("non-finite value supplied by 'nlm'"));
+				if (!R_FINITE(x[i])) Rf_error(("non-finite value supplied by 'nlm'"));
 		}
 
 
@@ -271,7 +271,7 @@ static void fcn(int n, const double x[], double *f, function_info *state)
 		++state->n_eval;  //number of the evaluations.
 
 		if((*f != *f) || !R_FINITE(*f)) {
-				warning(("NA//Inf replaced by maximum positive value"));
+				Rf_warning(("NA//Inf replaced by maximum positive value"));
 				*f = DBL_MAX;
 		}
 
@@ -298,7 +298,7 @@ static void msem_fcn(int n, const double x[], double *f, msem_function_info *sta
 		}
 
 		for (i = 0; i < n; i++) {
-				if (!R_FINITE(x[i])) error(("non-finite value supplied by 'nlm'"));
+				if (!R_FINITE(x[i])) Rf_error(("non-finite value supplied by 'nlm'"));
 		}
 
 
@@ -323,7 +323,7 @@ static void msem_fcn(int n, const double x[], double *f, msem_function_info *sta
 		++state->n_eval;  //number of the evaluations.
 
 		if((*f != *f) || !R_FINITE(*f)) {
-				warning(("NA/Inf replaced by maximum positive value"));
+				Rf_warning(("NA/Inf replaced by maximum positive value"));
 				*f = DBL_MAX;
 		}
 
@@ -340,7 +340,7 @@ static void Cd1fcn(int n, const double x[], double *g, function_info *state)
 		if ((ind = FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				fcn(n, x, g, state);
 				if ((ind = FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 
@@ -356,7 +356,7 @@ static void msem_Cd1fcn(int n, const double x[], double *g, msem_function_info *
 		if ((ind = msem_FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				msem_fcn(n, x, g, state);
 				if ((ind = msem_FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 
@@ -373,7 +373,7 @@ static void Cd2fcn(int nr, int n, const double x[], double *h, function_info *st
 		if ((ind = FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				fcn(n, x, h, state);
 				if ((ind = FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 		for (j = 0; j < n; j++) {  /* fill in lower triangle only */
@@ -389,7 +389,7 @@ static void msem_Cd2fcn(int nr, int n, const double x[], double *h, function_inf
 		if ((ind = FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				fcn(n, x, h, state);
 				if ((ind = FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 		for (j = 0; j < n; j++) {  /* fill in lower triangle only */
@@ -406,7 +406,7 @@ static void returnAPCfcn(int n, const double x[], double *A, double *P, double *
 		if ((ind = FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				fcn(n, x, C, state);
 				if ((ind = FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 		const int modeln = state->model->n;
@@ -426,7 +426,7 @@ static void msem_returnAPCfcn(int n, const double x[], double *A, double *P, dou
 		if ((ind = msem_FT_lookup(n, x, state)) < 0) {	/* shouldn't happen */
 				msem_fcn(n, x, C, state);
 				if ((ind = msem_FT_lookup(n, x, state)) < 0) {
-						error(("function value caching for optimization is seriously confused"));
+						Rf_error(("function value caching for optimization is seriously confused"));
 				}
 		}
 
@@ -444,25 +444,25 @@ static void opterror(int nerr)
 {
     switch(nerr) {
     case -1:
-	error(("non-positive number of parameters in nlm"));
+	Rf_error(("non-positive number of parameters in nlm"));
     case -2:
-	error(("nlm is inefficient for 1-d problems"));
+	Rf_error(("nlm is inefficient for 1-d problems"));
     case -3:
-	error(("invalid gradient tolerance in nlm"));
+	Rf_error(("invalid gradient tolerance in nlm"));
     case -4:
-	error(("invalid iteration limit in nlm"));
+	Rf_error(("invalid iteration limit in nlm"));
     case -5:
-	error(("minimization function has no good digits in nlm"));
+	Rf_error(("minimization function has no good digits in nlm"));
     case -6:
-	error(("no analytic gradient to check in nlm!"));
+	Rf_error(("no analytic gradient to check in nlm!"));
     case -7:
-	error(("no analytic Hessian to check in nlm!"));
+	Rf_error(("no analytic Hessian to check in nlm!"));
     case -21:
-	error(("probable coding error in analytic gradient"));
+	Rf_error(("probable coding error in analytic gradient"));
     case -22:
-	error(("probable coding error in analytic Hessian"));
+	Rf_error(("probable coding error in analytic Hessian"));
     default:
-	error(("*** unknown error message (msg = %d) in nlm()\n*** should not happen!"), nerr);
+	Rf_error(("*** unknown error message (msg = %d) in nlm()\n*** should not happen!"), nerr);
     }
 }
 
@@ -610,31 +610,31 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				if(want_hessian) ++num_objs;
 
-				PROTECT(value = allocVector(VECSXP, num_objs));
-				PROTECT(names = allocVector(STRSXP, num_objs));
+				PROTECT(value = Rf_allocVector(VECSXP, num_objs));
+				PROTECT(names = Rf_allocVector(STRSXP, num_objs));
 				k = 0;
 
-				SET_STRING_ELT(names, k, mkChar("minimum"));
-				SET_VECTOR_ELT(value, k, ScalarReal(fpls));
+				SET_STRING_ELT(names, k, Rf_mkChar("minimum"));
+				SET_VECTOR_ELT(value, k, Rf_ScalarReal(fpls));
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("estimate"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("estimate"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = x0[i];
 				k++;
 
 				if(iagflg) {
-						SET_STRING_ELT(names, k, mkChar("gradient"));
-						SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("gradient"));
+						SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 						for (i = 0; i < n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = gpls[i];
 						k++;
 				}
 
 				if(want_hessian){
-						SET_STRING_ELT(names, k, mkChar("hessian"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, n, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("hessian"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, n, n));
 						for (i = 0; i < n * n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = a[i];
 						k++;
@@ -642,8 +642,8 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* A */
 				if(!csem_isnan(*matrixA)) {
-						SET_STRING_ELT(names, k, mkChar("A"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, m, m));
+						SET_STRING_ELT(names, k, Rf_mkChar("A"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, m, m));
 						for (i = 0; i < m * m; i++)
 								REAL(VECTOR_ELT(value, k))[i] = matrixA[i];
 						k++;
@@ -651,8 +651,8 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* P */
 				if(!csem_isnan(*P)) {
-						SET_STRING_ELT(names, k, mkChar("P"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, m, m));
+						SET_STRING_ELT(names, k, Rf_mkChar("P"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, m, m));
 						for (i = 0; i < m * m; i++)
 								REAL(VECTOR_ELT(value, k))[i] = P[i];
 						k++;
@@ -660,14 +660,14 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* C */
 				if(!csem_isnan(*C)) { 
-						SET_STRING_ELT(names, k, mkChar("C"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, modeln, modeln));
+						SET_STRING_ELT(names, k, Rf_mkChar("C"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, modeln, modeln));
 						for (i = 0; i < modeln * modeln; i++)
 								REAL(VECTOR_ELT(value, k))[i] = C[i];
 						k++;
 				}
 
-				setAttrib(value, R_NamesSymbol, names);
+				Rf_setAttrib(value, R_NamesSymbol, names);
 				UNPROTECT(2);
 		}
 		else {
@@ -736,48 +736,48 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				if(!csem_isnan(*P)) ++num_objs;
 				if(!csem_isnan(*C)) ++num_objs;
 
-				PROTECT(value = allocVector(VECSXP, num_objs));
-				PROTECT(names = allocVector(STRSXP, num_objs));
+				PROTECT(value = Rf_allocVector(VECSXP, num_objs));
+				PROTECT(names = Rf_allocVector(STRSXP, num_objs));
 				k = 0;
 
-				SET_STRING_ELT(names, k, mkChar("minimum"));
-				SET_VECTOR_ELT(value, k, ScalarReal(fpls));
+				SET_STRING_ELT(names, k, Rf_mkChar("minimum"));
+				SET_VECTOR_ELT(value, k, Rf_ScalarReal(fpls));
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("estimate"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("estimate"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = xpls[i];
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("gradient"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("gradient"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = gpls[i];
 				k++;
 
 				if (want_hessian) {
-						SET_STRING_ELT(names, k, mkChar("hessian"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, n, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("hessian"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, n, n));
 						for (i = 0; i < n * n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = a[i];
 						k++;
 				}
 
-				SET_STRING_ELT(names, k, mkChar("code"));
-				SET_VECTOR_ELT(value, k, allocVector(INTSXP, 1));
+				SET_STRING_ELT(names, k, Rf_mkChar("code"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(INTSXP, 1));
 				INTEGER(VECTOR_ELT(value, k))[0] = code;
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("iterations"));
-				SET_VECTOR_ELT(value, k, allocVector(INTSXP, 1));
+				SET_STRING_ELT(names, k, Rf_mkChar("iterations"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(INTSXP, 1));
 				INTEGER(VECTOR_ELT(value, k))[0] = itncnt;
 				k++;
 
 				/* A */
 				if(!csem_isnan(*matrixA)) {
-						SET_STRING_ELT(names, k, mkChar("A"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, m, m));
+						SET_STRING_ELT(names, k, Rf_mkChar("A"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, m, m));
 						for (i = 0; i < m * m; i++)
 								REAL(VECTOR_ELT(value, k))[i] = matrixA[i];
 						k++;
@@ -785,8 +785,8 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* P */
 				if(!csem_isnan(*P)) {
-						SET_STRING_ELT(names, k, mkChar("P"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, m, m));
+						SET_STRING_ELT(names, k, Rf_mkChar("P"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, m, m));
 						for (i = 0; i < m * m; i++)
 								REAL(VECTOR_ELT(value, k))[i] = P[i];
 						k++;
@@ -794,14 +794,14 @@ SEXP csemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* C */
 				if(!csem_isnan(*C)) {
-						SET_STRING_ELT(names, k, mkChar("C"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, modeln, modeln));
+						SET_STRING_ELT(names, k, Rf_mkChar("C"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, modeln, modeln));
 						for (i = 0; i < modeln * modeln; i++)
 								REAL(VECTOR_ELT(value, k))[i] = C[i];
 						k++;
 				}
 
-				setAttrib(value, R_NamesSymbol, names);
+				Rf_setAttrib(value, R_NamesSymbol, names);
 				UNPROTECT(2);
 		}
 
@@ -901,31 +901,31 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				if(want_hessian) ++num_objs;
 
-				PROTECT(value = allocVector(VECSXP, num_objs));
-				PROTECT(names = allocVector(STRSXP, num_objs));
+				PROTECT(value = Rf_allocVector(VECSXP, num_objs));
+				PROTECT(names = Rf_allocVector(STRSXP, num_objs));
 				k = 0;
 
-				SET_STRING_ELT(names, k, mkChar("minimum"));
-				SET_VECTOR_ELT(value, k, ScalarReal(fpls));
+				SET_STRING_ELT(names, k, Rf_mkChar("minimum"));
+				SET_VECTOR_ELT(value, k, Rf_ScalarReal(fpls));
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("estimate"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("estimate"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = x0[i];
 				k++;
 
 				if(iagflg) {
-						SET_STRING_ELT(names, k, mkChar("gradient"));
-						SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("gradient"));
+						SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 						for (i = 0; i < n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = gpls[i];
 						k++;
 				}
 
 				if(want_hessian){
-						SET_STRING_ELT(names, k, mkChar("hessian"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, n, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("hessian"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, n, n));
 						for (i = 0; i < n * n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = a[i];
 						k++;
@@ -933,8 +933,8 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* A */
 				if(!csem_isnan(*matrixA)) {
-						SET_STRING_ELT(names, k, mkChar("A"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeAP, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("A"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeAP, 1));
 						for (i = 0; i < sizeAP; i++)
 								REAL(VECTOR_ELT(value, k))[i] = matrixA[i];
 						k++;
@@ -942,8 +942,8 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* P */
 				if(!csem_isnan(*P)) {
-						SET_STRING_ELT(names, k, mkChar("P"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeAP, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("P"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeAP, 1));
 						for (i = 0; i < sizeAP; i++)
 								REAL(VECTOR_ELT(value, k))[i] = P[i];
 						k++;
@@ -951,20 +951,20 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* C */
 				if(!csem_isnan(*C)) { 
-						SET_STRING_ELT(names, k, mkChar("C"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeC, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("C"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeC, 1));
 						for (i = 0; i < sizeC; i++)
 								REAL(VECTOR_ELT(value, k))[i] = C[i];
 						k++;
 				}
 
-				SET_STRING_ELT(names, k, mkChar("f"));
-				SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, 1, state->model->G));
+				SET_STRING_ELT(names, k, Rf_mkChar("f"));
+				SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, 1, state->model->G));
 				for (i = 0; i < state->model->G; i++)
 						REAL(VECTOR_ELT(value, k))[i] = ff[i];
 				k++;
 
-				setAttrib(value, R_NamesSymbol, names);
+				Rf_setAttrib(value, R_NamesSymbol, names);
 				UNPROTECT(2);
 		}
 		else {
@@ -1034,48 +1034,48 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 				if(!csem_isnan(*P)) ++num_objs;
 				if(!csem_isnan(*C)) ++num_objs;
 
-				PROTECT(value = allocVector(VECSXP, num_objs));
-				PROTECT(names = allocVector(STRSXP, num_objs));
+				PROTECT(value = Rf_allocVector(VECSXP, num_objs));
+				PROTECT(names = Rf_allocVector(STRSXP, num_objs));
 				k = 0;
 
-				SET_STRING_ELT(names, k, mkChar("minimum"));
-				SET_VECTOR_ELT(value, k, ScalarReal(fpls));
+				SET_STRING_ELT(names, k, Rf_mkChar("minimum"));
+				SET_VECTOR_ELT(value, k, Rf_ScalarReal(fpls));
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("estimate"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("estimate"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = xpls[i];
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("gradient"));
-				SET_VECTOR_ELT(value, k, allocVector(REALSXP, n));
+				SET_STRING_ELT(names, k, Rf_mkChar("gradient"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(REALSXP, n));
 				for (i = 0; i < n; i++)
 						REAL(VECTOR_ELT(value, k))[i] = gpls[i];
 				k++;
 
 				if (want_hessian) {
-						SET_STRING_ELT(names, k, mkChar("hessian"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, n, n));
+						SET_STRING_ELT(names, k, Rf_mkChar("hessian"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, n, n));
 						for (i = 0; i < n * n; i++)
 								REAL(VECTOR_ELT(value, k))[i] = a[i];
 						k++;
 				}
 
-				SET_STRING_ELT(names, k, mkChar("code"));
-				SET_VECTOR_ELT(value, k, allocVector(INTSXP, 1));
+				SET_STRING_ELT(names, k, Rf_mkChar("code"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(INTSXP, 1));
 				INTEGER(VECTOR_ELT(value, k))[0] = code;
 				k++;
 
-				SET_STRING_ELT(names, k, mkChar("iterations"));
-				SET_VECTOR_ELT(value, k, allocVector(INTSXP, 1));
+				SET_STRING_ELT(names, k, Rf_mkChar("iterations"));
+				SET_VECTOR_ELT(value, k, Rf_allocVector(INTSXP, 1));
 				INTEGER(VECTOR_ELT(value, k))[0] = itncnt;
 				k++;
 
 				/* A */
 				if(!csem_isnan(*matrixA)) {
-						SET_STRING_ELT(names, k, mkChar("A"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeAP, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("A"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeAP, 1));
 						for (i = 0; i < sizeAP; i++)
 								REAL(VECTOR_ELT(value, k))[i] = matrixA[i];
 						k++;
@@ -1083,8 +1083,8 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* P */
 				if(!csem_isnan(*P)) {
-						SET_STRING_ELT(names, k, mkChar("P"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeAP, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("P"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeAP, 1));
 						for (i = 0; i < sizeAP; i++)
 								REAL(VECTOR_ELT(value, k))[i] = P[i];
 						k++;
@@ -1092,21 +1092,21 @@ SEXP cmsemnlm(double *x0, int n, int iagflg,  int iahflg, int want_hessian,
 
 				/* C */
 				if(!csem_isnan(*C)) {
-						SET_STRING_ELT(names, k, mkChar("C"));
-						SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, sizeC, 1));
+						SET_STRING_ELT(names, k, Rf_mkChar("C"));
+						SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, sizeC, 1));
 						for (i = 0; i < sizeC; i++)
 								REAL(VECTOR_ELT(value, k))[i] = C[i];
 						k++;
 				}
 
 				/* ff */
-				SET_STRING_ELT(names, k, mkChar("f"));
-				SET_VECTOR_ELT(value, k, allocMatrix(REALSXP, 1, state->model->G));
+				SET_STRING_ELT(names, k, Rf_mkChar("f"));
+				SET_VECTOR_ELT(value, k, Rf_allocMatrix(REALSXP, 1, state->model->G));
 				for (i = 0; i < state->model->G; i++)
 						REAL(VECTOR_ELT(value, k))[i] = ff[i];
 				k++;
 
-				setAttrib(value, R_NamesSymbol, names);
+				Rf_setAttrib(value, R_NamesSymbol, names);
 				UNPROTECT(2);
 		}
 
